@@ -1,3 +1,3 @@
-export '/domain/entities/database/configuracion_prestamos_database.dart';
-export '/domain/entities/database/status_database.dart';
-export '/domain/entities/database/tipos_intereses_database.dart';
+export 'prestamo/configuracion_prestamos.dart';
+export 'prestamo/status.dart';
+export 'prestamo/tipos_intereses.dart';

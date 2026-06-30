@@ -1,4 +1,4 @@
-import '/presentation/screens/screens.dart';
+import 'package:prestapagos/presentation/screens/screens.dart';
 
 import 'package:go_router/go_router.dart';
 
