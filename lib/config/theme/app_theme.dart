@@ -1,9 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 class AppTheme {
-  ThemeData getTheme() => ThemeData(
-    //
-    useMaterial3: true,
-    colorSchemeSeed: const Color(0xff2862f5),
+  static final TextTheme _buildTextTheme = TextTheme(
+    titleLarge: GoogleFonts.fjallaOne(fontSize: 40),
+    titleMedium: GoogleFonts.poppins(fontSize: 30, fontWeight: FontWeight.bold),
+    titleSmall: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w500),
   );
+
+  ThemeData getLightTheme() {
+    return FlexThemeData.light(
+      scheme: FlexScheme.blumineBlue,
+      useMaterial3: true,
+      textTheme: _buildTextTheme,
+    ).copyWith(
+      filledButtonTheme: FilledButtonThemeData(
+        style: ButtonStyle(
+          textStyle: WidgetStatePropertyAll(
+            GoogleFonts.poppins().copyWith(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ),
+    );
+  }
+
+  ThemeData getDarkTheme() {
+    return FlexThemeData.dark(
+      scheme: FlexScheme.blumineBlue,
+      useMaterial3: true,
+      textTheme: _buildTextTheme,
+    ).copyWith(
+      filledButtonTheme: FilledButtonThemeData(
+        style: ButtonStyle(
+          textStyle: WidgetStatePropertyAll(
+            GoogleFonts.poppins(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ),
+    );
+  }
 }

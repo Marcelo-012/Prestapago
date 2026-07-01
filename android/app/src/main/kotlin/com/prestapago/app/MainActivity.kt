@@ -1,4 +1,4 @@
-package com.example.prestapagos
+package com.prestapago.app
 
 import io.flutter.embedding.android.FlutterActivity
 

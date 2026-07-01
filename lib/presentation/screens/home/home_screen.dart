@@ -1,13 +1,33 @@
+import '../../views/views.dart';
+import '../../widgets/widgets.dart';
+
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  static const name = 'home-screen';
+  final int pageIndex;
+
+  const HomeScreen({
+    //
+    super.key,
+    required this.pageIndex,
+  });
+
+  final viewRoutes = const <Widget>[
+    //
+    HomeView(),
+    ClientesView(),
+    PrestamosView(),
+    ReportesView(),
+    ConfigurationView(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home Screen')),
-      body: const Center(child: Text('Welcome to the Home Screen!')),
+      //
+      body: IndexedStack(index: pageIndex, children: viewRoutes),
+      bottomNavigationBar: CustomBottomNavigationbar(currentIndex: pageIndex),
     );
   }
 }
