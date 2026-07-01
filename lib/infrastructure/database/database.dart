@@ -41,38 +41,13 @@ class Scores extends Table {
       dateTime().named('fecha_creacion').clientDefault(() => DateTime.now())();
 }
 
-class TasasIntereses extends Table {
-  IntColumn get id => integer().named('id_tasa_interes').autoIncrement()();
-  TextColumn get nombre => text().withLength(max: 35)();
-  RealColumn get tasa => real()();
-  TextColumn get tipoInteres =>
-      textEnum<TiposInteres>().named('tipo_interes')();
-  TextColumn get descripcion => text().withLength(max: 150).nullable()();
-  TextColumn get estado => textEnum<Status>()();
-  DateTimeColumn get fechaCreacion =>
-      dateTime().named('fecha_creacion').clientDefault(() => DateTime.now())();
-  DateTimeColumn get fechaActualizacion => dateTime()
-      .named('fecha_actualizacion')
-      .clientDefault(() => DateTime.now())();
-}
-
 class Prestamos extends Table {
   IntColumn get id => integer().named('id_prestamo').autoIncrement()();
   IntColumn get idDeudor => integer()
       .named('id_deudor')
       .customConstraint('NOT NULL REFERENCES deudores(id_deudor)')();
-  @ReferenceName('prestamosTasaOrdinaria')
-  IntColumn get idTasaInteres => integer()
-      .named('id_tasa_interes')
-      .customConstraint(
-        'NOT NULL REFERENCES tasas_intereses(id_tasa_interes)',
-      )();
-  @ReferenceName('prestamosTasaMoratoria')
-  IntColumn get idTasaMoratoria => integer()
-      .named('id_tasa_interes_moratoria')
-      .customConstraint(
-        'NOT NULL REFERENCES tasas_intereses(id_tasa_interes)',
-      )();
+  RealColumn get tasaInteres => real().named('tasa_interes')();
+  RealColumn get tasaMoratoria => real().named('tasa_interes_moratoria')();
   RealColumn get monto => real().nullable()();
   IntColumn get plazoMeses => integer().named('plazo_meses')();
   RealColumn get montoCuota => real().named('monto_cuota')();
@@ -99,8 +74,8 @@ class ConfiguracionPrestamos extends Table {
       dateTime().named('fecha_creacion').clientDefault(() => DateTime.now())();
 }
 
-class Pagos extends Table {
-  IntColumn get id => integer().named('id_pago').autoIncrement()();
+class Amortizaciones extends Table {
+  IntColumn get id => integer().named('id_amortizacion').autoIncrement()();
   IntColumn get idPrestamo => integer()
       .named('id_prestamo')
       .customConstraint('NOT NULL REFERENCES prestamos(id_prestamo)')();
@@ -123,10 +98,9 @@ class Pagos extends Table {
   tables: [
     Deudores,
     Scores,
-    TasasIntereses,
     Prestamos,
     ConfiguracionPrestamos,
-    Pagos,
+    Amortizaciones,
   ],
 )
 class AppDatabase extends _$AppDatabase {

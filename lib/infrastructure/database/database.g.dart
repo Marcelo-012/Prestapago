@@ -954,537 +954,6 @@ class ScoresCompanion extends UpdateCompanion<Score> {
   }
 }
 
-class $TasasInteresesTable extends TasasIntereses
-    with TableInfo<$TasasInteresesTable, TasasInterese> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $TasasInteresesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id_tasa_interes',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _nombreMeta = const VerificationMeta('nombre');
-  @override
-  late final GeneratedColumn<String> nombre = GeneratedColumn<String>(
-    'nombre',
-    aliasedName,
-    false,
-    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 35),
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _tasaMeta = const VerificationMeta('tasa');
-  @override
-  late final GeneratedColumn<double> tasa = GeneratedColumn<double>(
-    'tasa',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<TiposInteres, String>
-  tipoInteres = GeneratedColumn<String>(
-    'tipo_interes',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<TiposInteres>($TasasInteresesTable.$convertertipoInteres);
-  static const VerificationMeta _descripcionMeta = const VerificationMeta(
-    'descripcion',
-  );
-  @override
-  late final GeneratedColumn<String> descripcion = GeneratedColumn<String>(
-    'descripcion',
-    aliasedName,
-    true,
-    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 150),
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<Status, String> estado =
-      GeneratedColumn<String>(
-        'estado',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<Status>($TasasInteresesTable.$converterestado);
-  static const VerificationMeta _fechaCreacionMeta = const VerificationMeta(
-    'fechaCreacion',
-  );
-  @override
-  late final GeneratedColumn<DateTime> fechaCreacion =
-      GeneratedColumn<DateTime>(
-        'fecha_creacion',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-        clientDefault: () => DateTime.now(),
-      );
-  static const VerificationMeta _fechaActualizacionMeta =
-      const VerificationMeta('fechaActualizacion');
-  @override
-  late final GeneratedColumn<DateTime> fechaActualizacion =
-      GeneratedColumn<DateTime>(
-        'fecha_actualizacion',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-        clientDefault: () => DateTime.now(),
-      );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    nombre,
-    tasa,
-    tipoInteres,
-    descripcion,
-    estado,
-    fechaCreacion,
-    fechaActualizacion,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'tasas_intereses';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<TasasInterese> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id_tasa_interes')) {
-      context.handle(
-        _idMeta,
-        id.isAcceptableOrUnknown(data['id_tasa_interes']!, _idMeta),
-      );
-    }
-    if (data.containsKey('nombre')) {
-      context.handle(
-        _nombreMeta,
-        nombre.isAcceptableOrUnknown(data['nombre']!, _nombreMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_nombreMeta);
-    }
-    if (data.containsKey('tasa')) {
-      context.handle(
-        _tasaMeta,
-        tasa.isAcceptableOrUnknown(data['tasa']!, _tasaMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_tasaMeta);
-    }
-    if (data.containsKey('descripcion')) {
-      context.handle(
-        _descripcionMeta,
-        descripcion.isAcceptableOrUnknown(
-          data['descripcion']!,
-          _descripcionMeta,
-        ),
-      );
-    }
-    if (data.containsKey('fecha_creacion')) {
-      context.handle(
-        _fechaCreacionMeta,
-        fechaCreacion.isAcceptableOrUnknown(
-          data['fecha_creacion']!,
-          _fechaCreacionMeta,
-        ),
-      );
-    }
-    if (data.containsKey('fecha_actualizacion')) {
-      context.handle(
-        _fechaActualizacionMeta,
-        fechaActualizacion.isAcceptableOrUnknown(
-          data['fecha_actualizacion']!,
-          _fechaActualizacionMeta,
-        ),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  TasasInterese map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TasasInterese(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id_tasa_interes'],
-      )!,
-      nombre: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}nombre'],
-      )!,
-      tasa: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}tasa'],
-      )!,
-      tipoInteres: $TasasInteresesTable.$convertertipoInteres.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}tipo_interes'],
-        )!,
-      ),
-      descripcion: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}descripcion'],
-      ),
-      estado: $TasasInteresesTable.$converterestado.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}estado'],
-        )!,
-      ),
-      fechaCreacion: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}fecha_creacion'],
-      )!,
-      fechaActualizacion: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}fecha_actualizacion'],
-      )!,
-    );
-  }
-
-  @override
-  $TasasInteresesTable createAlias(String alias) {
-    return $TasasInteresesTable(attachedDatabase, alias);
-  }
-
-  static JsonTypeConverter2<TiposInteres, String, String>
-  $convertertipoInteres = const EnumNameConverter<TiposInteres>(
-    TiposInteres.values,
-  );
-  static JsonTypeConverter2<Status, String, String> $converterestado =
-      const EnumNameConverter<Status>(Status.values);
-}
-
-class TasasInterese extends DataClass implements Insertable<TasasInterese> {
-  final int id;
-  final String nombre;
-  final double tasa;
-  final TiposInteres tipoInteres;
-  final String? descripcion;
-  final Status estado;
-  final DateTime fechaCreacion;
-  final DateTime fechaActualizacion;
-  const TasasInterese({
-    required this.id,
-    required this.nombre,
-    required this.tasa,
-    required this.tipoInteres,
-    this.descripcion,
-    required this.estado,
-    required this.fechaCreacion,
-    required this.fechaActualizacion,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id_tasa_interes'] = Variable<int>(id);
-    map['nombre'] = Variable<String>(nombre);
-    map['tasa'] = Variable<double>(tasa);
-    {
-      map['tipo_interes'] = Variable<String>(
-        $TasasInteresesTable.$convertertipoInteres.toSql(tipoInteres),
-      );
-    }
-    if (!nullToAbsent || descripcion != null) {
-      map['descripcion'] = Variable<String>(descripcion);
-    }
-    {
-      map['estado'] = Variable<String>(
-        $TasasInteresesTable.$converterestado.toSql(estado),
-      );
-    }
-    map['fecha_creacion'] = Variable<DateTime>(fechaCreacion);
-    map['fecha_actualizacion'] = Variable<DateTime>(fechaActualizacion);
-    return map;
-  }
-
-  TasasInteresesCompanion toCompanion(bool nullToAbsent) {
-    return TasasInteresesCompanion(
-      id: Value(id),
-      nombre: Value(nombre),
-      tasa: Value(tasa),
-      tipoInteres: Value(tipoInteres),
-      descripcion: descripcion == null && nullToAbsent
-          ? const Value.absent()
-          : Value(descripcion),
-      estado: Value(estado),
-      fechaCreacion: Value(fechaCreacion),
-      fechaActualizacion: Value(fechaActualizacion),
-    );
-  }
-
-  factory TasasInterese.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TasasInterese(
-      id: serializer.fromJson<int>(json['id']),
-      nombre: serializer.fromJson<String>(json['nombre']),
-      tasa: serializer.fromJson<double>(json['tasa']),
-      tipoInteres: $TasasInteresesTable.$convertertipoInteres.fromJson(
-        serializer.fromJson<String>(json['tipoInteres']),
-      ),
-      descripcion: serializer.fromJson<String?>(json['descripcion']),
-      estado: $TasasInteresesTable.$converterestado.fromJson(
-        serializer.fromJson<String>(json['estado']),
-      ),
-      fechaCreacion: serializer.fromJson<DateTime>(json['fechaCreacion']),
-      fechaActualizacion: serializer.fromJson<DateTime>(
-        json['fechaActualizacion'],
-      ),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'nombre': serializer.toJson<String>(nombre),
-      'tasa': serializer.toJson<double>(tasa),
-      'tipoInteres': serializer.toJson<String>(
-        $TasasInteresesTable.$convertertipoInteres.toJson(tipoInteres),
-      ),
-      'descripcion': serializer.toJson<String?>(descripcion),
-      'estado': serializer.toJson<String>(
-        $TasasInteresesTable.$converterestado.toJson(estado),
-      ),
-      'fechaCreacion': serializer.toJson<DateTime>(fechaCreacion),
-      'fechaActualizacion': serializer.toJson<DateTime>(fechaActualizacion),
-    };
-  }
-
-  TasasInterese copyWith({
-    int? id,
-    String? nombre,
-    double? tasa,
-    TiposInteres? tipoInteres,
-    Value<String?> descripcion = const Value.absent(),
-    Status? estado,
-    DateTime? fechaCreacion,
-    DateTime? fechaActualizacion,
-  }) => TasasInterese(
-    id: id ?? this.id,
-    nombre: nombre ?? this.nombre,
-    tasa: tasa ?? this.tasa,
-    tipoInteres: tipoInteres ?? this.tipoInteres,
-    descripcion: descripcion.present ? descripcion.value : this.descripcion,
-    estado: estado ?? this.estado,
-    fechaCreacion: fechaCreacion ?? this.fechaCreacion,
-    fechaActualizacion: fechaActualizacion ?? this.fechaActualizacion,
-  );
-  TasasInterese copyWithCompanion(TasasInteresesCompanion data) {
-    return TasasInterese(
-      id: data.id.present ? data.id.value : this.id,
-      nombre: data.nombre.present ? data.nombre.value : this.nombre,
-      tasa: data.tasa.present ? data.tasa.value : this.tasa,
-      tipoInteres: data.tipoInteres.present
-          ? data.tipoInteres.value
-          : this.tipoInteres,
-      descripcion: data.descripcion.present
-          ? data.descripcion.value
-          : this.descripcion,
-      estado: data.estado.present ? data.estado.value : this.estado,
-      fechaCreacion: data.fechaCreacion.present
-          ? data.fechaCreacion.value
-          : this.fechaCreacion,
-      fechaActualizacion: data.fechaActualizacion.present
-          ? data.fechaActualizacion.value
-          : this.fechaActualizacion,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TasasInterese(')
-          ..write('id: $id, ')
-          ..write('nombre: $nombre, ')
-          ..write('tasa: $tasa, ')
-          ..write('tipoInteres: $tipoInteres, ')
-          ..write('descripcion: $descripcion, ')
-          ..write('estado: $estado, ')
-          ..write('fechaCreacion: $fechaCreacion, ')
-          ..write('fechaActualizacion: $fechaActualizacion')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    nombre,
-    tasa,
-    tipoInteres,
-    descripcion,
-    estado,
-    fechaCreacion,
-    fechaActualizacion,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is TasasInterese &&
-          other.id == this.id &&
-          other.nombre == this.nombre &&
-          other.tasa == this.tasa &&
-          other.tipoInteres == this.tipoInteres &&
-          other.descripcion == this.descripcion &&
-          other.estado == this.estado &&
-          other.fechaCreacion == this.fechaCreacion &&
-          other.fechaActualizacion == this.fechaActualizacion);
-}
-
-class TasasInteresesCompanion extends UpdateCompanion<TasasInterese> {
-  final Value<int> id;
-  final Value<String> nombre;
-  final Value<double> tasa;
-  final Value<TiposInteres> tipoInteres;
-  final Value<String?> descripcion;
-  final Value<Status> estado;
-  final Value<DateTime> fechaCreacion;
-  final Value<DateTime> fechaActualizacion;
-  const TasasInteresesCompanion({
-    this.id = const Value.absent(),
-    this.nombre = const Value.absent(),
-    this.tasa = const Value.absent(),
-    this.tipoInteres = const Value.absent(),
-    this.descripcion = const Value.absent(),
-    this.estado = const Value.absent(),
-    this.fechaCreacion = const Value.absent(),
-    this.fechaActualizacion = const Value.absent(),
-  });
-  TasasInteresesCompanion.insert({
-    this.id = const Value.absent(),
-    required String nombre,
-    required double tasa,
-    required TiposInteres tipoInteres,
-    this.descripcion = const Value.absent(),
-    required Status estado,
-    this.fechaCreacion = const Value.absent(),
-    this.fechaActualizacion = const Value.absent(),
-  }) : nombre = Value(nombre),
-       tasa = Value(tasa),
-       tipoInteres = Value(tipoInteres),
-       estado = Value(estado);
-  static Insertable<TasasInterese> custom({
-    Expression<int>? id,
-    Expression<String>? nombre,
-    Expression<double>? tasa,
-    Expression<String>? tipoInteres,
-    Expression<String>? descripcion,
-    Expression<String>? estado,
-    Expression<DateTime>? fechaCreacion,
-    Expression<DateTime>? fechaActualizacion,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id_tasa_interes': id,
-      if (nombre != null) 'nombre': nombre,
-      if (tasa != null) 'tasa': tasa,
-      if (tipoInteres != null) 'tipo_interes': tipoInteres,
-      if (descripcion != null) 'descripcion': descripcion,
-      if (estado != null) 'estado': estado,
-      if (fechaCreacion != null) 'fecha_creacion': fechaCreacion,
-      if (fechaActualizacion != null) 'fecha_actualizacion': fechaActualizacion,
-    });
-  }
-
-  TasasInteresesCompanion copyWith({
-    Value<int>? id,
-    Value<String>? nombre,
-    Value<double>? tasa,
-    Value<TiposInteres>? tipoInteres,
-    Value<String?>? descripcion,
-    Value<Status>? estado,
-    Value<DateTime>? fechaCreacion,
-    Value<DateTime>? fechaActualizacion,
-  }) {
-    return TasasInteresesCompanion(
-      id: id ?? this.id,
-      nombre: nombre ?? this.nombre,
-      tasa: tasa ?? this.tasa,
-      tipoInteres: tipoInteres ?? this.tipoInteres,
-      descripcion: descripcion ?? this.descripcion,
-      estado: estado ?? this.estado,
-      fechaCreacion: fechaCreacion ?? this.fechaCreacion,
-      fechaActualizacion: fechaActualizacion ?? this.fechaActualizacion,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id_tasa_interes'] = Variable<int>(id.value);
-    }
-    if (nombre.present) {
-      map['nombre'] = Variable<String>(nombre.value);
-    }
-    if (tasa.present) {
-      map['tasa'] = Variable<double>(tasa.value);
-    }
-    if (tipoInteres.present) {
-      map['tipo_interes'] = Variable<String>(
-        $TasasInteresesTable.$convertertipoInteres.toSql(tipoInteres.value),
-      );
-    }
-    if (descripcion.present) {
-      map['descripcion'] = Variable<String>(descripcion.value);
-    }
-    if (estado.present) {
-      map['estado'] = Variable<String>(
-        $TasasInteresesTable.$converterestado.toSql(estado.value),
-      );
-    }
-    if (fechaCreacion.present) {
-      map['fecha_creacion'] = Variable<DateTime>(fechaCreacion.value);
-    }
-    if (fechaActualizacion.present) {
-      map['fecha_actualizacion'] = Variable<DateTime>(fechaActualizacion.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TasasInteresesCompanion(')
-          ..write('id: $id, ')
-          ..write('nombre: $nombre, ')
-          ..write('tasa: $tasa, ')
-          ..write('tipoInteres: $tipoInteres, ')
-          ..write('descripcion: $descripcion, ')
-          ..write('estado: $estado, ')
-          ..write('fechaCreacion: $fechaCreacion, ')
-          ..write('fechaActualizacion: $fechaActualizacion')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $PrestamosTable extends Prestamos
     with TableInfo<$PrestamosTable, Prestamo> {
   @override
@@ -1516,29 +985,27 @@ class $PrestamosTable extends Prestamos
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL REFERENCES deudores(id_deudor)',
   );
-  static const VerificationMeta _idTasaInteresMeta = const VerificationMeta(
-    'idTasaInteres',
+  static const VerificationMeta _tasaInteresMeta = const VerificationMeta(
+    'tasaInteres',
   );
   @override
-  late final GeneratedColumn<int> idTasaInteres = GeneratedColumn<int>(
-    'id_tasa_interes',
+  late final GeneratedColumn<double> tasaInteres = GeneratedColumn<double>(
+    'tasa_interes',
     aliasedName,
     false,
-    type: DriftSqlType.int,
+    type: DriftSqlType.double,
     requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL REFERENCES tasas_intereses(id_tasa_interes)',
   );
-  static const VerificationMeta _idTasaMoratoriaMeta = const VerificationMeta(
-    'idTasaMoratoria',
+  static const VerificationMeta _tasaMoratoriaMeta = const VerificationMeta(
+    'tasaMoratoria',
   );
   @override
-  late final GeneratedColumn<int> idTasaMoratoria = GeneratedColumn<int>(
-    'id_tasa_interes_moratoria',
+  late final GeneratedColumn<double> tasaMoratoria = GeneratedColumn<double>(
+    'tasa_interes_moratoria',
     aliasedName,
     false,
-    type: DriftSqlType.int,
+    type: DriftSqlType.double,
     requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL REFERENCES tasas_intereses(id_tasa_interes)',
   );
   static const VerificationMeta _montoMeta = const VerificationMeta('monto');
   @override
@@ -1588,8 +1055,8 @@ class $PrestamosTable extends Prestamos
   List<GeneratedColumn> get $columns => [
     id,
     idDeudor,
-    idTasaInteres,
-    idTasaMoratoria,
+    tasaInteres,
+    tasaMoratoria,
     monto,
     plazoMeses,
     montoCuota,
@@ -1621,27 +1088,27 @@ class $PrestamosTable extends Prestamos
     } else if (isInserting) {
       context.missing(_idDeudorMeta);
     }
-    if (data.containsKey('id_tasa_interes')) {
+    if (data.containsKey('tasa_interes')) {
       context.handle(
-        _idTasaInteresMeta,
-        idTasaInteres.isAcceptableOrUnknown(
-          data['id_tasa_interes']!,
-          _idTasaInteresMeta,
+        _tasaInteresMeta,
+        tasaInteres.isAcceptableOrUnknown(
+          data['tasa_interes']!,
+          _tasaInteresMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_idTasaInteresMeta);
+      context.missing(_tasaInteresMeta);
     }
-    if (data.containsKey('id_tasa_interes_moratoria')) {
+    if (data.containsKey('tasa_interes_moratoria')) {
       context.handle(
-        _idTasaMoratoriaMeta,
-        idTasaMoratoria.isAcceptableOrUnknown(
-          data['id_tasa_interes_moratoria']!,
-          _idTasaMoratoriaMeta,
+        _tasaMoratoriaMeta,
+        tasaMoratoria.isAcceptableOrUnknown(
+          data['tasa_interes_moratoria']!,
+          _tasaMoratoriaMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_idTasaMoratoriaMeta);
+      context.missing(_tasaMoratoriaMeta);
     }
     if (data.containsKey('monto')) {
       context.handle(
@@ -1691,13 +1158,13 @@ class $PrestamosTable extends Prestamos
         DriftSqlType.int,
         data['${effectivePrefix}id_deudor'],
       )!,
-      idTasaInteres: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id_tasa_interes'],
+      tasaInteres: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}tasa_interes'],
       )!,
-      idTasaMoratoria: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id_tasa_interes_moratoria'],
+      tasaMoratoria: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}tasa_interes_moratoria'],
       )!,
       monto: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
@@ -1727,8 +1194,8 @@ class $PrestamosTable extends Prestamos
 class Prestamo extends DataClass implements Insertable<Prestamo> {
   final int id;
   final int idDeudor;
-  final int idTasaInteres;
-  final int idTasaMoratoria;
+  final double tasaInteres;
+  final double tasaMoratoria;
   final double? monto;
   final int plazoMeses;
   final double montoCuota;
@@ -1736,8 +1203,8 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
   const Prestamo({
     required this.id,
     required this.idDeudor,
-    required this.idTasaInteres,
-    required this.idTasaMoratoria,
+    required this.tasaInteres,
+    required this.tasaMoratoria,
     this.monto,
     required this.plazoMeses,
     required this.montoCuota,
@@ -1748,8 +1215,8 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
     final map = <String, Expression>{};
     map['id_prestamo'] = Variable<int>(id);
     map['id_deudor'] = Variable<int>(idDeudor);
-    map['id_tasa_interes'] = Variable<int>(idTasaInteres);
-    map['id_tasa_interes_moratoria'] = Variable<int>(idTasaMoratoria);
+    map['tasa_interes'] = Variable<double>(tasaInteres);
+    map['tasa_interes_moratoria'] = Variable<double>(tasaMoratoria);
     if (!nullToAbsent || monto != null) {
       map['monto'] = Variable<double>(monto);
     }
@@ -1763,8 +1230,8 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
     return PrestamosCompanion(
       id: Value(id),
       idDeudor: Value(idDeudor),
-      idTasaInteres: Value(idTasaInteres),
-      idTasaMoratoria: Value(idTasaMoratoria),
+      tasaInteres: Value(tasaInteres),
+      tasaMoratoria: Value(tasaMoratoria),
       monto: monto == null && nullToAbsent
           ? const Value.absent()
           : Value(monto),
@@ -1782,8 +1249,8 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
     return Prestamo(
       id: serializer.fromJson<int>(json['id']),
       idDeudor: serializer.fromJson<int>(json['idDeudor']),
-      idTasaInteres: serializer.fromJson<int>(json['idTasaInteres']),
-      idTasaMoratoria: serializer.fromJson<int>(json['idTasaMoratoria']),
+      tasaInteres: serializer.fromJson<double>(json['tasaInteres']),
+      tasaMoratoria: serializer.fromJson<double>(json['tasaMoratoria']),
       monto: serializer.fromJson<double?>(json['monto']),
       plazoMeses: serializer.fromJson<int>(json['plazoMeses']),
       montoCuota: serializer.fromJson<double>(json['montoCuota']),
@@ -1796,8 +1263,8 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'idDeudor': serializer.toJson<int>(idDeudor),
-      'idTasaInteres': serializer.toJson<int>(idTasaInteres),
-      'idTasaMoratoria': serializer.toJson<int>(idTasaMoratoria),
+      'tasaInteres': serializer.toJson<double>(tasaInteres),
+      'tasaMoratoria': serializer.toJson<double>(tasaMoratoria),
       'monto': serializer.toJson<double?>(monto),
       'plazoMeses': serializer.toJson<int>(plazoMeses),
       'montoCuota': serializer.toJson<double>(montoCuota),
@@ -1808,8 +1275,8 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
   Prestamo copyWith({
     int? id,
     int? idDeudor,
-    int? idTasaInteres,
-    int? idTasaMoratoria,
+    double? tasaInteres,
+    double? tasaMoratoria,
     Value<double?> monto = const Value.absent(),
     int? plazoMeses,
     double? montoCuota,
@@ -1817,8 +1284,8 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
   }) => Prestamo(
     id: id ?? this.id,
     idDeudor: idDeudor ?? this.idDeudor,
-    idTasaInteres: idTasaInteres ?? this.idTasaInteres,
-    idTasaMoratoria: idTasaMoratoria ?? this.idTasaMoratoria,
+    tasaInteres: tasaInteres ?? this.tasaInteres,
+    tasaMoratoria: tasaMoratoria ?? this.tasaMoratoria,
     monto: monto.present ? monto.value : this.monto,
     plazoMeses: plazoMeses ?? this.plazoMeses,
     montoCuota: montoCuota ?? this.montoCuota,
@@ -1828,12 +1295,12 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
     return Prestamo(
       id: data.id.present ? data.id.value : this.id,
       idDeudor: data.idDeudor.present ? data.idDeudor.value : this.idDeudor,
-      idTasaInteres: data.idTasaInteres.present
-          ? data.idTasaInteres.value
-          : this.idTasaInteres,
-      idTasaMoratoria: data.idTasaMoratoria.present
-          ? data.idTasaMoratoria.value
-          : this.idTasaMoratoria,
+      tasaInteres: data.tasaInteres.present
+          ? data.tasaInteres.value
+          : this.tasaInteres,
+      tasaMoratoria: data.tasaMoratoria.present
+          ? data.tasaMoratoria.value
+          : this.tasaMoratoria,
       monto: data.monto.present ? data.monto.value : this.monto,
       plazoMeses: data.plazoMeses.present
           ? data.plazoMeses.value
@@ -1852,8 +1319,8 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
     return (StringBuffer('Prestamo(')
           ..write('id: $id, ')
           ..write('idDeudor: $idDeudor, ')
-          ..write('idTasaInteres: $idTasaInteres, ')
-          ..write('idTasaMoratoria: $idTasaMoratoria, ')
+          ..write('tasaInteres: $tasaInteres, ')
+          ..write('tasaMoratoria: $tasaMoratoria, ')
           ..write('monto: $monto, ')
           ..write('plazoMeses: $plazoMeses, ')
           ..write('montoCuota: $montoCuota, ')
@@ -1866,8 +1333,8 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
   int get hashCode => Object.hash(
     id,
     idDeudor,
-    idTasaInteres,
-    idTasaMoratoria,
+    tasaInteres,
+    tasaMoratoria,
     monto,
     plazoMeses,
     montoCuota,
@@ -1879,8 +1346,8 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
       (other is Prestamo &&
           other.id == this.id &&
           other.idDeudor == this.idDeudor &&
-          other.idTasaInteres == this.idTasaInteres &&
-          other.idTasaMoratoria == this.idTasaMoratoria &&
+          other.tasaInteres == this.tasaInteres &&
+          other.tasaMoratoria == this.tasaMoratoria &&
           other.monto == this.monto &&
           other.plazoMeses == this.plazoMeses &&
           other.montoCuota == this.montoCuota &&
@@ -1890,8 +1357,8 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
 class PrestamosCompanion extends UpdateCompanion<Prestamo> {
   final Value<int> id;
   final Value<int> idDeudor;
-  final Value<int> idTasaInteres;
-  final Value<int> idTasaMoratoria;
+  final Value<double> tasaInteres;
+  final Value<double> tasaMoratoria;
   final Value<double?> monto;
   final Value<int> plazoMeses;
   final Value<double> montoCuota;
@@ -1899,8 +1366,8 @@ class PrestamosCompanion extends UpdateCompanion<Prestamo> {
   const PrestamosCompanion({
     this.id = const Value.absent(),
     this.idDeudor = const Value.absent(),
-    this.idTasaInteres = const Value.absent(),
-    this.idTasaMoratoria = const Value.absent(),
+    this.tasaInteres = const Value.absent(),
+    this.tasaMoratoria = const Value.absent(),
     this.monto = const Value.absent(),
     this.plazoMeses = const Value.absent(),
     this.montoCuota = const Value.absent(),
@@ -1909,22 +1376,22 @@ class PrestamosCompanion extends UpdateCompanion<Prestamo> {
   PrestamosCompanion.insert({
     this.id = const Value.absent(),
     required int idDeudor,
-    required int idTasaInteres,
-    required int idTasaMoratoria,
+    required double tasaInteres,
+    required double tasaMoratoria,
     this.monto = const Value.absent(),
     required int plazoMeses,
     required double montoCuota,
     this.fechaCreacion = const Value.absent(),
   }) : idDeudor = Value(idDeudor),
-       idTasaInteres = Value(idTasaInteres),
-       idTasaMoratoria = Value(idTasaMoratoria),
+       tasaInteres = Value(tasaInteres),
+       tasaMoratoria = Value(tasaMoratoria),
        plazoMeses = Value(plazoMeses),
        montoCuota = Value(montoCuota);
   static Insertable<Prestamo> custom({
     Expression<int>? id,
     Expression<int>? idDeudor,
-    Expression<int>? idTasaInteres,
-    Expression<int>? idTasaMoratoria,
+    Expression<double>? tasaInteres,
+    Expression<double>? tasaMoratoria,
     Expression<double>? monto,
     Expression<int>? plazoMeses,
     Expression<double>? montoCuota,
@@ -1933,8 +1400,8 @@ class PrestamosCompanion extends UpdateCompanion<Prestamo> {
     return RawValuesInsertable({
       if (id != null) 'id_prestamo': id,
       if (idDeudor != null) 'id_deudor': idDeudor,
-      if (idTasaInteres != null) 'id_tasa_interes': idTasaInteres,
-      if (idTasaMoratoria != null) 'id_tasa_interes_moratoria': idTasaMoratoria,
+      if (tasaInteres != null) 'tasa_interes': tasaInteres,
+      if (tasaMoratoria != null) 'tasa_interes_moratoria': tasaMoratoria,
       if (monto != null) 'monto': monto,
       if (plazoMeses != null) 'plazo_meses': plazoMeses,
       if (montoCuota != null) 'monto_cuota': montoCuota,
@@ -1945,8 +1412,8 @@ class PrestamosCompanion extends UpdateCompanion<Prestamo> {
   PrestamosCompanion copyWith({
     Value<int>? id,
     Value<int>? idDeudor,
-    Value<int>? idTasaInteres,
-    Value<int>? idTasaMoratoria,
+    Value<double>? tasaInteres,
+    Value<double>? tasaMoratoria,
     Value<double?>? monto,
     Value<int>? plazoMeses,
     Value<double>? montoCuota,
@@ -1955,8 +1422,8 @@ class PrestamosCompanion extends UpdateCompanion<Prestamo> {
     return PrestamosCompanion(
       id: id ?? this.id,
       idDeudor: idDeudor ?? this.idDeudor,
-      idTasaInteres: idTasaInteres ?? this.idTasaInteres,
-      idTasaMoratoria: idTasaMoratoria ?? this.idTasaMoratoria,
+      tasaInteres: tasaInteres ?? this.tasaInteres,
+      tasaMoratoria: tasaMoratoria ?? this.tasaMoratoria,
       monto: monto ?? this.monto,
       plazoMeses: plazoMeses ?? this.plazoMeses,
       montoCuota: montoCuota ?? this.montoCuota,
@@ -1973,11 +1440,11 @@ class PrestamosCompanion extends UpdateCompanion<Prestamo> {
     if (idDeudor.present) {
       map['id_deudor'] = Variable<int>(idDeudor.value);
     }
-    if (idTasaInteres.present) {
-      map['id_tasa_interes'] = Variable<int>(idTasaInteres.value);
+    if (tasaInteres.present) {
+      map['tasa_interes'] = Variable<double>(tasaInteres.value);
     }
-    if (idTasaMoratoria.present) {
-      map['id_tasa_interes_moratoria'] = Variable<int>(idTasaMoratoria.value);
+    if (tasaMoratoria.present) {
+      map['tasa_interes_moratoria'] = Variable<double>(tasaMoratoria.value);
     }
     if (monto.present) {
       map['monto'] = Variable<double>(monto.value);
@@ -1999,8 +1466,8 @@ class PrestamosCompanion extends UpdateCompanion<Prestamo> {
     return (StringBuffer('PrestamosCompanion(')
           ..write('id: $id, ')
           ..write('idDeudor: $idDeudor, ')
-          ..write('idTasaInteres: $idTasaInteres, ')
-          ..write('idTasaMoratoria: $idTasaMoratoria, ')
+          ..write('tasaInteres: $tasaInteres, ')
+          ..write('tasaMoratoria: $tasaMoratoria, ')
           ..write('monto: $monto, ')
           ..write('plazoMeses: $plazoMeses, ')
           ..write('montoCuota: $montoCuota, ')
@@ -2605,15 +2072,16 @@ class ConfiguracionPrestamosCompanion
   }
 }
 
-class $PagosTable extends Pagos with TableInfo<$PagosTable, Pago> {
+class $AmortizacionesTable extends Amortizaciones
+    with TableInfo<$AmortizacionesTable, Amortizacione> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $PagosTable(this.attachedDatabase, [this._alias]);
+  $AmortizacionesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id_pago',
+    'id_amortizacion',
     aliasedName,
     false,
     hasAutoIncrement: true,
@@ -2767,18 +2235,18 @@ class $PagosTable extends Pagos with TableInfo<$PagosTable, Pago> {
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'pagos';
+  static const String $name = 'amortizaciones';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Pago> instance, {
+    Insertable<Amortizacione> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id_pago')) {
+    if (data.containsKey('id_amortizacion')) {
       context.handle(
         _idMeta,
-        id.isAcceptableOrUnknown(data['id_pago']!, _idMeta),
+        id.isAcceptableOrUnknown(data['id_amortizacion']!, _idMeta),
       );
     }
     if (data.containsKey('id_prestamo')) {
@@ -2889,12 +2357,12 @@ class $PagosTable extends Pagos with TableInfo<$PagosTable, Pago> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Pago map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Amortizacione map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Pago(
+    return Amortizacione(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}id_pago'],
+        data['${effectivePrefix}id_amortizacion'],
       )!,
       idPrestamo: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -2944,12 +2412,12 @@ class $PagosTable extends Pagos with TableInfo<$PagosTable, Pago> {
   }
 
   @override
-  $PagosTable createAlias(String alias) {
-    return $PagosTable(attachedDatabase, alias);
+  $AmortizacionesTable createAlias(String alias) {
+    return $AmortizacionesTable(attachedDatabase, alias);
   }
 }
 
-class Pago extends DataClass implements Insertable<Pago> {
+class Amortizacione extends DataClass implements Insertable<Amortizacione> {
   final int id;
   final int idPrestamo;
   final int idCuota;
@@ -2962,7 +2430,7 @@ class Pago extends DataClass implements Insertable<Pago> {
   final double montoMora;
   final double montoExcedente;
   final DateTime fechaCreacion;
-  const Pago({
+  const Amortizacione({
     required this.id,
     required this.idPrestamo,
     required this.idCuota,
@@ -2979,7 +2447,7 @@ class Pago extends DataClass implements Insertable<Pago> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id_pago'] = Variable<int>(id);
+    map['id_amortizacion'] = Variable<int>(id);
     map['id_prestamo'] = Variable<int>(idPrestamo);
     map['id_cuota'] = Variable<int>(idCuota);
     map['fecha_pago'] = Variable<DateTime>(fechaPago);
@@ -2994,8 +2462,8 @@ class Pago extends DataClass implements Insertable<Pago> {
     return map;
   }
 
-  PagosCompanion toCompanion(bool nullToAbsent) {
-    return PagosCompanion(
+  AmortizacionesCompanion toCompanion(bool nullToAbsent) {
+    return AmortizacionesCompanion(
       id: Value(id),
       idPrestamo: Value(idPrestamo),
       idCuota: Value(idCuota),
@@ -3011,12 +2479,12 @@ class Pago extends DataClass implements Insertable<Pago> {
     );
   }
 
-  factory Pago.fromJson(
+  factory Amortizacione.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Pago(
+    return Amortizacione(
       id: serializer.fromJson<int>(json['id']),
       idPrestamo: serializer.fromJson<int>(json['idPrestamo']),
       idCuota: serializer.fromJson<int>(json['idCuota']),
@@ -3050,7 +2518,7 @@ class Pago extends DataClass implements Insertable<Pago> {
     };
   }
 
-  Pago copyWith({
+  Amortizacione copyWith({
     int? id,
     int? idPrestamo,
     int? idCuota,
@@ -3063,7 +2531,7 @@ class Pago extends DataClass implements Insertable<Pago> {
     double? montoMora,
     double? montoExcedente,
     DateTime? fechaCreacion,
-  }) => Pago(
+  }) => Amortizacione(
     id: id ?? this.id,
     idPrestamo: idPrestamo ?? this.idPrestamo,
     idCuota: idCuota ?? this.idCuota,
@@ -3077,8 +2545,8 @@ class Pago extends DataClass implements Insertable<Pago> {
     montoExcedente: montoExcedente ?? this.montoExcedente,
     fechaCreacion: fechaCreacion ?? this.fechaCreacion,
   );
-  Pago copyWithCompanion(PagosCompanion data) {
-    return Pago(
+  Amortizacione copyWithCompanion(AmortizacionesCompanion data) {
+    return Amortizacione(
       id: data.id.present ? data.id.value : this.id,
       idPrestamo: data.idPrestamo.present
           ? data.idPrestamo.value
@@ -3110,7 +2578,7 @@ class Pago extends DataClass implements Insertable<Pago> {
 
   @override
   String toString() {
-    return (StringBuffer('Pago(')
+    return (StringBuffer('Amortizacione(')
           ..write('id: $id, ')
           ..write('idPrestamo: $idPrestamo, ')
           ..write('idCuota: $idCuota, ')
@@ -3145,7 +2613,7 @@ class Pago extends DataClass implements Insertable<Pago> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Pago &&
+      (other is Amortizacione &&
           other.id == this.id &&
           other.idPrestamo == this.idPrestamo &&
           other.idCuota == this.idCuota &&
@@ -3160,7 +2628,7 @@ class Pago extends DataClass implements Insertable<Pago> {
           other.fechaCreacion == this.fechaCreacion);
 }
 
-class PagosCompanion extends UpdateCompanion<Pago> {
+class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
   final Value<int> id;
   final Value<int> idPrestamo;
   final Value<int> idCuota;
@@ -3173,7 +2641,7 @@ class PagosCompanion extends UpdateCompanion<Pago> {
   final Value<double> montoMora;
   final Value<double> montoExcedente;
   final Value<DateTime> fechaCreacion;
-  const PagosCompanion({
+  const AmortizacionesCompanion({
     this.id = const Value.absent(),
     this.idPrestamo = const Value.absent(),
     this.idCuota = const Value.absent(),
@@ -3187,7 +2655,7 @@ class PagosCompanion extends UpdateCompanion<Pago> {
     this.montoExcedente = const Value.absent(),
     this.fechaCreacion = const Value.absent(),
   });
-  PagosCompanion.insert({
+  AmortizacionesCompanion.insert({
     this.id = const Value.absent(),
     required int idPrestamo,
     required int idCuota,
@@ -3209,7 +2677,7 @@ class PagosCompanion extends UpdateCompanion<Pago> {
        montoInteres = Value(montoInteres),
        montoMora = Value(montoMora),
        montoExcedente = Value(montoExcedente);
-  static Insertable<Pago> custom({
+  static Insertable<Amortizacione> custom({
     Expression<int>? id,
     Expression<int>? idPrestamo,
     Expression<int>? idCuota,
@@ -3224,7 +2692,7 @@ class PagosCompanion extends UpdateCompanion<Pago> {
     Expression<DateTime>? fechaCreacion,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id_pago': id,
+      if (id != null) 'id_amortizacion': id,
       if (idPrestamo != null) 'id_prestamo': idPrestamo,
       if (idCuota != null) 'id_cuota': idCuota,
       if (fechaPago != null) 'fecha_pago': fechaPago,
@@ -3239,7 +2707,7 @@ class PagosCompanion extends UpdateCompanion<Pago> {
     });
   }
 
-  PagosCompanion copyWith({
+  AmortizacionesCompanion copyWith({
     Value<int>? id,
     Value<int>? idPrestamo,
     Value<int>? idCuota,
@@ -3253,7 +2721,7 @@ class PagosCompanion extends UpdateCompanion<Pago> {
     Value<double>? montoExcedente,
     Value<DateTime>? fechaCreacion,
   }) {
-    return PagosCompanion(
+    return AmortizacionesCompanion(
       id: id ?? this.id,
       idPrestamo: idPrestamo ?? this.idPrestamo,
       idCuota: idCuota ?? this.idCuota,
@@ -3273,7 +2741,7 @@ class PagosCompanion extends UpdateCompanion<Pago> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (id.present) {
-      map['id_pago'] = Variable<int>(id.value);
+      map['id_amortizacion'] = Variable<int>(id.value);
     }
     if (idPrestamo.present) {
       map['id_prestamo'] = Variable<int>(idPrestamo.value);
@@ -3313,7 +2781,7 @@ class PagosCompanion extends UpdateCompanion<Pago> {
 
   @override
   String toString() {
-    return (StringBuffer('PagosCompanion(')
+    return (StringBuffer('AmortizacionesCompanion(')
           ..write('id: $id, ')
           ..write('idPrestamo: $idPrestamo, ')
           ..write('idCuota: $idCuota, ')
@@ -3336,11 +2804,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $DeudoresTable deudores = $DeudoresTable(this);
   late final $ScoresTable scores = $ScoresTable(this);
-  late final $TasasInteresesTable tasasIntereses = $TasasInteresesTable(this);
   late final $PrestamosTable prestamos = $PrestamosTable(this);
   late final $ConfiguracionPrestamosTable configuracionPrestamos =
       $ConfiguracionPrestamosTable(this);
-  late final $PagosTable pagos = $PagosTable(this);
+  late final $AmortizacionesTable amortizaciones = $AmortizacionesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3348,10 +2815,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     deudores,
     scores,
-    tasasIntereses,
     prestamos,
     configuracionPrestamos,
-    pagos,
+    amortizaciones,
   ];
 }
 
@@ -4128,494 +3594,12 @@ typedef $$ScoresTableProcessedTableManager =
       Score,
       PrefetchHooks Function({bool idDeudor})
     >;
-typedef $$TasasInteresesTableCreateCompanionBuilder =
-    TasasInteresesCompanion Function({
-      Value<int> id,
-      required String nombre,
-      required double tasa,
-      required TiposInteres tipoInteres,
-      Value<String?> descripcion,
-      required Status estado,
-      Value<DateTime> fechaCreacion,
-      Value<DateTime> fechaActualizacion,
-    });
-typedef $$TasasInteresesTableUpdateCompanionBuilder =
-    TasasInteresesCompanion Function({
-      Value<int> id,
-      Value<String> nombre,
-      Value<double> tasa,
-      Value<TiposInteres> tipoInteres,
-      Value<String?> descripcion,
-      Value<Status> estado,
-      Value<DateTime> fechaCreacion,
-      Value<DateTime> fechaActualizacion,
-    });
-
-final class $$TasasInteresesTableReferences
-    extends BaseReferences<_$AppDatabase, $TasasInteresesTable, TasasInterese> {
-  $$TasasInteresesTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static MultiTypedResultKey<$PrestamosTable, List<Prestamo>>
-  _prestamosTasaOrdinariaTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.prestamos,
-        aliasName:
-            'tasas_intereses__id_tasa_interes__prestamos__id_tasa_interes',
-      );
-
-  $$PrestamosTableProcessedTableManager get prestamosTasaOrdinaria {
-    final manager = $$PrestamosTableTableManager($_db, $_db.prestamos).filter(
-      (f) =>
-          f.idTasaInteres.id.sqlEquals($_itemColumn<int>('id_tasa_interes')!),
-    );
-
-    final cache = $_typedResult.readTableOrNull(
-      _prestamosTasaOrdinariaTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$PrestamosTable, List<Prestamo>>
-  _prestamosTasaMoratoriaTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.prestamos,
-    aliasName:
-        'tasas_intereses__id_tasa_interes__prestamos__id_tasa_interes_moratoria',
-  );
-
-  $$PrestamosTableProcessedTableManager get prestamosTasaMoratoria {
-    final manager = $$PrestamosTableTableManager($_db, $_db.prestamos).filter(
-      (f) =>
-          f.idTasaMoratoria.id.sqlEquals($_itemColumn<int>('id_tasa_interes')!),
-    );
-
-    final cache = $_typedResult.readTableOrNull(
-      _prestamosTasaMoratoriaTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$TasasInteresesTableFilterComposer
-    extends Composer<_$AppDatabase, $TasasInteresesTable> {
-  $$TasasInteresesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get nombre => $composableBuilder(
-    column: $table.nombre,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get tasa => $composableBuilder(
-    column: $table.tasa,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<TiposInteres, TiposInteres, String>
-  get tipoInteres => $composableBuilder(
-    column: $table.tipoInteres,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnFilters<String> get descripcion => $composableBuilder(
-    column: $table.descripcion,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<Status, Status, String> get estado =>
-      $composableBuilder(
-        column: $table.estado,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
-
-  ColumnFilters<DateTime> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get fechaActualizacion => $composableBuilder(
-    column: $table.fechaActualizacion,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  Expression<bool> prestamosTasaOrdinaria(
-    Expression<bool> Function($$PrestamosTableFilterComposer f) f,
-  ) {
-    final $$PrestamosTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.prestamos,
-      getReferencedColumn: (t) => t.idTasaInteres,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PrestamosTableFilterComposer(
-            $db: $db,
-            $table: $db.prestamos,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> prestamosTasaMoratoria(
-    Expression<bool> Function($$PrestamosTableFilterComposer f) f,
-  ) {
-    final $$PrestamosTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.prestamos,
-      getReferencedColumn: (t) => t.idTasaMoratoria,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PrestamosTableFilterComposer(
-            $db: $db,
-            $table: $db.prestamos,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$TasasInteresesTableOrderingComposer
-    extends Composer<_$AppDatabase, $TasasInteresesTable> {
-  $$TasasInteresesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get nombre => $composableBuilder(
-    column: $table.nombre,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get tasa => $composableBuilder(
-    column: $table.tasa,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get tipoInteres => $composableBuilder(
-    column: $table.tipoInteres,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get descripcion => $composableBuilder(
-    column: $table.descripcion,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get estado => $composableBuilder(
-    column: $table.estado,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get fechaActualizacion => $composableBuilder(
-    column: $table.fechaActualizacion,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$TasasInteresesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TasasInteresesTable> {
-  $$TasasInteresesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get nombre =>
-      $composableBuilder(column: $table.nombre, builder: (column) => column);
-
-  GeneratedColumn<double> get tasa =>
-      $composableBuilder(column: $table.tasa, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<TiposInteres, String> get tipoInteres =>
-      $composableBuilder(
-        column: $table.tipoInteres,
-        builder: (column) => column,
-      );
-
-  GeneratedColumn<String> get descripcion => $composableBuilder(
-    column: $table.descripcion,
-    builder: (column) => column,
-  );
-
-  GeneratedColumnWithTypeConverter<Status, String> get estado =>
-      $composableBuilder(column: $table.estado, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get fechaActualizacion => $composableBuilder(
-    column: $table.fechaActualizacion,
-    builder: (column) => column,
-  );
-
-  Expression<T> prestamosTasaOrdinaria<T extends Object>(
-    Expression<T> Function($$PrestamosTableAnnotationComposer a) f,
-  ) {
-    final $$PrestamosTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.prestamos,
-      getReferencedColumn: (t) => t.idTasaInteres,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PrestamosTableAnnotationComposer(
-            $db: $db,
-            $table: $db.prestamos,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<T> prestamosTasaMoratoria<T extends Object>(
-    Expression<T> Function($$PrestamosTableAnnotationComposer a) f,
-  ) {
-    final $$PrestamosTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.prestamos,
-      getReferencedColumn: (t) => t.idTasaMoratoria,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PrestamosTableAnnotationComposer(
-            $db: $db,
-            $table: $db.prestamos,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$TasasInteresesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $TasasInteresesTable,
-          TasasInterese,
-          $$TasasInteresesTableFilterComposer,
-          $$TasasInteresesTableOrderingComposer,
-          $$TasasInteresesTableAnnotationComposer,
-          $$TasasInteresesTableCreateCompanionBuilder,
-          $$TasasInteresesTableUpdateCompanionBuilder,
-          (TasasInterese, $$TasasInteresesTableReferences),
-          TasasInterese,
-          PrefetchHooks Function({
-            bool prestamosTasaOrdinaria,
-            bool prestamosTasaMoratoria,
-          })
-        > {
-  $$TasasInteresesTableTableManager(
-    _$AppDatabase db,
-    $TasasInteresesTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$TasasInteresesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$TasasInteresesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$TasasInteresesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> nombre = const Value.absent(),
-                Value<double> tasa = const Value.absent(),
-                Value<TiposInteres> tipoInteres = const Value.absent(),
-                Value<String?> descripcion = const Value.absent(),
-                Value<Status> estado = const Value.absent(),
-                Value<DateTime> fechaCreacion = const Value.absent(),
-                Value<DateTime> fechaActualizacion = const Value.absent(),
-              }) => TasasInteresesCompanion(
-                id: id,
-                nombre: nombre,
-                tasa: tasa,
-                tipoInteres: tipoInteres,
-                descripcion: descripcion,
-                estado: estado,
-                fechaCreacion: fechaCreacion,
-                fechaActualizacion: fechaActualizacion,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String nombre,
-                required double tasa,
-                required TiposInteres tipoInteres,
-                Value<String?> descripcion = const Value.absent(),
-                required Status estado,
-                Value<DateTime> fechaCreacion = const Value.absent(),
-                Value<DateTime> fechaActualizacion = const Value.absent(),
-              }) => TasasInteresesCompanion.insert(
-                id: id,
-                nombre: nombre,
-                tasa: tasa,
-                tipoInteres: tipoInteres,
-                descripcion: descripcion,
-                estado: estado,
-                fechaCreacion: fechaCreacion,
-                fechaActualizacion: fechaActualizacion,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$TasasInteresesTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback:
-              ({
-                prestamosTasaOrdinaria = false,
-                prestamosTasaMoratoria = false,
-              }) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (prestamosTasaOrdinaria) db.prestamos,
-                    if (prestamosTasaMoratoria) db.prestamos,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (prestamosTasaOrdinaria)
-                        await $_getPrefetchedData<
-                          TasasInterese,
-                          $TasasInteresesTable,
-                          Prestamo
-                        >(
-                          currentTable: table,
-                          referencedTable: $$TasasInteresesTableReferences
-                              ._prestamosTasaOrdinariaTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$TasasInteresesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).prestamosTasaOrdinaria,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.idTasaInteres == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (prestamosTasaMoratoria)
-                        await $_getPrefetchedData<
-                          TasasInterese,
-                          $TasasInteresesTable,
-                          Prestamo
-                        >(
-                          currentTable: table,
-                          referencedTable: $$TasasInteresesTableReferences
-                              ._prestamosTasaMoratoriaTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$TasasInteresesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).prestamosTasaMoratoria,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.idTasaMoratoria == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
-        ),
-      );
-}
-
-typedef $$TasasInteresesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $TasasInteresesTable,
-      TasasInterese,
-      $$TasasInteresesTableFilterComposer,
-      $$TasasInteresesTableOrderingComposer,
-      $$TasasInteresesTableAnnotationComposer,
-      $$TasasInteresesTableCreateCompanionBuilder,
-      $$TasasInteresesTableUpdateCompanionBuilder,
-      (TasasInterese, $$TasasInteresesTableReferences),
-      TasasInterese,
-      PrefetchHooks Function({
-        bool prestamosTasaOrdinaria,
-        bool prestamosTasaMoratoria,
-      })
-    >;
 typedef $$PrestamosTableCreateCompanionBuilder =
     PrestamosCompanion Function({
       Value<int> id,
       required int idDeudor,
-      required int idTasaInteres,
-      required int idTasaMoratoria,
+      required double tasaInteres,
+      required double tasaMoratoria,
       Value<double?> monto,
       required int plazoMeses,
       required double montoCuota,
@@ -4625,8 +3609,8 @@ typedef $$PrestamosTableUpdateCompanionBuilder =
     PrestamosCompanion Function({
       Value<int> id,
       Value<int> idDeudor,
-      Value<int> idTasaInteres,
-      Value<int> idTasaMoratoria,
+      Value<double> tasaInteres,
+      Value<double> tasaMoratoria,
       Value<double?> monto,
       Value<int> plazoMeses,
       Value<double> montoCuota,
@@ -4648,45 +3632,6 @@ final class $$PrestamosTableReferences
       $_db.deudores,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_idDeudorTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $TasasInteresesTable _idTasaInteresTable(_$AppDatabase db) =>
-      db.tasasIntereses.createAlias(
-        'prestamos__id_tasa_interes__tasas_intereses__id_tasa_interes',
-      );
-
-  $$TasasInteresesTableProcessedTableManager get idTasaInteres {
-    final $_column = $_itemColumn<int>('id_tasa_interes')!;
-
-    final manager = $$TasasInteresesTableTableManager(
-      $_db,
-      $_db.tasasIntereses,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_idTasaInteresTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $TasasInteresesTable _idTasaMoratoriaTable(
-    _$AppDatabase db,
-  ) => db.tasasIntereses.createAlias(
-    'prestamos__id_tasa_interes_moratoria__tasas_intereses__id_tasa_interes',
-  );
-
-  $$TasasInteresesTableProcessedTableManager get idTasaMoratoria {
-    final $_column = $_itemColumn<int>('id_tasa_interes_moratoria')!;
-
-    final manager = $$TasasInteresesTableTableManager(
-      $_db,
-      $_db.tasasIntereses,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_idTasaMoratoriaTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -4722,19 +3667,19 @@ final class $$PrestamosTableReferences
     );
   }
 
-  static MultiTypedResultKey<$PagosTable, List<Pago>> _pagosRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.pagos,
-    aliasName: 'prestamos__id_prestamo__pagos__id_prestamo',
+  static MultiTypedResultKey<$AmortizacionesTable, List<Amortizacione>>
+  _amortizacionesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.amortizaciones,
+    aliasName: 'prestamos__id_prestamo__amortizaciones__id_prestamo',
   );
 
-  $$PagosTableProcessedTableManager get pagosRefs {
-    final manager = $$PagosTableTableManager($_db, $_db.pagos).filter(
-      (f) => f.idPrestamo.id.sqlEquals($_itemColumn<int>('id_prestamo')!),
-    );
+  $$AmortizacionesTableProcessedTableManager get amortizacionesRefs {
+    final manager = $$AmortizacionesTableTableManager($_db, $_db.amortizaciones)
+        .filter(
+          (f) => f.idPrestamo.id.sqlEquals($_itemColumn<int>('id_prestamo')!),
+        );
 
-    final cache = $_typedResult.readTableOrNull(_pagosRefsTable($_db));
+    final cache = $_typedResult.readTableOrNull(_amortizacionesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -4752,6 +3697,16 @@ class $$PrestamosTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get tasaInteres => $composableBuilder(
+    column: $table.tasaInteres,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get tasaMoratoria => $composableBuilder(
+    column: $table.tasaMoratoria,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4798,52 +3753,6 @@ class $$PrestamosTableFilterComposer
     return composer;
   }
 
-  $$TasasInteresesTableFilterComposer get idTasaInteres {
-    final $$TasasInteresesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.idTasaInteres,
-      referencedTable: $db.tasasIntereses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TasasInteresesTableFilterComposer(
-            $db: $db,
-            $table: $db.tasasIntereses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$TasasInteresesTableFilterComposer get idTasaMoratoria {
-    final $$TasasInteresesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.idTasaMoratoria,
-      referencedTable: $db.tasasIntereses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TasasInteresesTableFilterComposer(
-            $db: $db,
-            $table: $db.tasasIntereses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
   Expression<bool> configuracionPrestamosRefs(
     Expression<bool> Function($$ConfiguracionPrestamosTableFilterComposer f) f,
   ) {
@@ -4870,22 +3779,22 @@ class $$PrestamosTableFilterComposer
     return f(composer);
   }
 
-  Expression<bool> pagosRefs(
-    Expression<bool> Function($$PagosTableFilterComposer f) f,
+  Expression<bool> amortizacionesRefs(
+    Expression<bool> Function($$AmortizacionesTableFilterComposer f) f,
   ) {
-    final $$PagosTableFilterComposer composer = $composerBuilder(
+    final $$AmortizacionesTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.pagos,
+      referencedTable: $db.amortizaciones,
       getReferencedColumn: (t) => t.idPrestamo,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$PagosTableFilterComposer(
+          }) => $$AmortizacionesTableFilterComposer(
             $db: $db,
-            $table: $db.pagos,
+            $table: $db.amortizaciones,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -4907,6 +3816,16 @@ class $$PrestamosTableOrderingComposer
   });
   ColumnOrderings<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get tasaInteres => $composableBuilder(
+    column: $table.tasaInteres,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get tasaMoratoria => $composableBuilder(
+    column: $table.tasaMoratoria,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4952,52 +3871,6 @@ class $$PrestamosTableOrderingComposer
     );
     return composer;
   }
-
-  $$TasasInteresesTableOrderingComposer get idTasaInteres {
-    final $$TasasInteresesTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.idTasaInteres,
-      referencedTable: $db.tasasIntereses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TasasInteresesTableOrderingComposer(
-            $db: $db,
-            $table: $db.tasasIntereses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$TasasInteresesTableOrderingComposer get idTasaMoratoria {
-    final $$TasasInteresesTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.idTasaMoratoria,
-      referencedTable: $db.tasasIntereses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TasasInteresesTableOrderingComposer(
-            $db: $db,
-            $table: $db.tasasIntereses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$PrestamosTableAnnotationComposer
@@ -5011,6 +3884,16 @@ class $$PrestamosTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get tasaInteres => $composableBuilder(
+    column: $table.tasaInteres,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get tasaMoratoria => $composableBuilder(
+    column: $table.tasaMoratoria,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<double> get monto =>
       $composableBuilder(column: $table.monto, builder: (column) => column);
@@ -5053,52 +3936,6 @@ class $$PrestamosTableAnnotationComposer
     return composer;
   }
 
-  $$TasasInteresesTableAnnotationComposer get idTasaInteres {
-    final $$TasasInteresesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.idTasaInteres,
-      referencedTable: $db.tasasIntereses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TasasInteresesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.tasasIntereses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$TasasInteresesTableAnnotationComposer get idTasaMoratoria {
-    final $$TasasInteresesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.idTasaMoratoria,
-      referencedTable: $db.tasasIntereses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TasasInteresesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.tasasIntereses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
   Expression<T> configuracionPrestamosRefs<T extends Object>(
     Expression<T> Function($$ConfiguracionPrestamosTableAnnotationComposer a) f,
   ) {
@@ -5125,22 +3962,22 @@ class $$PrestamosTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> pagosRefs<T extends Object>(
-    Expression<T> Function($$PagosTableAnnotationComposer a) f,
+  Expression<T> amortizacionesRefs<T extends Object>(
+    Expression<T> Function($$AmortizacionesTableAnnotationComposer a) f,
   ) {
-    final $$PagosTableAnnotationComposer composer = $composerBuilder(
+    final $$AmortizacionesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.pagos,
+      referencedTable: $db.amortizaciones,
       getReferencedColumn: (t) => t.idPrestamo,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$PagosTableAnnotationComposer(
+          }) => $$AmortizacionesTableAnnotationComposer(
             $db: $db,
-            $table: $db.pagos,
+            $table: $db.amortizaciones,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -5166,10 +4003,8 @@ class $$PrestamosTableTableManager
           Prestamo,
           PrefetchHooks Function({
             bool idDeudor,
-            bool idTasaInteres,
-            bool idTasaMoratoria,
             bool configuracionPrestamosRefs,
-            bool pagosRefs,
+            bool amortizacionesRefs,
           })
         > {
   $$PrestamosTableTableManager(_$AppDatabase db, $PrestamosTable table)
@@ -5187,8 +4022,8 @@ class $$PrestamosTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<int> idDeudor = const Value.absent(),
-                Value<int> idTasaInteres = const Value.absent(),
-                Value<int> idTasaMoratoria = const Value.absent(),
+                Value<double> tasaInteres = const Value.absent(),
+                Value<double> tasaMoratoria = const Value.absent(),
                 Value<double?> monto = const Value.absent(),
                 Value<int> plazoMeses = const Value.absent(),
                 Value<double> montoCuota = const Value.absent(),
@@ -5196,8 +4031,8 @@ class $$PrestamosTableTableManager
               }) => PrestamosCompanion(
                 id: id,
                 idDeudor: idDeudor,
-                idTasaInteres: idTasaInteres,
-                idTasaMoratoria: idTasaMoratoria,
+                tasaInteres: tasaInteres,
+                tasaMoratoria: tasaMoratoria,
                 monto: monto,
                 plazoMeses: plazoMeses,
                 montoCuota: montoCuota,
@@ -5207,8 +4042,8 @@ class $$PrestamosTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required int idDeudor,
-                required int idTasaInteres,
-                required int idTasaMoratoria,
+                required double tasaInteres,
+                required double tasaMoratoria,
                 Value<double?> monto = const Value.absent(),
                 required int plazoMeses,
                 required double montoCuota,
@@ -5216,8 +4051,8 @@ class $$PrestamosTableTableManager
               }) => PrestamosCompanion.insert(
                 id: id,
                 idDeudor: idDeudor,
-                idTasaInteres: idTasaInteres,
-                idTasaMoratoria: idTasaMoratoria,
+                tasaInteres: tasaInteres,
+                tasaMoratoria: tasaMoratoria,
                 monto: monto,
                 plazoMeses: plazoMeses,
                 montoCuota: montoCuota,
@@ -5234,16 +4069,14 @@ class $$PrestamosTableTableManager
           prefetchHooksCallback:
               ({
                 idDeudor = false,
-                idTasaInteres = false,
-                idTasaMoratoria = false,
                 configuracionPrestamosRefs = false,
-                pagosRefs = false,
+                amortizacionesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (configuracionPrestamosRefs) db.configuracionPrestamos,
-                    if (pagosRefs) db.pagos,
+                    if (amortizacionesRefs) db.amortizaciones,
                   ],
                   addJoins:
                       <
@@ -5274,32 +4107,6 @@ class $$PrestamosTableTableManager
                                   )
                                   as T;
                         }
-                        if (idTasaInteres) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.idTasaInteres,
-                                    referencedTable: $$PrestamosTableReferences
-                                        ._idTasaInteresTable(db),
-                                    referencedColumn: $$PrestamosTableReferences
-                                        ._idTasaInteresTable(db)
-                                        .id,
-                                  )
-                                  as T;
-                        }
-                        if (idTasaMoratoria) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.idTasaMoratoria,
-                                    referencedTable: $$PrestamosTableReferences
-                                        ._idTasaMoratoriaTable(db),
-                                    referencedColumn: $$PrestamosTableReferences
-                                        ._idTasaMoratoriaTable(db)
-                                        .id,
-                                  )
-                                  as T;
-                        }
 
                         return state;
                       },
@@ -5326,21 +4133,21 @@ class $$PrestamosTableTableManager
                               ),
                           typedResults: items,
                         ),
-                      if (pagosRefs)
+                      if (amortizacionesRefs)
                         await $_getPrefetchedData<
                           Prestamo,
                           $PrestamosTable,
-                          Pago
+                          Amortizacione
                         >(
                           currentTable: table,
                           referencedTable: $$PrestamosTableReferences
-                              ._pagosRefsTable(db),
+                              ._amortizacionesRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$PrestamosTableReferences(
                                 db,
                                 table,
                                 p0,
-                              ).pagosRefs,
+                              ).amortizacionesRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.idPrestamo == item.id,
@@ -5369,10 +4176,8 @@ typedef $$PrestamosTableProcessedTableManager =
       Prestamo,
       PrefetchHooks Function({
         bool idDeudor,
-        bool idTasaInteres,
-        bool idTasaMoratoria,
         bool configuracionPrestamosRefs,
-        bool pagosRefs,
+        bool amortizacionesRefs,
       })
     >;
 typedef $$ConfiguracionPrestamosTableCreateCompanionBuilder =
@@ -5794,8 +4599,8 @@ typedef $$ConfiguracionPrestamosTableProcessedTableManager =
       ConfiguracionPrestamo,
       PrefetchHooks Function({bool idPrestamo})
     >;
-typedef $$PagosTableCreateCompanionBuilder =
-    PagosCompanion Function({
+typedef $$AmortizacionesTableCreateCompanionBuilder =
+    AmortizacionesCompanion Function({
       Value<int> id,
       required int idPrestamo,
       required int idCuota,
@@ -5809,8 +4614,8 @@ typedef $$PagosTableCreateCompanionBuilder =
       required double montoExcedente,
       Value<DateTime> fechaCreacion,
     });
-typedef $$PagosTableUpdateCompanionBuilder =
-    PagosCompanion Function({
+typedef $$AmortizacionesTableUpdateCompanionBuilder =
+    AmortizacionesCompanion Function({
       Value<int> id,
       Value<int> idPrestamo,
       Value<int> idCuota,
@@ -5825,12 +4630,16 @@ typedef $$PagosTableUpdateCompanionBuilder =
       Value<DateTime> fechaCreacion,
     });
 
-final class $$PagosTableReferences
-    extends BaseReferences<_$AppDatabase, $PagosTable, Pago> {
-  $$PagosTableReferences(super.$_db, super.$_table, super.$_typedResult);
+final class $$AmortizacionesTableReferences
+    extends BaseReferences<_$AppDatabase, $AmortizacionesTable, Amortizacione> {
+  $$AmortizacionesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
 
-  static $PrestamosTable _idPrestamoTable(_$AppDatabase db) =>
-      db.prestamos.createAlias('pagos__id_prestamo__prestamos__id_prestamo');
+  static $PrestamosTable _idPrestamoTable(_$AppDatabase db) => db.prestamos
+      .createAlias('amortizaciones__id_prestamo__prestamos__id_prestamo');
 
   $$PrestamosTableProcessedTableManager get idPrestamo {
     final $_column = $_itemColumn<int>('id_prestamo')!;
@@ -5847,8 +4656,9 @@ final class $$PagosTableReferences
   }
 }
 
-class $$PagosTableFilterComposer extends Composer<_$AppDatabase, $PagosTable> {
-  $$PagosTableFilterComposer({
+class $$AmortizacionesTableFilterComposer
+    extends Composer<_$AppDatabase, $AmortizacionesTable> {
+  $$AmortizacionesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -5934,9 +4744,9 @@ class $$PagosTableFilterComposer extends Composer<_$AppDatabase, $PagosTable> {
   }
 }
 
-class $$PagosTableOrderingComposer
-    extends Composer<_$AppDatabase, $PagosTable> {
-  $$PagosTableOrderingComposer({
+class $$AmortizacionesTableOrderingComposer
+    extends Composer<_$AppDatabase, $AmortizacionesTable> {
+  $$AmortizacionesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -6022,9 +4832,9 @@ class $$PagosTableOrderingComposer
   }
 }
 
-class $$PagosTableAnnotationComposer
-    extends Composer<_$AppDatabase, $PagosTable> {
-  $$PagosTableAnnotationComposer({
+class $$AmortizacionesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AmortizacionesTable> {
+  $$AmortizacionesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -6100,32 +4910,34 @@ class $$PagosTableAnnotationComposer
   }
 }
 
-class $$PagosTableTableManager
+class $$AmortizacionesTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $PagosTable,
-          Pago,
-          $$PagosTableFilterComposer,
-          $$PagosTableOrderingComposer,
-          $$PagosTableAnnotationComposer,
-          $$PagosTableCreateCompanionBuilder,
-          $$PagosTableUpdateCompanionBuilder,
-          (Pago, $$PagosTableReferences),
-          Pago,
+          $AmortizacionesTable,
+          Amortizacione,
+          $$AmortizacionesTableFilterComposer,
+          $$AmortizacionesTableOrderingComposer,
+          $$AmortizacionesTableAnnotationComposer,
+          $$AmortizacionesTableCreateCompanionBuilder,
+          $$AmortizacionesTableUpdateCompanionBuilder,
+          (Amortizacione, $$AmortizacionesTableReferences),
+          Amortizacione,
           PrefetchHooks Function({bool idPrestamo})
         > {
-  $$PagosTableTableManager(_$AppDatabase db, $PagosTable table)
-    : super(
+  $$AmortizacionesTableTableManager(
+    _$AppDatabase db,
+    $AmortizacionesTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$PagosTableFilterComposer($db: db, $table: table),
+              $$AmortizacionesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$PagosTableOrderingComposer($db: db, $table: table),
+              $$AmortizacionesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$PagosTableAnnotationComposer($db: db, $table: table),
+              $$AmortizacionesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -6140,7 +4952,7 @@ class $$PagosTableTableManager
                 Value<double> montoMora = const Value.absent(),
                 Value<double> montoExcedente = const Value.absent(),
                 Value<DateTime> fechaCreacion = const Value.absent(),
-              }) => PagosCompanion(
+              }) => AmortizacionesCompanion(
                 id: id,
                 idPrestamo: idPrestamo,
                 idCuota: idCuota,
@@ -6168,7 +4980,7 @@ class $$PagosTableTableManager
                 required double montoMora,
                 required double montoExcedente,
                 Value<DateTime> fechaCreacion = const Value.absent(),
-              }) => PagosCompanion.insert(
+              }) => AmortizacionesCompanion.insert(
                 id: id,
                 idPrestamo: idPrestamo,
                 idCuota: idCuota,
@@ -6184,8 +4996,10 @@ class $$PagosTableTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) =>
-                    (e.readTable(table), $$PagosTableReferences(db, table, e)),
+                (e) => (
+                  e.readTable(table),
+                  $$AmortizacionesTableReferences(db, table, e),
+                ),
               )
               .toList(),
           prefetchHooksCallback: ({idPrestamo = false}) {
@@ -6213,11 +5027,12 @@ class $$PagosTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.idPrestamo,
-                                referencedTable: $$PagosTableReferences
+                                referencedTable: $$AmortizacionesTableReferences
                                     ._idPrestamoTable(db),
-                                referencedColumn: $$PagosTableReferences
-                                    ._idPrestamoTable(db)
-                                    .id,
+                                referencedColumn:
+                                    $$AmortizacionesTableReferences
+                                        ._idPrestamoTable(db)
+                                        .id,
                               )
                               as T;
                     }
@@ -6233,18 +5048,18 @@ class $$PagosTableTableManager
       );
 }
 
-typedef $$PagosTableProcessedTableManager =
+typedef $$AmortizacionesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $PagosTable,
-      Pago,
-      $$PagosTableFilterComposer,
-      $$PagosTableOrderingComposer,
-      $$PagosTableAnnotationComposer,
-      $$PagosTableCreateCompanionBuilder,
-      $$PagosTableUpdateCompanionBuilder,
-      (Pago, $$PagosTableReferences),
-      Pago,
+      $AmortizacionesTable,
+      Amortizacione,
+      $$AmortizacionesTableFilterComposer,
+      $$AmortizacionesTableOrderingComposer,
+      $$AmortizacionesTableAnnotationComposer,
+      $$AmortizacionesTableCreateCompanionBuilder,
+      $$AmortizacionesTableUpdateCompanionBuilder,
+      (Amortizacione, $$AmortizacionesTableReferences),
+      Amortizacione,
       PrefetchHooks Function({bool idPrestamo})
     >;
 
@@ -6255,8 +5070,6 @@ class $AppDatabaseManager {
       $$DeudoresTableTableManager(_db, _db.deudores);
   $$ScoresTableTableManager get scores =>
       $$ScoresTableTableManager(_db, _db.scores);
-  $$TasasInteresesTableTableManager get tasasIntereses =>
-      $$TasasInteresesTableTableManager(_db, _db.tasasIntereses);
   $$PrestamosTableTableManager get prestamos =>
       $$PrestamosTableTableManager(_db, _db.prestamos);
   $$ConfiguracionPrestamosTableTableManager get configuracionPrestamos =>
@@ -6264,6 +5077,6 @@ class $AppDatabaseManager {
         _db,
         _db.configuracionPrestamos,
       );
-  $$PagosTableTableManager get pagos =>
-      $$PagosTableTableManager(_db, _db.pagos);
+  $$AmortizacionesTableTableManager get amortizaciones =>
+      $$AmortizacionesTableTableManager(_db, _db.amortizaciones);
 }
