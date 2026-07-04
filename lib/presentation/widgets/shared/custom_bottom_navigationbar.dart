@@ -70,7 +70,7 @@ class CustomBottomNavigationbar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.settings_outlined),
           activeIcon: Icon(Icons.settings),
-          label: 'Configuración',
+          label: 'Ajustes',
         ),
       ],
     );

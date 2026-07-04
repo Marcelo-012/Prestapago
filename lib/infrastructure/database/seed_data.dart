@@ -33,6 +33,13 @@ Future<void> seedDatabase(AppDatabase db) async {
       (nombre: 'Sofía Ramírez', telefono: '5550108', email: 'sofia@mail.com', direccion: 'Calle 8 #258', numId: 'ID008', edad: 27),
       (nombre: 'Miguel Torres', telefono: '5550109', email: 'miguel@mail.com', direccion: 'Calle 9 #369', numId: 'ID009', edad: 50),
       (nombre: 'Carmen Flores', telefono: '5550110', email: 'carmen@mail.com', direccion: 'Calle 10 #159', numId: 'ID010', edad: 29),
+
+      // ── NUEVOS CLIENTES CON MORA ──
+      (nombre: 'Roberto Vega', telefono: '5550111', email: 'roberto@mail.com', direccion: 'Calle 11 #753', numId: 'ID011', edad: 41),
+      (nombre: 'Lucía Mendoza', telefono: '5550112', email: 'lucia@mail.com', direccion: 'Calle 12 #951', numId: 'ID012', edad: 34),
+      (nombre: 'Fernando Ríos', telefono: '5550113', email: 'fernando@mail.com', direccion: 'Calle 13 #357', numId: 'ID013', edad: 48),
+      (nombre: 'Gabriela Núñez', telefono: '5550114', email: 'gabriela@mail.com', direccion: 'Calle 14 #159', numId: 'ID014', edad: 29),
+      (nombre: 'Humberto Salinas', telefono: '5550115', email: 'humberto@mail.com', direccion: 'Calle 15 #486', numId: 'ID015', edad: 52),
     ];
     for (final d in deudores) {
       batch.insert(db.deudores, DeudoresCompanion.insert(
@@ -58,6 +65,13 @@ Future<void> seedDatabase(AppDatabase db) async {
       (idD: 8, monto: 7000.0, plazo: 12, tOrd: 10.0, tMor: 4.0),
       (idD: 9, monto: 25000.0, plazo: 48, tOrd: 12.0, tMor: 5.0),
       (idD: 10, monto: 6000.0, plazo: 6, tOrd: 10.0, tMor: 4.0),
+
+      // ── NUEVOS PRÉSTAMOS CON MORA ──
+      (idD: 11, monto: 30000.0, plazo: 24, tOrd: 18.0, tMor: 10.0),
+      (idD: 12, monto: 45000.0, plazo: 36, tOrd: 15.0, tMor: 8.0),
+      (idD: 13, monto: 12000.0, plazo: 12, tOrd: 20.0, tMor: 12.0),
+      (idD: 14, monto: 22000.0, plazo: 18, tOrd: 16.0, tMor: 9.0),
+      (idD: 15, monto: 8000.0, plazo: 6, tOrd: 22.0, tMor: 15.0),
     ];
     for (final p in prestamos) {
       final cuota = _frenchCuota(p.monto, p.tOrd, p.plazo);
@@ -65,7 +79,7 @@ Future<void> seedDatabase(AppDatabase db) async {
         idDeudor: p.idD,
         tasaInteres: p.tOrd,
         tasaMoratoria: p.tMor,
-        monto: Value(p.monto),
+        monto: p.monto,
         plazoMeses: p.plazo,
         montoCuota: cuota,
       ));
@@ -73,16 +87,23 @@ Future<void> seedDatabase(AppDatabase db) async {
 
     // ── CONFIGURACIÓN ──
     final configs = [
-      (idP: 1, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: Status.inactivo),
-      (idP: 2, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: Status.inactivo),
-      (idP: 3, tInteres: TiposInteres.simple, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: Status.inactivo),
-      (idP: 4, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: Status.activo),
-      (idP: 5, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: Status.activo),
-      (idP: 6, tInteres: TiposInteres.simple, eMor: Status.inactivo, mEx: ManejoExcedente.saldoFavor, ePres: Status.activo),
-      (idP: 7, tInteres: TiposInteres.simple, eMor: Status.inactivo, mEx: ManejoExcedente.saldoFavor, ePres: Status.activo),
-      (idP: 8, tInteres: TiposInteres.simple, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: Status.activo),
-      (idP: 9, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.saldoFavor, ePres: Status.activo),
-      (idP: 10, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.saldoFavor, ePres: Status.activo),
+      (idP: 1, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 2, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 3, tInteres: TiposInteres.simple, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.finalizado),
+      (idP: 4, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 5, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 6, tInteres: TiposInteres.simple, eMor: Status.inactivo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
+      (idP: 7, tInteres: TiposInteres.simple, eMor: Status.inactivo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
+      (idP: 8, tInteres: TiposInteres.simple, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 9, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.cancelado),
+      (idP: 10, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
+
+      // ── NUEVAS CONFIGURACIONES CON MORA ──
+      (idP: 11, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 12, tInteres: TiposInteres.simple, eMor: Status.activo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
+      (idP: 13, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.finalizado),
+      (idP: 14, tInteres: TiposInteres.simple, eMor: Status.inactivo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
+      (idP: 15, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.finalizado),
     ];
     for (final c in configs) {
       batch.insert(db.configuracionPrestamos, ConfiguracionPrestamosCompanion.insert(
@@ -95,10 +116,13 @@ Future<void> seedDatabase(AppDatabase db) async {
       ));
     }
 
-    // ── SCORES (solo préstamos 1,2,3) ──
+    // ── SCORES ──
     batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 1, score: 750));
     batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 2, score: 820));
     batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 3, score: 680));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 11, score: 720));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 13, score: 790));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 15, score: 650));
   });
 
   // ── AMORTIZACIONES ──
@@ -138,6 +162,28 @@ Future<void> seedDatabase(AppDatabase db) async {
   // Préstamo 10: 4 pagos al día
   await _generateAmortizaciones(db, 10, 6, 10.0, 4.0, 6000.0, TiposInteres.compuesto,
     pagosAlDia: 4, pagosAtrasados: 0, conMora: false, fechaBase: now.subtract(const Duration(days: 120)));
+
+  // ── NUEVAS AMORTIZACIONES CON MORA ──
+
+  // Roberto Vega: $30,000, 18%, 24m, compuesto, activo, 5 al día + 3 atrasados
+  await _generateAmortizaciones(db, 11, 24, 18.0, 10.0, 30000.0, TiposInteres.compuesto,
+    pagosAlDia: 5, pagosAtrasados: 3, conMora: true, fechaBase: now.subtract(const Duration(days: 280)));
+
+  // Lucía Mendoza: $45,000, 15%, 36m, simple, activo, 4 al día + 4 atrasados
+  await _generateAmortizaciones(db, 12, 36, 15.0, 8.0, 45000.0, TiposInteres.simple,
+    pagosAlDia: 4, pagosAtrasados: 4, conMora: true, fechaBase: now.subtract(const Duration(days: 280)));
+
+  // Fernando Ríos: $12,000, 20%, 12m, compuesto, finalizado, 10 al día + 2 atrasados
+  await _generateAmortizaciones(db, 13, 12, 20.0, 12.0, 12000.0, TiposInteres.compuesto,
+    pagosAlDia: 10, pagosAtrasados: 2, conMora: true, fechaBase: now.subtract(const Duration(days: 420)));
+
+  // Gabriela Núñez: $22,000, 16%, 18m, simple, activo, 3 al día + 5 atrasados
+  await _generateAmortizaciones(db, 14, 18, 16.0, 9.0, 22000.0, TiposInteres.simple,
+    pagosAlDia: 3, pagosAtrasados: 5, conMora: true, fechaBase: now.subtract(const Duration(days: 280)));
+
+  // Humberto Salinas: $8,000, 22%, 6m, compuesto, finalizado, 3 al día + 3 atrasados
+  await _generateAmortizaciones(db, 15, 6, 22.0, 15.0, 8000.0, TiposInteres.compuesto,
+    pagosAlDia: 3, pagosAtrasados: 3, conMora: true, fechaBase: now.subtract(const Duration(days: 220)));
 }
 
 Future<void> _generateAmortizaciones(
@@ -180,12 +226,17 @@ Future<void> _generateAmortizaciones(
     final montoPagado = cuota + pagoExtra;
     final excedente = montoPagado - cuota;
 
-    final fechaPago = fechaBase.add(Duration(days: 30 * i));
+    final fechaVencimiento = fechaBase.add(Duration(days: 30 * i));
+    final fechaPagado = esAtrasado
+        ? fechaVencimiento.add(Duration(days: diasMora))
+        : fechaVencimiento;
+    final estadoAmortizacion = EstadoAmortizacion.pagado;
 
     await db.into(db.amortizaciones).insert(AmortizacionesCompanion.insert(
       idPrestamo: idPrestamo,
       idCuota: i,
-      fechaPago: fechaPago,
+      fechaVencimiento: fechaVencimiento,
+      fechaPagado: Value(fechaPagado),
       montoInicial: cuota,
       montoPagado: montoPagado,
       montoACapital: cuotaCapital,
@@ -193,6 +244,7 @@ Future<void> _generateAmortizaciones(
       diasMora: Value(diasMora),
       montoMora: montoMora,
       montoExcedente: excedente,
+      estadoAmortizacion: estadoAmortizacion,
     ));
 
     if (tipo == TiposInteres.simple) {

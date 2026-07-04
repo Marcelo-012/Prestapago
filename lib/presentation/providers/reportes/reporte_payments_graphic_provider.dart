@@ -1,0 +1,36 @@
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prestapagos/domain/entities/entities.dart';
+import 'package:prestapagos/domain/repositories/reportes/reporte_payments_graphic_repository.dart';
+import 'package:prestapagos/infrastructure/repositories/reporte/reporte_payments_graphic_repository_impl.dart';
+import 'package:prestapagos/presentation/providers/database/app_database_provider.dart';
+
+final reportePaymentsGraphicRepositoryProvider =
+    Provider<ReportePaymentsGraphicRepository>((ref) {
+      final db = ref.watch(appDatabaseProvider);
+      return ReportePaymentsGraphicRepositoryImpl(db: db);
+    });
+
+class ReportePaymentsGraphicProvider
+    extends AsyncNotifier<ReportePaymentsGraphic> {
+  @override
+  FutureOr<ReportePaymentsGraphic> build() {
+    final repository = ref.read(reportePaymentsGraphicRepositoryProvider);
+    return repository.getReportePaymentsGraphic();
+  }
+
+  Future<void> refresPaymentsGraphic() async {
+    state = AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      final repository = ref.read(reportePaymentsGraphicRepositoryProvider);
+      return repository.getReportePaymentsGraphic();
+    });
+  }
+}
+
+final reportePaymentsGraphicProvider =
+    AsyncNotifierProvider<ReportePaymentsGraphicProvider, ReportePaymentsGraphic>(
+      () => ReportePaymentsGraphicProvider(),
+    );

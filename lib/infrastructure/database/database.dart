@@ -48,7 +48,7 @@ class Prestamos extends Table {
       .customConstraint('NOT NULL REFERENCES deudores(id_deudor)')();
   RealColumn get tasaInteres => real().named('tasa_interes')();
   RealColumn get tasaMoratoria => real().named('tasa_interes_moratoria')();
-  RealColumn get monto => real().nullable()();
+  RealColumn get monto => real()();
   IntColumn get plazoMeses => integer().named('plazo_meses')();
   RealColumn get montoCuota => real().named('monto_cuota')();
   DateTimeColumn get fechaCreacion =>
@@ -69,9 +69,11 @@ class ConfiguracionPrestamos extends Table {
   TextColumn get periodidadIntereses =>
       textEnum<PeriodidadIntereses>().named('periodidad_intereses')();
   TextColumn get estadoPrestamo =>
-      textEnum<Status>().named('estado_prestamo')();
+      textEnum<EstadoPrestamo>().named('estado_prestamo')();
   DateTimeColumn get fechaCreacion =>
       dateTime().named('fecha_creacion').clientDefault(() => DateTime.now())();
+  DateTimeColumn get fechaActualizacion =>
+      dateTime().named('fecha_actualizacion').clientDefault(() => DateTime.now())();
 }
 
 class Amortizaciones extends Table {
@@ -81,7 +83,10 @@ class Amortizaciones extends Table {
       .customConstraint('NOT NULL REFERENCES prestamos(id_prestamo)')();
   IntColumn get idCuota => integer().named('id_cuota')();
 
-  DateTimeColumn get fechaPago => dateTime().named('fecha_pago')();
+  DateTimeColumn get fechaVencimiento =>
+      dateTime().named('fecha_vencimiento')();
+  DateTimeColumn get fechaPagado =>
+      dateTime().named('fecha_pagado').nullable()();
   RealColumn get montoInicial => real().named('monto_inicial')();
   RealColumn get montoPagado => real().named('monto_pagado')();
   RealColumn get montoACapital => real().named('monto_capital')();
@@ -90,8 +95,10 @@ class Amortizaciones extends Table {
       integer().named('dias_mora').withDefault(const Constant(0))();
   RealColumn get montoMora => real().named('monto_mora')();
   RealColumn get montoExcedente => real().named('monto_excedente')();
-  DateTimeColumn get fechaCreacion =>
-      dateTime().named('fecha_creacion').clientDefault(() => DateTime.now())();
+  TextColumn get estadoAmortizacion =>
+      textEnum<EstadoAmortizacion>().named('estado_amortizacion')();
+  DateTimeColumn get fechaActualizacion =>
+      dateTime().named('fecha_actualizacion').clientDefault(() => DateTime.now())();
 }
 
 @DriftDatabase(

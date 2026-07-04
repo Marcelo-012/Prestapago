@@ -2,12 +2,12 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:prestapagos/domain/entities/backup/backup_status.dart';
-import 'package:prestapagos/domain/repositories/backup_repository.dart';
+import 'package:prestapagos/domain/repositories/backup/backup_repository.dart';
 import 'package:prestapagos/config/errors/backup_exceptions.dart';
-import 'package:prestapagos/infrastructure/datasource/backup/local_backup_datasource.dart';
-import 'package:prestapagos/infrastructure/datasource/backup/secure_storage_datasource.dart';
-import 'package:prestapagos/infrastructure/datasource/google_auth_datasource.dart';
-import 'package:prestapagos/infrastructure/datasource/google_drive_datasource.dart';
+import 'package:prestapagos/infrastructure/datasources/backup/local_backup_datasource.dart';
+import 'package:prestapagos/infrastructure/datasources/backup/secure_storage_datasource.dart';
+import 'package:prestapagos/infrastructure/datasources/google_auth_datasource.dart';
+import 'package:prestapagos/infrastructure/datasources/google_drive_datasource.dart';
 
 class BackupRepositoryImpl implements BackupRepository {
   final GoogleAuthDatasource _authDatasource;

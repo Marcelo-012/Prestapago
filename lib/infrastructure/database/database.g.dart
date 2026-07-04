@@ -1012,9 +1012,9 @@ class $PrestamosTable extends Prestamos
   late final GeneratedColumn<double> monto = GeneratedColumn<double>(
     'monto',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.double,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _plazoMesesMeta = const VerificationMeta(
     'plazoMeses',
@@ -1115,6 +1115,8 @@ class $PrestamosTable extends Prestamos
         _montoMeta,
         monto.isAcceptableOrUnknown(data['monto']!, _montoMeta),
       );
+    } else if (isInserting) {
+      context.missing(_montoMeta);
     }
     if (data.containsKey('plazo_meses')) {
       context.handle(
@@ -1169,7 +1171,7 @@ class $PrestamosTable extends Prestamos
       monto: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}monto'],
-      ),
+      )!,
       plazoMeses: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}plazo_meses'],
@@ -1196,7 +1198,7 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
   final int idDeudor;
   final double tasaInteres;
   final double tasaMoratoria;
-  final double? monto;
+  final double monto;
   final int plazoMeses;
   final double montoCuota;
   final DateTime fechaCreacion;
@@ -1205,7 +1207,7 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
     required this.idDeudor,
     required this.tasaInteres,
     required this.tasaMoratoria,
-    this.monto,
+    required this.monto,
     required this.plazoMeses,
     required this.montoCuota,
     required this.fechaCreacion,
@@ -1217,9 +1219,7 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
     map['id_deudor'] = Variable<int>(idDeudor);
     map['tasa_interes'] = Variable<double>(tasaInteres);
     map['tasa_interes_moratoria'] = Variable<double>(tasaMoratoria);
-    if (!nullToAbsent || monto != null) {
-      map['monto'] = Variable<double>(monto);
-    }
+    map['monto'] = Variable<double>(monto);
     map['plazo_meses'] = Variable<int>(plazoMeses);
     map['monto_cuota'] = Variable<double>(montoCuota);
     map['fecha_creacion'] = Variable<DateTime>(fechaCreacion);
@@ -1232,9 +1232,7 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
       idDeudor: Value(idDeudor),
       tasaInteres: Value(tasaInteres),
       tasaMoratoria: Value(tasaMoratoria),
-      monto: monto == null && nullToAbsent
-          ? const Value.absent()
-          : Value(monto),
+      monto: Value(monto),
       plazoMeses: Value(plazoMeses),
       montoCuota: Value(montoCuota),
       fechaCreacion: Value(fechaCreacion),
@@ -1251,7 +1249,7 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
       idDeudor: serializer.fromJson<int>(json['idDeudor']),
       tasaInteres: serializer.fromJson<double>(json['tasaInteres']),
       tasaMoratoria: serializer.fromJson<double>(json['tasaMoratoria']),
-      monto: serializer.fromJson<double?>(json['monto']),
+      monto: serializer.fromJson<double>(json['monto']),
       plazoMeses: serializer.fromJson<int>(json['plazoMeses']),
       montoCuota: serializer.fromJson<double>(json['montoCuota']),
       fechaCreacion: serializer.fromJson<DateTime>(json['fechaCreacion']),
@@ -1265,7 +1263,7 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
       'idDeudor': serializer.toJson<int>(idDeudor),
       'tasaInteres': serializer.toJson<double>(tasaInteres),
       'tasaMoratoria': serializer.toJson<double>(tasaMoratoria),
-      'monto': serializer.toJson<double?>(monto),
+      'monto': serializer.toJson<double>(monto),
       'plazoMeses': serializer.toJson<int>(plazoMeses),
       'montoCuota': serializer.toJson<double>(montoCuota),
       'fechaCreacion': serializer.toJson<DateTime>(fechaCreacion),
@@ -1277,7 +1275,7 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
     int? idDeudor,
     double? tasaInteres,
     double? tasaMoratoria,
-    Value<double?> monto = const Value.absent(),
+    double? monto,
     int? plazoMeses,
     double? montoCuota,
     DateTime? fechaCreacion,
@@ -1286,7 +1284,7 @@ class Prestamo extends DataClass implements Insertable<Prestamo> {
     idDeudor: idDeudor ?? this.idDeudor,
     tasaInteres: tasaInteres ?? this.tasaInteres,
     tasaMoratoria: tasaMoratoria ?? this.tasaMoratoria,
-    monto: monto.present ? monto.value : this.monto,
+    monto: monto ?? this.monto,
     plazoMeses: plazoMeses ?? this.plazoMeses,
     montoCuota: montoCuota ?? this.montoCuota,
     fechaCreacion: fechaCreacion ?? this.fechaCreacion,
@@ -1359,7 +1357,7 @@ class PrestamosCompanion extends UpdateCompanion<Prestamo> {
   final Value<int> idDeudor;
   final Value<double> tasaInteres;
   final Value<double> tasaMoratoria;
-  final Value<double?> monto;
+  final Value<double> monto;
   final Value<int> plazoMeses;
   final Value<double> montoCuota;
   final Value<DateTime> fechaCreacion;
@@ -1378,13 +1376,14 @@ class PrestamosCompanion extends UpdateCompanion<Prestamo> {
     required int idDeudor,
     required double tasaInteres,
     required double tasaMoratoria,
-    this.monto = const Value.absent(),
+    required double monto,
     required int plazoMeses,
     required double montoCuota,
     this.fechaCreacion = const Value.absent(),
   }) : idDeudor = Value(idDeudor),
        tasaInteres = Value(tasaInteres),
        tasaMoratoria = Value(tasaMoratoria),
+       monto = Value(monto),
        plazoMeses = Value(plazoMeses),
        montoCuota = Value(montoCuota);
   static Insertable<Prestamo> custom({
@@ -1414,7 +1413,7 @@ class PrestamosCompanion extends UpdateCompanion<Prestamo> {
     Value<int>? idDeudor,
     Value<double>? tasaInteres,
     Value<double>? tasaMoratoria,
-    Value<double?>? monto,
+    Value<double>? monto,
     Value<int>? plazoMeses,
     Value<double>? montoCuota,
     Value<DateTime>? fechaCreacion,
@@ -1556,14 +1555,15 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
         $ConfiguracionPrestamosTable.$converterperiodidadIntereses,
       );
   @override
-  late final GeneratedColumnWithTypeConverter<Status, String> estadoPrestamo =
+  late final GeneratedColumnWithTypeConverter<EstadoPrestamo, String>
+  estadoPrestamo =
       GeneratedColumn<String>(
         'estado_prestamo',
         aliasedName,
         false,
         type: DriftSqlType.string,
         requiredDuringInsert: true,
-      ).withConverter<Status>(
+      ).withConverter<EstadoPrestamo>(
         $ConfiguracionPrestamosTable.$converterestadoPrestamo,
       );
   static const VerificationMeta _fechaCreacionMeta = const VerificationMeta(
@@ -1573,6 +1573,18 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
   late final GeneratedColumn<DateTime> fechaCreacion =
       GeneratedColumn<DateTime>(
         'fecha_creacion',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+        clientDefault: () => DateTime.now(),
+      );
+  static const VerificationMeta _fechaActualizacionMeta =
+      const VerificationMeta('fechaActualizacion');
+  @override
+  late final GeneratedColumn<DateTime> fechaActualizacion =
+      GeneratedColumn<DateTime>(
+        'fecha_actualizacion',
         aliasedName,
         false,
         type: DriftSqlType.dateTime,
@@ -1589,6 +1601,7 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
     periodidadIntereses,
     estadoPrestamo,
     fechaCreacion,
+    fechaActualizacion,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1622,6 +1635,15 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
         fechaCreacion.isAcceptableOrUnknown(
           data['fecha_creacion']!,
           _fechaCreacionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('fecha_actualizacion')) {
+      context.handle(
+        _fechaActualizacionMeta,
+        fechaActualizacion.isAcceptableOrUnknown(
+          data['fecha_actualizacion']!,
+          _fechaActualizacionMeta,
         ),
       );
     }
@@ -1681,6 +1703,10 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
         DriftSqlType.dateTime,
         data['${effectivePrefix}fecha_creacion'],
       )!,
+      fechaActualizacion: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fecha_actualizacion'],
+      )!,
     );
   }
 
@@ -1703,8 +1729,10 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
   $converterperiodidadIntereses = const EnumNameConverter<PeriodidadIntereses>(
     PeriodidadIntereses.values,
   );
-  static JsonTypeConverter2<Status, String, String> $converterestadoPrestamo =
-      const EnumNameConverter<Status>(Status.values);
+  static JsonTypeConverter2<EstadoPrestamo, String, String>
+  $converterestadoPrestamo = const EnumNameConverter<EstadoPrestamo>(
+    EstadoPrestamo.values,
+  );
 }
 
 class ConfiguracionPrestamo extends DataClass
@@ -1715,8 +1743,9 @@ class ConfiguracionPrestamo extends DataClass
   final Status estadoMoratorio;
   final ManejoExcedente manejoExcedente;
   final PeriodidadIntereses periodidadIntereses;
-  final Status estadoPrestamo;
+  final EstadoPrestamo estadoPrestamo;
   final DateTime fechaCreacion;
+  final DateTime fechaActualizacion;
   const ConfiguracionPrestamo({
     required this.id,
     required this.idPrestamo,
@@ -1726,6 +1755,7 @@ class ConfiguracionPrestamo extends DataClass
     required this.periodidadIntereses,
     required this.estadoPrestamo,
     required this.fechaCreacion,
+    required this.fechaActualizacion,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1766,6 +1796,7 @@ class ConfiguracionPrestamo extends DataClass
       );
     }
     map['fecha_creacion'] = Variable<DateTime>(fechaCreacion);
+    map['fecha_actualizacion'] = Variable<DateTime>(fechaActualizacion);
     return map;
   }
 
@@ -1779,6 +1810,7 @@ class ConfiguracionPrestamo extends DataClass
       periodidadIntereses: Value(periodidadIntereses),
       estadoPrestamo: Value(estadoPrestamo),
       fechaCreacion: Value(fechaCreacion),
+      fechaActualizacion: Value(fechaActualizacion),
     );
   }
 
@@ -1803,6 +1835,9 @@ class ConfiguracionPrestamo extends DataClass
       estadoPrestamo: $ConfiguracionPrestamosTable.$converterestadoPrestamo
           .fromJson(serializer.fromJson<String>(json['estadoPrestamo'])),
       fechaCreacion: serializer.fromJson<DateTime>(json['fechaCreacion']),
+      fechaActualizacion: serializer.fromJson<DateTime>(
+        json['fechaActualizacion'],
+      ),
     );
   }
   @override
@@ -1835,6 +1870,7 @@ class ConfiguracionPrestamo extends DataClass
         ),
       ),
       'fechaCreacion': serializer.toJson<DateTime>(fechaCreacion),
+      'fechaActualizacion': serializer.toJson<DateTime>(fechaActualizacion),
     };
   }
 
@@ -1845,8 +1881,9 @@ class ConfiguracionPrestamo extends DataClass
     Status? estadoMoratorio,
     ManejoExcedente? manejoExcedente,
     PeriodidadIntereses? periodidadIntereses,
-    Status? estadoPrestamo,
+    EstadoPrestamo? estadoPrestamo,
     DateTime? fechaCreacion,
+    DateTime? fechaActualizacion,
   }) => ConfiguracionPrestamo(
     id: id ?? this.id,
     idPrestamo: idPrestamo ?? this.idPrestamo,
@@ -1856,6 +1893,7 @@ class ConfiguracionPrestamo extends DataClass
     periodidadIntereses: periodidadIntereses ?? this.periodidadIntereses,
     estadoPrestamo: estadoPrestamo ?? this.estadoPrestamo,
     fechaCreacion: fechaCreacion ?? this.fechaCreacion,
+    fechaActualizacion: fechaActualizacion ?? this.fechaActualizacion,
   );
   ConfiguracionPrestamo copyWithCompanion(
     ConfiguracionPrestamosCompanion data,
@@ -1883,6 +1921,9 @@ class ConfiguracionPrestamo extends DataClass
       fechaCreacion: data.fechaCreacion.present
           ? data.fechaCreacion.value
           : this.fechaCreacion,
+      fechaActualizacion: data.fechaActualizacion.present
+          ? data.fechaActualizacion.value
+          : this.fechaActualizacion,
     );
   }
 
@@ -1896,7 +1937,8 @@ class ConfiguracionPrestamo extends DataClass
           ..write('manejoExcedente: $manejoExcedente, ')
           ..write('periodidadIntereses: $periodidadIntereses, ')
           ..write('estadoPrestamo: $estadoPrestamo, ')
-          ..write('fechaCreacion: $fechaCreacion')
+          ..write('fechaCreacion: $fechaCreacion, ')
+          ..write('fechaActualizacion: $fechaActualizacion')
           ..write(')'))
         .toString();
   }
@@ -1911,6 +1953,7 @@ class ConfiguracionPrestamo extends DataClass
     periodidadIntereses,
     estadoPrestamo,
     fechaCreacion,
+    fechaActualizacion,
   );
   @override
   bool operator ==(Object other) =>
@@ -1923,7 +1966,8 @@ class ConfiguracionPrestamo extends DataClass
           other.manejoExcedente == this.manejoExcedente &&
           other.periodidadIntereses == this.periodidadIntereses &&
           other.estadoPrestamo == this.estadoPrestamo &&
-          other.fechaCreacion == this.fechaCreacion);
+          other.fechaCreacion == this.fechaCreacion &&
+          other.fechaActualizacion == this.fechaActualizacion);
 }
 
 class ConfiguracionPrestamosCompanion
@@ -1934,8 +1978,9 @@ class ConfiguracionPrestamosCompanion
   final Value<Status> estadoMoratorio;
   final Value<ManejoExcedente> manejoExcedente;
   final Value<PeriodidadIntereses> periodidadIntereses;
-  final Value<Status> estadoPrestamo;
+  final Value<EstadoPrestamo> estadoPrestamo;
   final Value<DateTime> fechaCreacion;
+  final Value<DateTime> fechaActualizacion;
   const ConfiguracionPrestamosCompanion({
     this.id = const Value.absent(),
     this.idPrestamo = const Value.absent(),
@@ -1945,6 +1990,7 @@ class ConfiguracionPrestamosCompanion
     this.periodidadIntereses = const Value.absent(),
     this.estadoPrestamo = const Value.absent(),
     this.fechaCreacion = const Value.absent(),
+    this.fechaActualizacion = const Value.absent(),
   });
   ConfiguracionPrestamosCompanion.insert({
     this.id = const Value.absent(),
@@ -1953,8 +1999,9 @@ class ConfiguracionPrestamosCompanion
     required Status estadoMoratorio,
     required ManejoExcedente manejoExcedente,
     required PeriodidadIntereses periodidadIntereses,
-    required Status estadoPrestamo,
+    required EstadoPrestamo estadoPrestamo,
     this.fechaCreacion = const Value.absent(),
+    this.fechaActualizacion = const Value.absent(),
   }) : idPrestamo = Value(idPrestamo),
        tipoInteres = Value(tipoInteres),
        estadoMoratorio = Value(estadoMoratorio),
@@ -1970,6 +2017,7 @@ class ConfiguracionPrestamosCompanion
     Expression<String>? periodidadIntereses,
     Expression<String>? estadoPrestamo,
     Expression<DateTime>? fechaCreacion,
+    Expression<DateTime>? fechaActualizacion,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id_configuracion': id,
@@ -1981,6 +2029,7 @@ class ConfiguracionPrestamosCompanion
         'periodidad_intereses': periodidadIntereses,
       if (estadoPrestamo != null) 'estado_prestamo': estadoPrestamo,
       if (fechaCreacion != null) 'fecha_creacion': fechaCreacion,
+      if (fechaActualizacion != null) 'fecha_actualizacion': fechaActualizacion,
     });
   }
 
@@ -1991,8 +2040,9 @@ class ConfiguracionPrestamosCompanion
     Value<Status>? estadoMoratorio,
     Value<ManejoExcedente>? manejoExcedente,
     Value<PeriodidadIntereses>? periodidadIntereses,
-    Value<Status>? estadoPrestamo,
+    Value<EstadoPrestamo>? estadoPrestamo,
     Value<DateTime>? fechaCreacion,
+    Value<DateTime>? fechaActualizacion,
   }) {
     return ConfiguracionPrestamosCompanion(
       id: id ?? this.id,
@@ -2003,6 +2053,7 @@ class ConfiguracionPrestamosCompanion
       periodidadIntereses: periodidadIntereses ?? this.periodidadIntereses,
       estadoPrestamo: estadoPrestamo ?? this.estadoPrestamo,
       fechaCreacion: fechaCreacion ?? this.fechaCreacion,
+      fechaActualizacion: fechaActualizacion ?? this.fechaActualizacion,
     );
   }
 
@@ -2053,6 +2104,9 @@ class ConfiguracionPrestamosCompanion
     if (fechaCreacion.present) {
       map['fecha_creacion'] = Variable<DateTime>(fechaCreacion.value);
     }
+    if (fechaActualizacion.present) {
+      map['fecha_actualizacion'] = Variable<DateTime>(fechaActualizacion.value);
+    }
     return map;
   }
 
@@ -2066,7 +2120,8 @@ class ConfiguracionPrestamosCompanion
           ..write('manejoExcedente: $manejoExcedente, ')
           ..write('periodidadIntereses: $periodidadIntereses, ')
           ..write('estadoPrestamo: $estadoPrestamo, ')
-          ..write('fechaCreacion: $fechaCreacion')
+          ..write('fechaCreacion: $fechaCreacion, ')
+          ..write('fechaActualizacion: $fechaActualizacion')
           ..write(')'))
         .toString();
   }
@@ -2114,16 +2169,28 @@ class $AmortizacionesTable extends Amortizaciones
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _fechaPagoMeta = const VerificationMeta(
-    'fechaPago',
+  static const VerificationMeta _fechaVencimientoMeta = const VerificationMeta(
+    'fechaVencimiento',
   );
   @override
-  late final GeneratedColumn<DateTime> fechaPago = GeneratedColumn<DateTime>(
-    'fecha_pago',
+  late final GeneratedColumn<DateTime> fechaVencimiento =
+      GeneratedColumn<DateTime>(
+        'fecha_vencimiento',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _fechaPagadoMeta = const VerificationMeta(
+    'fechaPagado',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fechaPagado = GeneratedColumn<DateTime>(
+    'fecha_pagado',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _montoInicialMeta = const VerificationMeta(
     'montoInicial',
@@ -2203,13 +2270,24 @@ class $AmortizacionesTable extends Amortizaciones
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _fechaCreacionMeta = const VerificationMeta(
-    'fechaCreacion',
-  );
   @override
-  late final GeneratedColumn<DateTime> fechaCreacion =
+  late final GeneratedColumnWithTypeConverter<EstadoAmortizacion, String>
+  estadoAmortizacion =
+      GeneratedColumn<String>(
+        'estado_amortizacion',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<EstadoAmortizacion>(
+        $AmortizacionesTable.$converterestadoAmortizacion,
+      );
+  static const VerificationMeta _fechaActualizacionMeta =
+      const VerificationMeta('fechaActualizacion');
+  @override
+  late final GeneratedColumn<DateTime> fechaActualizacion =
       GeneratedColumn<DateTime>(
-        'fecha_creacion',
+        'fecha_actualizacion',
         aliasedName,
         false,
         type: DriftSqlType.dateTime,
@@ -2221,7 +2299,8 @@ class $AmortizacionesTable extends Amortizaciones
     id,
     idPrestamo,
     idCuota,
-    fechaPago,
+    fechaVencimiento,
+    fechaPagado,
     montoInicial,
     montoPagado,
     montoACapital,
@@ -2229,7 +2308,8 @@ class $AmortizacionesTable extends Amortizaciones
     diasMora,
     montoMora,
     montoExcedente,
-    fechaCreacion,
+    estadoAmortizacion,
+    fechaActualizacion,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2265,13 +2345,25 @@ class $AmortizacionesTable extends Amortizaciones
     } else if (isInserting) {
       context.missing(_idCuotaMeta);
     }
-    if (data.containsKey('fecha_pago')) {
+    if (data.containsKey('fecha_vencimiento')) {
       context.handle(
-        _fechaPagoMeta,
-        fechaPago.isAcceptableOrUnknown(data['fecha_pago']!, _fechaPagoMeta),
+        _fechaVencimientoMeta,
+        fechaVencimiento.isAcceptableOrUnknown(
+          data['fecha_vencimiento']!,
+          _fechaVencimientoMeta,
+        ),
       );
     } else if (isInserting) {
-      context.missing(_fechaPagoMeta);
+      context.missing(_fechaVencimientoMeta);
+    }
+    if (data.containsKey('fecha_pagado')) {
+      context.handle(
+        _fechaPagadoMeta,
+        fechaPagado.isAcceptableOrUnknown(
+          data['fecha_pagado']!,
+          _fechaPagadoMeta,
+        ),
+      );
     }
     if (data.containsKey('monto_inicial')) {
       context.handle(
@@ -2342,12 +2434,12 @@ class $AmortizacionesTable extends Amortizaciones
     } else if (isInserting) {
       context.missing(_montoExcedenteMeta);
     }
-    if (data.containsKey('fecha_creacion')) {
+    if (data.containsKey('fecha_actualizacion')) {
       context.handle(
-        _fechaCreacionMeta,
-        fechaCreacion.isAcceptableOrUnknown(
-          data['fecha_creacion']!,
-          _fechaCreacionMeta,
+        _fechaActualizacionMeta,
+        fechaActualizacion.isAcceptableOrUnknown(
+          data['fecha_actualizacion']!,
+          _fechaActualizacionMeta,
         ),
       );
     }
@@ -2372,10 +2464,14 @@ class $AmortizacionesTable extends Amortizaciones
         DriftSqlType.int,
         data['${effectivePrefix}id_cuota'],
       )!,
-      fechaPago: attachedDatabase.typeMapping.read(
+      fechaVencimiento: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
-        data['${effectivePrefix}fecha_pago'],
+        data['${effectivePrefix}fecha_vencimiento'],
       )!,
+      fechaPagado: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fecha_pagado'],
+      ),
       montoInicial: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}monto_inicial'],
@@ -2404,9 +2500,16 @@ class $AmortizacionesTable extends Amortizaciones
         DriftSqlType.double,
         data['${effectivePrefix}monto_excedente'],
       )!,
-      fechaCreacion: attachedDatabase.typeMapping.read(
+      estadoAmortizacion: $AmortizacionesTable.$converterestadoAmortizacion
+          .fromSql(
+            attachedDatabase.typeMapping.read(
+              DriftSqlType.string,
+              data['${effectivePrefix}estado_amortizacion'],
+            )!,
+          ),
+      fechaActualizacion: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
-        data['${effectivePrefix}fecha_creacion'],
+        data['${effectivePrefix}fecha_actualizacion'],
       )!,
     );
   }
@@ -2415,13 +2518,19 @@ class $AmortizacionesTable extends Amortizaciones
   $AmortizacionesTable createAlias(String alias) {
     return $AmortizacionesTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<EstadoAmortizacion, String, String>
+  $converterestadoAmortizacion = const EnumNameConverter<EstadoAmortizacion>(
+    EstadoAmortizacion.values,
+  );
 }
 
 class Amortizacione extends DataClass implements Insertable<Amortizacione> {
   final int id;
   final int idPrestamo;
   final int idCuota;
-  final DateTime fechaPago;
+  final DateTime fechaVencimiento;
+  final DateTime? fechaPagado;
   final double montoInicial;
   final double montoPagado;
   final double montoACapital;
@@ -2429,12 +2538,14 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
   final int diasMora;
   final double montoMora;
   final double montoExcedente;
-  final DateTime fechaCreacion;
+  final EstadoAmortizacion estadoAmortizacion;
+  final DateTime fechaActualizacion;
   const Amortizacione({
     required this.id,
     required this.idPrestamo,
     required this.idCuota,
-    required this.fechaPago,
+    required this.fechaVencimiento,
+    this.fechaPagado,
     required this.montoInicial,
     required this.montoPagado,
     required this.montoACapital,
@@ -2442,7 +2553,8 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
     required this.diasMora,
     required this.montoMora,
     required this.montoExcedente,
-    required this.fechaCreacion,
+    required this.estadoAmortizacion,
+    required this.fechaActualizacion,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2450,7 +2562,10 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
     map['id_amortizacion'] = Variable<int>(id);
     map['id_prestamo'] = Variable<int>(idPrestamo);
     map['id_cuota'] = Variable<int>(idCuota);
-    map['fecha_pago'] = Variable<DateTime>(fechaPago);
+    map['fecha_vencimiento'] = Variable<DateTime>(fechaVencimiento);
+    if (!nullToAbsent || fechaPagado != null) {
+      map['fecha_pagado'] = Variable<DateTime>(fechaPagado);
+    }
     map['monto_inicial'] = Variable<double>(montoInicial);
     map['monto_pagado'] = Variable<double>(montoPagado);
     map['monto_capital'] = Variable<double>(montoACapital);
@@ -2458,7 +2573,14 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
     map['dias_mora'] = Variable<int>(diasMora);
     map['monto_mora'] = Variable<double>(montoMora);
     map['monto_excedente'] = Variable<double>(montoExcedente);
-    map['fecha_creacion'] = Variable<DateTime>(fechaCreacion);
+    {
+      map['estado_amortizacion'] = Variable<String>(
+        $AmortizacionesTable.$converterestadoAmortizacion.toSql(
+          estadoAmortizacion,
+        ),
+      );
+    }
+    map['fecha_actualizacion'] = Variable<DateTime>(fechaActualizacion);
     return map;
   }
 
@@ -2467,7 +2589,10 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
       id: Value(id),
       idPrestamo: Value(idPrestamo),
       idCuota: Value(idCuota),
-      fechaPago: Value(fechaPago),
+      fechaVencimiento: Value(fechaVencimiento),
+      fechaPagado: fechaPagado == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fechaPagado),
       montoInicial: Value(montoInicial),
       montoPagado: Value(montoPagado),
       montoACapital: Value(montoACapital),
@@ -2475,7 +2600,8 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
       diasMora: Value(diasMora),
       montoMora: Value(montoMora),
       montoExcedente: Value(montoExcedente),
-      fechaCreacion: Value(fechaCreacion),
+      estadoAmortizacion: Value(estadoAmortizacion),
+      fechaActualizacion: Value(fechaActualizacion),
     );
   }
 
@@ -2488,7 +2614,8 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
       id: serializer.fromJson<int>(json['id']),
       idPrestamo: serializer.fromJson<int>(json['idPrestamo']),
       idCuota: serializer.fromJson<int>(json['idCuota']),
-      fechaPago: serializer.fromJson<DateTime>(json['fechaPago']),
+      fechaVencimiento: serializer.fromJson<DateTime>(json['fechaVencimiento']),
+      fechaPagado: serializer.fromJson<DateTime?>(json['fechaPagado']),
       montoInicial: serializer.fromJson<double>(json['montoInicial']),
       montoPagado: serializer.fromJson<double>(json['montoPagado']),
       montoACapital: serializer.fromJson<double>(json['montoACapital']),
@@ -2496,7 +2623,11 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
       diasMora: serializer.fromJson<int>(json['diasMora']),
       montoMora: serializer.fromJson<double>(json['montoMora']),
       montoExcedente: serializer.fromJson<double>(json['montoExcedente']),
-      fechaCreacion: serializer.fromJson<DateTime>(json['fechaCreacion']),
+      estadoAmortizacion: $AmortizacionesTable.$converterestadoAmortizacion
+          .fromJson(serializer.fromJson<String>(json['estadoAmortizacion'])),
+      fechaActualizacion: serializer.fromJson<DateTime>(
+        json['fechaActualizacion'],
+      ),
     );
   }
   @override
@@ -2506,7 +2637,8 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
       'id': serializer.toJson<int>(id),
       'idPrestamo': serializer.toJson<int>(idPrestamo),
       'idCuota': serializer.toJson<int>(idCuota),
-      'fechaPago': serializer.toJson<DateTime>(fechaPago),
+      'fechaVencimiento': serializer.toJson<DateTime>(fechaVencimiento),
+      'fechaPagado': serializer.toJson<DateTime?>(fechaPagado),
       'montoInicial': serializer.toJson<double>(montoInicial),
       'montoPagado': serializer.toJson<double>(montoPagado),
       'montoACapital': serializer.toJson<double>(montoACapital),
@@ -2514,7 +2646,12 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
       'diasMora': serializer.toJson<int>(diasMora),
       'montoMora': serializer.toJson<double>(montoMora),
       'montoExcedente': serializer.toJson<double>(montoExcedente),
-      'fechaCreacion': serializer.toJson<DateTime>(fechaCreacion),
+      'estadoAmortizacion': serializer.toJson<String>(
+        $AmortizacionesTable.$converterestadoAmortizacion.toJson(
+          estadoAmortizacion,
+        ),
+      ),
+      'fechaActualizacion': serializer.toJson<DateTime>(fechaActualizacion),
     };
   }
 
@@ -2522,7 +2659,8 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
     int? id,
     int? idPrestamo,
     int? idCuota,
-    DateTime? fechaPago,
+    DateTime? fechaVencimiento,
+    Value<DateTime?> fechaPagado = const Value.absent(),
     double? montoInicial,
     double? montoPagado,
     double? montoACapital,
@@ -2530,12 +2668,14 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
     int? diasMora,
     double? montoMora,
     double? montoExcedente,
-    DateTime? fechaCreacion,
+    EstadoAmortizacion? estadoAmortizacion,
+    DateTime? fechaActualizacion,
   }) => Amortizacione(
     id: id ?? this.id,
     idPrestamo: idPrestamo ?? this.idPrestamo,
     idCuota: idCuota ?? this.idCuota,
-    fechaPago: fechaPago ?? this.fechaPago,
+    fechaVencimiento: fechaVencimiento ?? this.fechaVencimiento,
+    fechaPagado: fechaPagado.present ? fechaPagado.value : this.fechaPagado,
     montoInicial: montoInicial ?? this.montoInicial,
     montoPagado: montoPagado ?? this.montoPagado,
     montoACapital: montoACapital ?? this.montoACapital,
@@ -2543,7 +2683,8 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
     diasMora: diasMora ?? this.diasMora,
     montoMora: montoMora ?? this.montoMora,
     montoExcedente: montoExcedente ?? this.montoExcedente,
-    fechaCreacion: fechaCreacion ?? this.fechaCreacion,
+    estadoAmortizacion: estadoAmortizacion ?? this.estadoAmortizacion,
+    fechaActualizacion: fechaActualizacion ?? this.fechaActualizacion,
   );
   Amortizacione copyWithCompanion(AmortizacionesCompanion data) {
     return Amortizacione(
@@ -2552,7 +2693,12 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
           ? data.idPrestamo.value
           : this.idPrestamo,
       idCuota: data.idCuota.present ? data.idCuota.value : this.idCuota,
-      fechaPago: data.fechaPago.present ? data.fechaPago.value : this.fechaPago,
+      fechaVencimiento: data.fechaVencimiento.present
+          ? data.fechaVencimiento.value
+          : this.fechaVencimiento,
+      fechaPagado: data.fechaPagado.present
+          ? data.fechaPagado.value
+          : this.fechaPagado,
       montoInicial: data.montoInicial.present
           ? data.montoInicial.value
           : this.montoInicial,
@@ -2570,9 +2716,12 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
       montoExcedente: data.montoExcedente.present
           ? data.montoExcedente.value
           : this.montoExcedente,
-      fechaCreacion: data.fechaCreacion.present
-          ? data.fechaCreacion.value
-          : this.fechaCreacion,
+      estadoAmortizacion: data.estadoAmortizacion.present
+          ? data.estadoAmortizacion.value
+          : this.estadoAmortizacion,
+      fechaActualizacion: data.fechaActualizacion.present
+          ? data.fechaActualizacion.value
+          : this.fechaActualizacion,
     );
   }
 
@@ -2582,7 +2731,8 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
           ..write('id: $id, ')
           ..write('idPrestamo: $idPrestamo, ')
           ..write('idCuota: $idCuota, ')
-          ..write('fechaPago: $fechaPago, ')
+          ..write('fechaVencimiento: $fechaVencimiento, ')
+          ..write('fechaPagado: $fechaPagado, ')
           ..write('montoInicial: $montoInicial, ')
           ..write('montoPagado: $montoPagado, ')
           ..write('montoACapital: $montoACapital, ')
@@ -2590,7 +2740,8 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
           ..write('diasMora: $diasMora, ')
           ..write('montoMora: $montoMora, ')
           ..write('montoExcedente: $montoExcedente, ')
-          ..write('fechaCreacion: $fechaCreacion')
+          ..write('estadoAmortizacion: $estadoAmortizacion, ')
+          ..write('fechaActualizacion: $fechaActualizacion')
           ..write(')'))
         .toString();
   }
@@ -2600,7 +2751,8 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
     id,
     idPrestamo,
     idCuota,
-    fechaPago,
+    fechaVencimiento,
+    fechaPagado,
     montoInicial,
     montoPagado,
     montoACapital,
@@ -2608,7 +2760,8 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
     diasMora,
     montoMora,
     montoExcedente,
-    fechaCreacion,
+    estadoAmortizacion,
+    fechaActualizacion,
   );
   @override
   bool operator ==(Object other) =>
@@ -2617,7 +2770,8 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
           other.id == this.id &&
           other.idPrestamo == this.idPrestamo &&
           other.idCuota == this.idCuota &&
-          other.fechaPago == this.fechaPago &&
+          other.fechaVencimiento == this.fechaVencimiento &&
+          other.fechaPagado == this.fechaPagado &&
           other.montoInicial == this.montoInicial &&
           other.montoPagado == this.montoPagado &&
           other.montoACapital == this.montoACapital &&
@@ -2625,14 +2779,16 @@ class Amortizacione extends DataClass implements Insertable<Amortizacione> {
           other.diasMora == this.diasMora &&
           other.montoMora == this.montoMora &&
           other.montoExcedente == this.montoExcedente &&
-          other.fechaCreacion == this.fechaCreacion);
+          other.estadoAmortizacion == this.estadoAmortizacion &&
+          other.fechaActualizacion == this.fechaActualizacion);
 }
 
 class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
   final Value<int> id;
   final Value<int> idPrestamo;
   final Value<int> idCuota;
-  final Value<DateTime> fechaPago;
+  final Value<DateTime> fechaVencimiento;
+  final Value<DateTime?> fechaPagado;
   final Value<double> montoInicial;
   final Value<double> montoPagado;
   final Value<double> montoACapital;
@@ -2640,12 +2796,14 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
   final Value<int> diasMora;
   final Value<double> montoMora;
   final Value<double> montoExcedente;
-  final Value<DateTime> fechaCreacion;
+  final Value<EstadoAmortizacion> estadoAmortizacion;
+  final Value<DateTime> fechaActualizacion;
   const AmortizacionesCompanion({
     this.id = const Value.absent(),
     this.idPrestamo = const Value.absent(),
     this.idCuota = const Value.absent(),
-    this.fechaPago = const Value.absent(),
+    this.fechaVencimiento = const Value.absent(),
+    this.fechaPagado = const Value.absent(),
     this.montoInicial = const Value.absent(),
     this.montoPagado = const Value.absent(),
     this.montoACapital = const Value.absent(),
@@ -2653,13 +2811,15 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
     this.diasMora = const Value.absent(),
     this.montoMora = const Value.absent(),
     this.montoExcedente = const Value.absent(),
-    this.fechaCreacion = const Value.absent(),
+    this.estadoAmortizacion = const Value.absent(),
+    this.fechaActualizacion = const Value.absent(),
   });
   AmortizacionesCompanion.insert({
     this.id = const Value.absent(),
     required int idPrestamo,
     required int idCuota,
-    required DateTime fechaPago,
+    required DateTime fechaVencimiento,
+    this.fechaPagado = const Value.absent(),
     required double montoInicial,
     required double montoPagado,
     required double montoACapital,
@@ -2667,21 +2827,24 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
     this.diasMora = const Value.absent(),
     required double montoMora,
     required double montoExcedente,
-    this.fechaCreacion = const Value.absent(),
+    required EstadoAmortizacion estadoAmortizacion,
+    this.fechaActualizacion = const Value.absent(),
   }) : idPrestamo = Value(idPrestamo),
        idCuota = Value(idCuota),
-       fechaPago = Value(fechaPago),
+       fechaVencimiento = Value(fechaVencimiento),
        montoInicial = Value(montoInicial),
        montoPagado = Value(montoPagado),
        montoACapital = Value(montoACapital),
        montoInteres = Value(montoInteres),
        montoMora = Value(montoMora),
-       montoExcedente = Value(montoExcedente);
+       montoExcedente = Value(montoExcedente),
+       estadoAmortizacion = Value(estadoAmortizacion);
   static Insertable<Amortizacione> custom({
     Expression<int>? id,
     Expression<int>? idPrestamo,
     Expression<int>? idCuota,
-    Expression<DateTime>? fechaPago,
+    Expression<DateTime>? fechaVencimiento,
+    Expression<DateTime>? fechaPagado,
     Expression<double>? montoInicial,
     Expression<double>? montoPagado,
     Expression<double>? montoACapital,
@@ -2689,13 +2852,15 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
     Expression<int>? diasMora,
     Expression<double>? montoMora,
     Expression<double>? montoExcedente,
-    Expression<DateTime>? fechaCreacion,
+    Expression<String>? estadoAmortizacion,
+    Expression<DateTime>? fechaActualizacion,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id_amortizacion': id,
       if (idPrestamo != null) 'id_prestamo': idPrestamo,
       if (idCuota != null) 'id_cuota': idCuota,
-      if (fechaPago != null) 'fecha_pago': fechaPago,
+      if (fechaVencimiento != null) 'fecha_vencimiento': fechaVencimiento,
+      if (fechaPagado != null) 'fecha_pagado': fechaPagado,
       if (montoInicial != null) 'monto_inicial': montoInicial,
       if (montoPagado != null) 'monto_pagado': montoPagado,
       if (montoACapital != null) 'monto_capital': montoACapital,
@@ -2703,7 +2868,8 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
       if (diasMora != null) 'dias_mora': diasMora,
       if (montoMora != null) 'monto_mora': montoMora,
       if (montoExcedente != null) 'monto_excedente': montoExcedente,
-      if (fechaCreacion != null) 'fecha_creacion': fechaCreacion,
+      if (estadoAmortizacion != null) 'estado_amortizacion': estadoAmortizacion,
+      if (fechaActualizacion != null) 'fecha_actualizacion': fechaActualizacion,
     });
   }
 
@@ -2711,7 +2877,8 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
     Value<int>? id,
     Value<int>? idPrestamo,
     Value<int>? idCuota,
-    Value<DateTime>? fechaPago,
+    Value<DateTime>? fechaVencimiento,
+    Value<DateTime?>? fechaPagado,
     Value<double>? montoInicial,
     Value<double>? montoPagado,
     Value<double>? montoACapital,
@@ -2719,13 +2886,15 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
     Value<int>? diasMora,
     Value<double>? montoMora,
     Value<double>? montoExcedente,
-    Value<DateTime>? fechaCreacion,
+    Value<EstadoAmortizacion>? estadoAmortizacion,
+    Value<DateTime>? fechaActualizacion,
   }) {
     return AmortizacionesCompanion(
       id: id ?? this.id,
       idPrestamo: idPrestamo ?? this.idPrestamo,
       idCuota: idCuota ?? this.idCuota,
-      fechaPago: fechaPago ?? this.fechaPago,
+      fechaVencimiento: fechaVencimiento ?? this.fechaVencimiento,
+      fechaPagado: fechaPagado ?? this.fechaPagado,
       montoInicial: montoInicial ?? this.montoInicial,
       montoPagado: montoPagado ?? this.montoPagado,
       montoACapital: montoACapital ?? this.montoACapital,
@@ -2733,7 +2902,8 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
       diasMora: diasMora ?? this.diasMora,
       montoMora: montoMora ?? this.montoMora,
       montoExcedente: montoExcedente ?? this.montoExcedente,
-      fechaCreacion: fechaCreacion ?? this.fechaCreacion,
+      estadoAmortizacion: estadoAmortizacion ?? this.estadoAmortizacion,
+      fechaActualizacion: fechaActualizacion ?? this.fechaActualizacion,
     );
   }
 
@@ -2749,8 +2919,11 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
     if (idCuota.present) {
       map['id_cuota'] = Variable<int>(idCuota.value);
     }
-    if (fechaPago.present) {
-      map['fecha_pago'] = Variable<DateTime>(fechaPago.value);
+    if (fechaVencimiento.present) {
+      map['fecha_vencimiento'] = Variable<DateTime>(fechaVencimiento.value);
+    }
+    if (fechaPagado.present) {
+      map['fecha_pagado'] = Variable<DateTime>(fechaPagado.value);
     }
     if (montoInicial.present) {
       map['monto_inicial'] = Variable<double>(montoInicial.value);
@@ -2773,8 +2946,15 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
     if (montoExcedente.present) {
       map['monto_excedente'] = Variable<double>(montoExcedente.value);
     }
-    if (fechaCreacion.present) {
-      map['fecha_creacion'] = Variable<DateTime>(fechaCreacion.value);
+    if (estadoAmortizacion.present) {
+      map['estado_amortizacion'] = Variable<String>(
+        $AmortizacionesTable.$converterestadoAmortizacion.toSql(
+          estadoAmortizacion.value,
+        ),
+      );
+    }
+    if (fechaActualizacion.present) {
+      map['fecha_actualizacion'] = Variable<DateTime>(fechaActualizacion.value);
     }
     return map;
   }
@@ -2785,7 +2965,8 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
           ..write('id: $id, ')
           ..write('idPrestamo: $idPrestamo, ')
           ..write('idCuota: $idCuota, ')
-          ..write('fechaPago: $fechaPago, ')
+          ..write('fechaVencimiento: $fechaVencimiento, ')
+          ..write('fechaPagado: $fechaPagado, ')
           ..write('montoInicial: $montoInicial, ')
           ..write('montoPagado: $montoPagado, ')
           ..write('montoACapital: $montoACapital, ')
@@ -2793,7 +2974,8 @@ class AmortizacionesCompanion extends UpdateCompanion<Amortizacione> {
           ..write('diasMora: $diasMora, ')
           ..write('montoMora: $montoMora, ')
           ..write('montoExcedente: $montoExcedente, ')
-          ..write('fechaCreacion: $fechaCreacion')
+          ..write('estadoAmortizacion: $estadoAmortizacion, ')
+          ..write('fechaActualizacion: $fechaActualizacion')
           ..write(')'))
         .toString();
   }
@@ -3600,7 +3782,7 @@ typedef $$PrestamosTableCreateCompanionBuilder =
       required int idDeudor,
       required double tasaInteres,
       required double tasaMoratoria,
-      Value<double?> monto,
+      required double monto,
       required int plazoMeses,
       required double montoCuota,
       Value<DateTime> fechaCreacion,
@@ -3611,7 +3793,7 @@ typedef $$PrestamosTableUpdateCompanionBuilder =
       Value<int> idDeudor,
       Value<double> tasaInteres,
       Value<double> tasaMoratoria,
-      Value<double?> monto,
+      Value<double> monto,
       Value<int> plazoMeses,
       Value<double> montoCuota,
       Value<DateTime> fechaCreacion,
@@ -4024,7 +4206,7 @@ class $$PrestamosTableTableManager
                 Value<int> idDeudor = const Value.absent(),
                 Value<double> tasaInteres = const Value.absent(),
                 Value<double> tasaMoratoria = const Value.absent(),
-                Value<double?> monto = const Value.absent(),
+                Value<double> monto = const Value.absent(),
                 Value<int> plazoMeses = const Value.absent(),
                 Value<double> montoCuota = const Value.absent(),
                 Value<DateTime> fechaCreacion = const Value.absent(),
@@ -4044,7 +4226,7 @@ class $$PrestamosTableTableManager
                 required int idDeudor,
                 required double tasaInteres,
                 required double tasaMoratoria,
-                Value<double?> monto = const Value.absent(),
+                required double monto,
                 required int plazoMeses,
                 required double montoCuota,
                 Value<DateTime> fechaCreacion = const Value.absent(),
@@ -4188,8 +4370,9 @@ typedef $$ConfiguracionPrestamosTableCreateCompanionBuilder =
       required Status estadoMoratorio,
       required ManejoExcedente manejoExcedente,
       required PeriodidadIntereses periodidadIntereses,
-      required Status estadoPrestamo,
+      required EstadoPrestamo estadoPrestamo,
       Value<DateTime> fechaCreacion,
+      Value<DateTime> fechaActualizacion,
     });
 typedef $$ConfiguracionPrestamosTableUpdateCompanionBuilder =
     ConfiguracionPrestamosCompanion Function({
@@ -4199,8 +4382,9 @@ typedef $$ConfiguracionPrestamosTableUpdateCompanionBuilder =
       Value<Status> estadoMoratorio,
       Value<ManejoExcedente> manejoExcedente,
       Value<PeriodidadIntereses> periodidadIntereses,
-      Value<Status> estadoPrestamo,
+      Value<EstadoPrestamo> estadoPrestamo,
       Value<DateTime> fechaCreacion,
+      Value<DateTime> fechaActualizacion,
     });
 
 final class $$ConfiguracionPrestamosTableReferences
@@ -4278,14 +4462,19 @@ class $$ConfiguracionPrestamosTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<Status, Status, String> get estadoPrestamo =>
-      $composableBuilder(
-        column: $table.estadoPrestamo,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
+  ColumnWithTypeConverterFilters<EstadoPrestamo, EstadoPrestamo, String>
+  get estadoPrestamo => $composableBuilder(
+    column: $table.estadoPrestamo,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
 
   ColumnFilters<DateTime> get fechaCreacion => $composableBuilder(
     column: $table.fechaCreacion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fechaActualizacion => $composableBuilder(
+    column: $table.fechaActualizacion,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4357,6 +4546,11 @@ class $$ConfiguracionPrestamosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get fechaActualizacion => $composableBuilder(
+    column: $table.fechaActualizacion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$PrestamosTableOrderingComposer get idPrestamo {
     final $$PrestamosTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4417,7 +4611,7 @@ class $$ConfiguracionPrestamosTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumnWithTypeConverter<Status, String> get estadoPrestamo =>
+  GeneratedColumnWithTypeConverter<EstadoPrestamo, String> get estadoPrestamo =>
       $composableBuilder(
         column: $table.estadoPrestamo,
         builder: (column) => column,
@@ -4425,6 +4619,11 @@ class $$ConfiguracionPrestamosTableAnnotationComposer
 
   GeneratedColumn<DateTime> get fechaCreacion => $composableBuilder(
     column: $table.fechaCreacion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get fechaActualizacion => $composableBuilder(
+    column: $table.fechaActualizacion,
     builder: (column) => column,
   );
 
@@ -4498,8 +4697,9 @@ class $$ConfiguracionPrestamosTableTableManager
                 Value<ManejoExcedente> manejoExcedente = const Value.absent(),
                 Value<PeriodidadIntereses> periodidadIntereses =
                     const Value.absent(),
-                Value<Status> estadoPrestamo = const Value.absent(),
+                Value<EstadoPrestamo> estadoPrestamo = const Value.absent(),
                 Value<DateTime> fechaCreacion = const Value.absent(),
+                Value<DateTime> fechaActualizacion = const Value.absent(),
               }) => ConfiguracionPrestamosCompanion(
                 id: id,
                 idPrestamo: idPrestamo,
@@ -4509,6 +4709,7 @@ class $$ConfiguracionPrestamosTableTableManager
                 periodidadIntereses: periodidadIntereses,
                 estadoPrestamo: estadoPrestamo,
                 fechaCreacion: fechaCreacion,
+                fechaActualizacion: fechaActualizacion,
               ),
           createCompanionCallback:
               ({
@@ -4518,8 +4719,9 @@ class $$ConfiguracionPrestamosTableTableManager
                 required Status estadoMoratorio,
                 required ManejoExcedente manejoExcedente,
                 required PeriodidadIntereses periodidadIntereses,
-                required Status estadoPrestamo,
+                required EstadoPrestamo estadoPrestamo,
                 Value<DateTime> fechaCreacion = const Value.absent(),
+                Value<DateTime> fechaActualizacion = const Value.absent(),
               }) => ConfiguracionPrestamosCompanion.insert(
                 id: id,
                 idPrestamo: idPrestamo,
@@ -4529,6 +4731,7 @@ class $$ConfiguracionPrestamosTableTableManager
                 periodidadIntereses: periodidadIntereses,
                 estadoPrestamo: estadoPrestamo,
                 fechaCreacion: fechaCreacion,
+                fechaActualizacion: fechaActualizacion,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -4604,7 +4807,8 @@ typedef $$AmortizacionesTableCreateCompanionBuilder =
       Value<int> id,
       required int idPrestamo,
       required int idCuota,
-      required DateTime fechaPago,
+      required DateTime fechaVencimiento,
+      Value<DateTime?> fechaPagado,
       required double montoInicial,
       required double montoPagado,
       required double montoACapital,
@@ -4612,14 +4816,16 @@ typedef $$AmortizacionesTableCreateCompanionBuilder =
       Value<int> diasMora,
       required double montoMora,
       required double montoExcedente,
-      Value<DateTime> fechaCreacion,
+      required EstadoAmortizacion estadoAmortizacion,
+      Value<DateTime> fechaActualizacion,
     });
 typedef $$AmortizacionesTableUpdateCompanionBuilder =
     AmortizacionesCompanion Function({
       Value<int> id,
       Value<int> idPrestamo,
       Value<int> idCuota,
-      Value<DateTime> fechaPago,
+      Value<DateTime> fechaVencimiento,
+      Value<DateTime?> fechaPagado,
       Value<double> montoInicial,
       Value<double> montoPagado,
       Value<double> montoACapital,
@@ -4627,7 +4833,8 @@ typedef $$AmortizacionesTableUpdateCompanionBuilder =
       Value<int> diasMora,
       Value<double> montoMora,
       Value<double> montoExcedente,
-      Value<DateTime> fechaCreacion,
+      Value<EstadoAmortizacion> estadoAmortizacion,
+      Value<DateTime> fechaActualizacion,
     });
 
 final class $$AmortizacionesTableReferences
@@ -4675,8 +4882,13 @@ class $$AmortizacionesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get fechaPago => $composableBuilder(
-    column: $table.fechaPago,
+  ColumnFilters<DateTime> get fechaVencimiento => $composableBuilder(
+    column: $table.fechaVencimiento,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fechaPagado => $composableBuilder(
+    column: $table.fechaPagado,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4715,8 +4927,14 @@ class $$AmortizacionesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
+  ColumnWithTypeConverterFilters<EstadoAmortizacion, EstadoAmortizacion, String>
+  get estadoAmortizacion => $composableBuilder(
+    column: $table.estadoAmortizacion,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fechaActualizacion => $composableBuilder(
+    column: $table.fechaActualizacion,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4763,8 +4981,13 @@ class $$AmortizacionesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get fechaPago => $composableBuilder(
-    column: $table.fechaPago,
+  ColumnOrderings<DateTime> get fechaVencimiento => $composableBuilder(
+    column: $table.fechaVencimiento,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fechaPagado => $composableBuilder(
+    column: $table.fechaPagado,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4803,8 +5026,13 @@ class $$AmortizacionesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
+  ColumnOrderings<String> get estadoAmortizacion => $composableBuilder(
+    column: $table.estadoAmortizacion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fechaActualizacion => $composableBuilder(
+    column: $table.fechaActualizacion,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4847,8 +5075,15 @@ class $$AmortizacionesTableAnnotationComposer
   GeneratedColumn<int> get idCuota =>
       $composableBuilder(column: $table.idCuota, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get fechaPago =>
-      $composableBuilder(column: $table.fechaPago, builder: (column) => column);
+  GeneratedColumn<DateTime> get fechaVencimiento => $composableBuilder(
+    column: $table.fechaVencimiento,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get fechaPagado => $composableBuilder(
+    column: $table.fechaPagado,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<double> get montoInicial => $composableBuilder(
     column: $table.montoInicial,
@@ -4881,8 +5116,14 @@ class $$AmortizacionesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<DateTime> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
+  GeneratedColumnWithTypeConverter<EstadoAmortizacion, String>
+  get estadoAmortizacion => $composableBuilder(
+    column: $table.estadoAmortizacion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get fechaActualizacion => $composableBuilder(
+    column: $table.fechaActualizacion,
     builder: (column) => column,
   );
 
@@ -4943,7 +5184,8 @@ class $$AmortizacionesTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> idPrestamo = const Value.absent(),
                 Value<int> idCuota = const Value.absent(),
-                Value<DateTime> fechaPago = const Value.absent(),
+                Value<DateTime> fechaVencimiento = const Value.absent(),
+                Value<DateTime?> fechaPagado = const Value.absent(),
                 Value<double> montoInicial = const Value.absent(),
                 Value<double> montoPagado = const Value.absent(),
                 Value<double> montoACapital = const Value.absent(),
@@ -4951,12 +5193,15 @@ class $$AmortizacionesTableTableManager
                 Value<int> diasMora = const Value.absent(),
                 Value<double> montoMora = const Value.absent(),
                 Value<double> montoExcedente = const Value.absent(),
-                Value<DateTime> fechaCreacion = const Value.absent(),
+                Value<EstadoAmortizacion> estadoAmortizacion =
+                    const Value.absent(),
+                Value<DateTime> fechaActualizacion = const Value.absent(),
               }) => AmortizacionesCompanion(
                 id: id,
                 idPrestamo: idPrestamo,
                 idCuota: idCuota,
-                fechaPago: fechaPago,
+                fechaVencimiento: fechaVencimiento,
+                fechaPagado: fechaPagado,
                 montoInicial: montoInicial,
                 montoPagado: montoPagado,
                 montoACapital: montoACapital,
@@ -4964,14 +5209,16 @@ class $$AmortizacionesTableTableManager
                 diasMora: diasMora,
                 montoMora: montoMora,
                 montoExcedente: montoExcedente,
-                fechaCreacion: fechaCreacion,
+                estadoAmortizacion: estadoAmortizacion,
+                fechaActualizacion: fechaActualizacion,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required int idPrestamo,
                 required int idCuota,
-                required DateTime fechaPago,
+                required DateTime fechaVencimiento,
+                Value<DateTime?> fechaPagado = const Value.absent(),
                 required double montoInicial,
                 required double montoPagado,
                 required double montoACapital,
@@ -4979,12 +5226,14 @@ class $$AmortizacionesTableTableManager
                 Value<int> diasMora = const Value.absent(),
                 required double montoMora,
                 required double montoExcedente,
-                Value<DateTime> fechaCreacion = const Value.absent(),
+                required EstadoAmortizacion estadoAmortizacion,
+                Value<DateTime> fechaActualizacion = const Value.absent(),
               }) => AmortizacionesCompanion.insert(
                 id: id,
                 idPrestamo: idPrestamo,
                 idCuota: idCuota,
-                fechaPago: fechaPago,
+                fechaVencimiento: fechaVencimiento,
+                fechaPagado: fechaPagado,
                 montoInicial: montoInicial,
                 montoPagado: montoPagado,
                 montoACapital: montoACapital,
@@ -4992,7 +5241,8 @@ class $$AmortizacionesTableTableManager
                 diasMora: diasMora,
                 montoMora: montoMora,
                 montoExcedente: montoExcedente,
-                fechaCreacion: fechaCreacion,
+                estadoAmortizacion: estadoAmortizacion,
+                fechaActualizacion: fechaActualizacion,
               ),
           withReferenceMapper: (p0) => p0
               .map(

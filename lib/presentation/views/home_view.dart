@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prestapagos/domain/entities/reportes/reporte_card.dart';
+import 'package:prestapagos/presentation/providers/reportes/reporte_card_provider.dart';
 
 import '../widgets/widgets.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends ConsumerWidget {
   const HomeView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cardHomeAsyncValue = ref.watch(reporteCardProvider);
+
     return CustomScrollView(
       slivers: [
         const SliverAppBar(
-          //
           floating: true,
           flexibleSpace: FlexibleSpaceBar(
             title: CustomAppbar(),
@@ -21,51 +25,66 @@ class HomeView extends StatelessWidget {
           delegate: SliverChildBuilderDelegate((context, index) {
             return Column(
               children: [
-                Text('Resumen de tu actividad'),
-
-                SizedBox(height: 20),
-
-                CardItem(
-                  onTap: () {
-                    // Acción al hacer clic en la tarjeta
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: const Text('Card tocado')),
-                    );
-                  },
-                  title: 'Total prestado',
-                  subtitle: '10,000',
-                  text: 'Card Prestamos activos',
-                  colortext: Colors.yellow[700],
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 300,
+                      child: Text(
+                        'Resumen de tu actividad',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    IconButton.filledTonal(
+                      onPressed: () {},
+                      icon: const Icon(Icons.add),
+                      tooltip: 'Agregar nuevo prestamo',
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
-                CardItem(
-                  onTap: () {
-                    // Acción al hacer clic en la tarjeta
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: const Text('Card tocado')),
-                    );
-                  },
-                  title: 'Total cobrado',
-                  subtitle: '5,000',
-                  text: 'Card Prestamos cobrados',
-                  colortext: Colors.green[700],
-                ),
-                const SizedBox(height: 20),
-                CardItem(
-                  onTap: () {
-                    // Acción al hacer clic en la tarjeta
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: const Text('Card tocado')),
-                    );
-                  },
-                  title: 'Total pendiente',
-                  subtitle: '5,000',
-                  text: 'Card Prestamos pendientes',
-                  colortext: Colors.red,
+                cardHomeAsyncValue.when(
+                  loading: () =>
+                      const LoadingWidgetCustom(mensaje: 'Cargando resumen...'),
+                  error: (error, stackTrace) => ErrorWidgetCustom(
+                    error: error,
+                    onRetry: () => ref.refresh(reporteCardProvider),
+                  ),
+                  data: (cardsHome) => _HomeCards(cardsHome: cardsHome),
                 ),
               ],
             );
           }, childCount: 1),
+        ),
+      ],
+    );
+  }
+}
+
+class _HomeCards extends StatelessWidget {
+  final ReporteCard cardsHome;
+
+  const _HomeCards({required this.cardsHome});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        CardResumo(
+          titulo: 'Total prestado',
+          valor: cardsHome.totalPrestado ?? 0.00,
+          color: Colors.yellow[700],
+        ),
+        const SizedBox(height: 20),
+        CardResumo(
+          titulo: 'Total cobrado',
+          valor: cardsHome.totalPagado ?? 0.00,
+          color: Colors.green[700],
+        ),
+        const SizedBox(height: 20),
+        CardResumo(
+          titulo: 'Total pendiente',
+          valor: cardsHome.totalPendiente ?? 0.00,
+          color: Colors.red,
         ),
       ],
     );
