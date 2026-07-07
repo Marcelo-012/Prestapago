@@ -1,7 +1,7 @@
-enum TiposInteres {
+enum TipoInteres {
   compuesto('compuesto'),
   simple('simple');
 
   final String value;
-  const TiposInteres(this.value);
+  const TipoInteres(this.value);
 }

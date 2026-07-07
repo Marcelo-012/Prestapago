@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prestapagos/domain/entities/reportes/reporte_card.dart';
+import 'package:prestapagos/domain/entities/entities.dart';
 import 'package:prestapagos/presentation/providers/reportes/reporte_card_provider.dart';
 
 import '../widgets/widgets.dart';

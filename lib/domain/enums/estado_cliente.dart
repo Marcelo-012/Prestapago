@@ -1,7 +1,7 @@
-enum Status {
+enum EstadoCliente {
   activo('activo'),
   inactivo('inactivo');
 
   final String value;
-  const Status(this.value);
+  const EstadoCliente(this.value);
 }

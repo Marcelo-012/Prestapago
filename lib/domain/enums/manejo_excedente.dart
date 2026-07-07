@@ -5,11 +5,3 @@ enum ManejoExcedente {
   final String value;
   const ManejoExcedente(this.value);
 }
-
-enum PeriodidadIntereses {
-  mensual('mensual'),
-  anual('anual');
-
-  final String value;
-  const PeriodidadIntereses(this.value);
-}

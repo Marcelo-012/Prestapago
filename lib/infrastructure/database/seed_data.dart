@@ -49,7 +49,7 @@ Future<void> seedDatabase(AppDatabase db) async {
         direccion: d.direccion,
         numeroIdentificacion: d.numId,
         edad: d.edad,
-        estado: Status.activo,
+        estado: EstadoCliente.activo,
       ));
     }
 
@@ -87,23 +87,23 @@ Future<void> seedDatabase(AppDatabase db) async {
 
     // ── CONFIGURACIÓN ──
     final configs = [
-      (idP: 1, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
-      (idP: 2, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
-      (idP: 3, tInteres: TiposInteres.simple, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.finalizado),
-      (idP: 4, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
-      (idP: 5, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
-      (idP: 6, tInteres: TiposInteres.simple, eMor: Status.inactivo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
-      (idP: 7, tInteres: TiposInteres.simple, eMor: Status.inactivo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
-      (idP: 8, tInteres: TiposInteres.simple, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
-      (idP: 9, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.cancelado),
-      (idP: 10, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
+      (idP: 1, tInteres: TipoInteres.compuesto, eMor: EstadoCliente.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 2, tInteres: TipoInteres.compuesto, eMor: EstadoCliente.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 3, tInteres: TipoInteres.simple, eMor: EstadoCliente.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.finalizado),
+      (idP: 4, tInteres: TipoInteres.compuesto, eMor: EstadoCliente.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 5, tInteres: TipoInteres.compuesto, eMor: EstadoCliente.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 6, tInteres: TipoInteres.simple, eMor: EstadoCliente.inactivo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
+      (idP: 7, tInteres: TipoInteres.simple, eMor: EstadoCliente.inactivo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
+      (idP: 8, tInteres: TipoInteres.simple, eMor: EstadoCliente.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 9, tInteres: TipoInteres.compuesto, eMor: EstadoCliente.activo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.cancelado),
+      (idP: 10, tInteres: TipoInteres.compuesto, eMor: EstadoCliente.activo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
 
       // ── NUEVAS CONFIGURACIONES CON MORA ──
-      (idP: 11, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
-      (idP: 12, tInteres: TiposInteres.simple, eMor: Status.activo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
-      (idP: 13, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.finalizado),
-      (idP: 14, tInteres: TiposInteres.simple, eMor: Status.inactivo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
-      (idP: 15, tInteres: TiposInteres.compuesto, eMor: Status.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.finalizado),
+      (idP: 11, tInteres: TipoInteres.compuesto, eMor: EstadoCliente.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo),
+      (idP: 12, tInteres: TipoInteres.simple, eMor: EstadoCliente.activo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
+      (idP: 13, tInteres: TipoInteres.compuesto, eMor: EstadoCliente.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.finalizado),
+      (idP: 14, tInteres: TipoInteres.simple, eMor: EstadoCliente.inactivo, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo),
+      (idP: 15, tInteres: TipoInteres.compuesto, eMor: EstadoCliente.activo, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.finalizado),
     ];
     for (final c in configs) {
       batch.insert(db.configuracionPrestamos, ConfiguracionPrestamosCompanion.insert(
@@ -111,7 +111,7 @@ Future<void> seedDatabase(AppDatabase db) async {
         tipoInteres: c.tInteres,
         estadoMoratorio: c.eMor,
         manejoExcedente: c.mEx,
-        periodidadIntereses: PeriodidadIntereses.mensual,
+        periodidadIntereses: PeriodicidadInteres.mensual,
         estadoPrestamo: c.ePres,
       ));
     }
@@ -128,61 +128,61 @@ Future<void> seedDatabase(AppDatabase db) async {
   // ── AMORTIZACIONES ──
   final now = DateTime.now();
 
-  await _generateAmortizaciones(db, 1, 12, 12.0, 5.0, 10000.0, TiposInteres.compuesto,
+  await _generateAmortizaciones(db, 1, 12, 12.0, 5.0, 10000.0, TipoInteres.compuesto,
     pagosAlDia: 12, pagosAtrasados: 0, conMora: false, fechaBase: now.subtract(const Duration(days: 540)));
 
-  await _generateAmortizaciones(db, 2, 24, 10.0, 4.0, 15000.0, TiposInteres.compuesto,
+  await _generateAmortizaciones(db, 2, 24, 10.0, 4.0, 15000.0, TipoInteres.compuesto,
     pagosAlDia: 24, pagosAtrasados: 0, conMora: false, fechaBase: now.subtract(const Duration(days: 720)));
 
-  await _generateAmortizaciones(db, 3, 6, 15.0, 6.0, 8000.0, TiposInteres.simple,
+  await _generateAmortizaciones(db, 3, 6, 15.0, 6.0, 8000.0, TipoInteres.simple,
     pagosAlDia: 6, pagosAtrasados: 0, conMora: false, fechaBase: now.subtract(const Duration(days: 365)));
 
-  await _generateAmortizaciones(db, 4, 36, 12.0, 5.0, 20000.0, TiposInteres.compuesto,
+  await _generateAmortizaciones(db, 4, 36, 12.0, 5.0, 20000.0, TipoInteres.compuesto,
     pagosAlDia: 3, pagosAtrasados: 2, conMora: true, fechaBase: now.subtract(const Duration(days: 180)));
 
-  await _generateAmortizaciones(db, 5, 12, 10.0, 4.0, 5000.0, TiposInteres.compuesto,
+  await _generateAmortizaciones(db, 5, 12, 10.0, 4.0, 5000.0, TipoInteres.compuesto,
     pagosAlDia: 3, pagosAtrasados: 2, conMora: true, fechaBase: now.subtract(const Duration(days: 180)));
 
-  await _generateAmortizaciones(db, 6, 18, 15.0, 5.0, 12000.0, TiposInteres.simple,
+  await _generateAmortizaciones(db, 6, 18, 15.0, 5.0, 12000.0, TipoInteres.simple,
     pagosAlDia: 3, pagosAtrasados: 2, conMora: false, fechaBase: now.subtract(const Duration(days: 180)));
 
-  await _generateAmortizaciones(db, 7, 12, 12.0, 4.0, 9000.0, TiposInteres.simple,
+  await _generateAmortizaciones(db, 7, 12, 12.0, 4.0, 9000.0, TipoInteres.simple,
     pagosAlDia: 3, pagosAtrasados: 2, conMora: false, fechaBase: now.subtract(const Duration(days: 180)));
 
   // Préstamo 8: 4 pagos al día, 1er pago con excedente (abono_capital)
-  await _generateAmortizaciones(db, 8, 12, 10.0, 4.0, 7000.0, TiposInteres.simple,
+  await _generateAmortizaciones(db, 8, 12, 10.0, 4.0, 7000.0, TipoInteres.simple,
     pagosAlDia: 4, pagosAtrasados: 0, conMora: false, fechaBase: now.subtract(const Duration(days: 120)),
     pagoExtraCuota: 1, montoExtra: 700.0);
 
   // Préstamo 9: 4 pagos al día, 1er pago con excedente (saldo_favor)
-  await _generateAmortizaciones(db, 9, 48, 12.0, 5.0, 25000.0, TiposInteres.compuesto,
+  await _generateAmortizaciones(db, 9, 48, 12.0, 5.0, 25000.0, TipoInteres.compuesto,
     pagosAlDia: 4, pagosAtrasados: 0, conMora: false, fechaBase: now.subtract(const Duration(days: 120)),
     pagoExtraCuota: 1, montoExtra: 800.0);
 
   // Préstamo 10: 4 pagos al día
-  await _generateAmortizaciones(db, 10, 6, 10.0, 4.0, 6000.0, TiposInteres.compuesto,
+  await _generateAmortizaciones(db, 10, 6, 10.0, 4.0, 6000.0, TipoInteres.compuesto,
     pagosAlDia: 4, pagosAtrasados: 0, conMora: false, fechaBase: now.subtract(const Duration(days: 120)));
 
   // ── NUEVAS AMORTIZACIONES CON MORA ──
 
   // Roberto Vega: $30,000, 18%, 24m, compuesto, activo, 5 al día + 3 atrasados
-  await _generateAmortizaciones(db, 11, 24, 18.0, 10.0, 30000.0, TiposInteres.compuesto,
+  await _generateAmortizaciones(db, 11, 24, 18.0, 10.0, 30000.0, TipoInteres.compuesto,
     pagosAlDia: 5, pagosAtrasados: 3, conMora: true, fechaBase: now.subtract(const Duration(days: 280)));
 
   // Lucía Mendoza: $45,000, 15%, 36m, simple, activo, 4 al día + 4 atrasados
-  await _generateAmortizaciones(db, 12, 36, 15.0, 8.0, 45000.0, TiposInteres.simple,
+  await _generateAmortizaciones(db, 12, 36, 15.0, 8.0, 45000.0, TipoInteres.simple,
     pagosAlDia: 4, pagosAtrasados: 4, conMora: true, fechaBase: now.subtract(const Duration(days: 280)));
 
   // Fernando Ríos: $12,000, 20%, 12m, compuesto, finalizado, 10 al día + 2 atrasados
-  await _generateAmortizaciones(db, 13, 12, 20.0, 12.0, 12000.0, TiposInteres.compuesto,
+  await _generateAmortizaciones(db, 13, 12, 20.0, 12.0, 12000.0, TipoInteres.compuesto,
     pagosAlDia: 10, pagosAtrasados: 2, conMora: true, fechaBase: now.subtract(const Duration(days: 420)));
 
   // Gabriela Núñez: $22,000, 16%, 18m, simple, activo, 3 al día + 5 atrasados
-  await _generateAmortizaciones(db, 14, 18, 16.0, 9.0, 22000.0, TiposInteres.simple,
+  await _generateAmortizaciones(db, 14, 18, 16.0, 9.0, 22000.0, TipoInteres.simple,
     pagosAlDia: 3, pagosAtrasados: 5, conMora: true, fechaBase: now.subtract(const Duration(days: 280)));
 
   // Humberto Salinas: $8,000, 22%, 6m, compuesto, finalizado, 3 al día + 3 atrasados
-  await _generateAmortizaciones(db, 15, 6, 22.0, 15.0, 8000.0, TiposInteres.compuesto,
+  await _generateAmortizaciones(db, 15, 6, 22.0, 15.0, 8000.0, TipoInteres.compuesto,
     pagosAlDia: 3, pagosAtrasados: 3, conMora: true, fechaBase: now.subtract(const Duration(days: 220)));
 }
 
@@ -193,7 +193,7 @@ Future<void> _generateAmortizaciones(
   double tasaAnual,
   double tasaMoraAnual,
   double monto,
-  TiposInteres tipo,
+  TipoInteres tipo,
   {required int pagosAlDia,
   required int pagosAtrasados,
   required bool conMora,
@@ -211,10 +211,10 @@ Future<void> _generateAmortizaciones(
   final cuota = _frenchCuota(monto, tasaAnual, totalCuotas);
 
   for (int i = 1; i <= totalPagos; i++) {
-    final cuotaCapital = tipo == TiposInteres.simple
+    final cuotaCapital = tipo == TipoInteres.simple
         ? monto / totalCuotas
         : cuota - saldoRestante * r;
-    final interes = tipo == TiposInteres.simple
+    final interes = tipo == TipoInteres.simple
         ? saldoRestante * r
         : saldoRestante * r;
 
@@ -247,7 +247,7 @@ Future<void> _generateAmortizaciones(
       estadoAmortizacion: estadoAmortizacion,
     ));
 
-    if (tipo == TiposInteres.simple) {
+    if (tipo == TipoInteres.simple) {
       saldoRestante -= monto / totalCuotas;
     } else {
       saldoRestante -= cuotaCapital;

@@ -1,5 +1,5 @@
 import 'package:prestapagos/config/helpers/human_formats.dart';
-import 'package:prestapagos/domain/entities/reportes/reporte_payments_graphic.dart';
+import 'package:prestapagos/domain/entities/entities.dart';
 import 'package:prestapagos/domain/repositories/reportes/reporte_payments_graphic_repository.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
 

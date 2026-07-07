@@ -23,7 +23,7 @@ class Deudores extends Table {
   TextColumn get numeroIdentificacion =>
       text().named('numero_identificacion').withLength(min: 1, max: 30)();
   IntColumn get edad => integer()();
-  TextColumn get estado => textEnum<Status>()();
+  TextColumn get estado => textEnum<EstadoCliente>()();
   DateTimeColumn get fechaCreacion =>
       dateTime().named('fecha_creacion').clientDefault(() => DateTime.now())();
   DateTimeColumn get fechaActualizacion => dateTime()
@@ -61,13 +61,13 @@ class ConfiguracionPrestamos extends Table {
       .named('id_prestamo')
       .customConstraint('NOT NULL REFERENCES prestamos(id_prestamo)')();
   TextColumn get tipoInteres =>
-      textEnum<TiposInteres>().named('tipo_interes')();
+      textEnum<TipoInteres>().named('tipo_interes')();
   TextColumn get estadoMoratorio =>
-      textEnum<Status>().named('estado_moratorio')();
+      textEnum<EstadoCliente>().named('estado_moratorio')();
   TextColumn get manejoExcedente =>
       textEnum<ManejoExcedente>().named('manejo_excedente')();
   TextColumn get periodidadIntereses =>
-      textEnum<PeriodidadIntereses>().named('periodidad_intereses')();
+      textEnum<PeriodicidadInteres>().named('periodidad_intereses')();
   TextColumn get estadoPrestamo =>
       textEnum<EstadoPrestamo>().named('estado_prestamo')();
   DateTimeColumn get fechaCreacion =>
