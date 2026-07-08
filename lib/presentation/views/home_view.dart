@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prestapagos/domain/entities/entities.dart';
+import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/reportes/reporte_card_provider.dart';
 
 import '../widgets/widgets.dart';
@@ -14,10 +14,10 @@ class HomeView extends ConsumerWidget {
 
     return CustomScrollView(
       slivers: [
-        const SliverAppBar(
+        SliverAppBar(
           floating: true,
           flexibleSpace: FlexibleSpaceBar(
-            title: CustomAppbar(),
+            title: const CustomAppbar(icon: Icons.monetization_on_outlined),
             titlePadding: EdgeInsets.zero,
           ),
         ),

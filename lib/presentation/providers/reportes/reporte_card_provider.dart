@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prestapagos/domain/entities/entities.dart';
+import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/domain/repositories/reportes/reporte_card_repository.dart';
 import 'package:prestapagos/infrastructure/repositories/reporte/reporte_card_repository_impl.dart';
 import 'package:prestapagos/presentation/providers/database/app_database_provider.dart';

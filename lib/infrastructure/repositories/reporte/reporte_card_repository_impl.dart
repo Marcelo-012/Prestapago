@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:prestapagos/domain/entities/entities.dart';
+import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/domain/repositories/reportes/reporte_card_repository.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
 

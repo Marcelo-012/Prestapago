@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import 'package:prestapagos/domain/entities/entities.dart';
+import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
 
 double _monthlyRate(double annualRate) => annualRate / 12 / 100;
@@ -117,12 +117,12 @@ Future<void> seedDatabase(AppDatabase db) async {
     }
 
     // ── SCORES ──
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 1, score: 750));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 2, score: 820));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 3, score: 680));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 11, score: 720));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 13, score: 790));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 15, score: 650));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 1, score: 75));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 2, score: 82));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 3, score: 68));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 11, score: 72));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 13, score: 79));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 15, score: 65));
   });
 
   // ── AMORTIZACIONES ──

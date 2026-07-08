@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:prestapagos/domain/entities/entities.dart';
+import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/reportes/reporte_card_provider.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/presentation/providers/reportes/reporte_loan_graphic_provider.dart';
@@ -14,7 +14,6 @@ class ReportesView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = Theme.of(context).colorScheme;
     final cardAsyncValue = ref.watch(reporteCardProvider);
     final graphicLoanAsyncValue = ref.watch(reporteLoanGraphicProvider);
     final graphicPaymentAsyncValue = ref.watch(reportePaymentsGraphicProvider);
@@ -24,12 +23,7 @@ class ReportesView extends ConsumerWidget {
         SliverAppBar(
           floating: true,
           flexibleSpace: FlexibleSpaceBar(
-            title: Text(
-              'Reportes',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(color: colors.primary),
-            ),
+            title: const CustomAppbar(title: 'Reportes'),
             titlePadding: EdgeInsets.zero,
           ),
         ),
