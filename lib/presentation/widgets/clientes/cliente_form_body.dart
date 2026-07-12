@@ -15,6 +15,12 @@ class ClienteFormBody extends StatelessWidget {
   final bool isSubmitting;
   final String? errorMessage;
   final String buttonLabel;
+  final TextEditingController? nameController;
+  final TextEditingController? ageController;
+  final TextEditingController? dniController;
+  final TextEditingController? emailController;
+  final TextEditingController? phoneController;
+  final TextEditingController? addressController;
 
   const ClienteFormBody({
     super.key,
@@ -30,6 +36,12 @@ class ClienteFormBody extends StatelessWidget {
     required this.isSubmitting,
     this.errorMessage,
     required this.buttonLabel,
+    this.nameController,
+    this.ageController,
+    this.dniController,
+    this.emailController,
+    this.phoneController,
+    this.addressController,
   });
 
   @override
@@ -56,6 +68,7 @@ class ClienteFormBody extends StatelessWidget {
           CustomTextFormField(
             label: 'Nombre completo',
             keyboardType: TextInputType.name,
+            controller: nameController,
             onChanged: onNameChanged,
             errorMessage: formState.name.errorMessage,
           ),
@@ -64,6 +77,7 @@ class ClienteFormBody extends StatelessWidget {
           CustomTextFormField(
             label: 'Edad',
             keyboardType: TextInputType.number,
+            controller: ageController,
             onChanged: onAgeChanged,
             errorMessage: formState.age.errorMessage,
           ),
@@ -73,6 +87,7 @@ class ClienteFormBody extends StatelessWidget {
             label: 'Número de Identidad (CURP/DNI)',
             keyboardType: TextInputType.text,
             textCapitalization: TextCapitalization.characters,
+            controller: dniController,
             onChanged: onDniChanged,
             errorMessage: formState.dni.errorMessage,
           ),
@@ -81,6 +96,7 @@ class ClienteFormBody extends StatelessWidget {
           CustomTextFormField(
             label: 'Correo (opcional)',
             keyboardType: TextInputType.emailAddress,
+            controller: emailController,
             onChanged: onEmailChanged,
             errorMessage: formState.email.errorMessage,
           ),
@@ -89,6 +105,7 @@ class ClienteFormBody extends StatelessWidget {
           CustomTextFormField(
             label: 'Teléfono',
             keyboardType: TextInputType.number,
+            controller: phoneController,
             onChanged: onPhoneChanged,
             errorMessage: formState.phone.errorMessage,
           ),
@@ -96,6 +113,7 @@ class ClienteFormBody extends StatelessWidget {
           const SizedBox(height: 30),
           CustomTextFormField(
             label: 'Dirección',
+            controller: addressController,
             onChanged: onAddressChanged,
             errorMessage: formState.address.errorMessage,
           ),
@@ -131,7 +149,9 @@ class ClienteFormBody extends StatelessWidget {
                             ),
                           )
                         : const Icon(Icons.save),
-                    onPressed: isSubmitting ? null : onSubmit,
+                    onPressed: (isSubmitting || !formState.isFormValid)
+                        ? null
+                        : onSubmit,
                   ),
                 ),
               ),

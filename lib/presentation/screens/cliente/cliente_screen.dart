@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prestapagos/domain/entities/clientes/cliente.dart';
 import 'package:prestapagos/presentation/providers/clientes/clientes_provider.dart';
+import 'package:prestapagos/presentation/providers/clientes/delete_cliente_provider.dart';
 import 'package:prestapagos/presentation/widgets/clientes/clientes_profile.dart';
+import 'package:prestapagos/presentation/widgets/shared/confirm_exit_dialog.dart';
 import 'package:prestapagos/presentation/widgets/shared/custom_appbar.dart';
 import 'package:prestapagos/presentation/widgets/shared/loading_widget_custom.dart';
 
-class ClienteScreen extends ConsumerWidget {
+class ClienteScreen extends ConsumerStatefulWidget {
   static const name = 'cliente-profile';
   final String clienteId;
 
   const ClienteScreen({super.key, required this.clienteId});
 
   @override
-  Widget build(BuildContext context, ref) {
-    final id = int.parse(clienteId);
+  ConsumerState<ClienteScreen> createState() => _ClienteScreenState();
+}
+
+class _ClienteScreenState extends ConsumerState<ClienteScreen> {
+  int get _id => int.parse(widget.clienteId);
+
+  @override
+  Widget build(BuildContext context) {
+    final id = _id;
     final detalleAsync = ref.watch(clienteDetalleProvider(id));
 
     return Scaffold(
@@ -39,6 +49,9 @@ class ClienteScreen extends ConsumerWidget {
                 detalle: detalle,
                 onEdit: () => _editarCliente(context, detalle.cliente.idDeudor),
                 onDelete: () => _eliminarCliente(context, detalle.cliente.idDeudor),
+                onReactivate: detalle.cliente.estado == 'inactivo'
+                    ? () => _reactivarCliente(context, detalle.cliente)
+                    : null,
               ),
             ),
           ],
@@ -48,14 +61,55 @@ class ClienteScreen extends ConsumerWidget {
   }
 
   void _editarCliente(BuildContext context, int idDeudor) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Editar cliente $idDeudor')),
-    );
+    context.push('/edit-cliente/$idDeudor');
   }
 
-  void _eliminarCliente(BuildContext context, int idDeudor) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Eliminar cliente $idDeudor')),
+  Future<void> _eliminarCliente(BuildContext context, int idDeudor) async {
+    final repository = ref.read(clienteRepositoryProvider);
+    final totalPrestamos = await repository.countRelatedRecords(idDeudor);
+
+    if (!context.mounted) return;
+
+    if (totalPrestamos == 0) {
+      final eliminar = await confirmarAccion(
+        context,
+        titulo: 'Eliminar cliente',
+        mensaje: '¿Eliminar este cliente? Esta acción no se puede deshacer.',
+        textoConfirmar: 'Eliminar',
+        esDestructivo: true,
+      );
+      if (!eliminar || !context.mounted) return;
+
+      await ref.read(deleteClienteProvider.notifier).deleteCliente(idDeudor);
+
+      if (!context.mounted) return;
+      context.pop();
+    } else {
+      final desactivar = await confirmarAccion(
+        context,
+        titulo: 'Cliente con historial',
+        mensaje:
+            'Este cliente tiene $totalPrestamos préstamo${totalPrestamos == 1 ? '' : 's'} registrado${totalPrestamos == 1 ? '' : 's'}. '
+            'Por seguridad, no se puede eliminar un cliente con historial.\n\n'
+            '¿Deseas desactivarlo en su lugar?',
+        textoConfirmar: 'Desactivar',
+        esDestructivo: true,
+      );
+      if (!desactivar || !context.mounted) return;
+
+      await ref.read(deleteClienteProvider.notifier).deactivateCliente(idDeudor);
+    }
+  }
+
+  Future<void> _reactivarCliente(BuildContext context, Cliente cliente) async {
+    final reactivar = await confirmarAccion(
+      context,
+      titulo: 'Reactivar cliente',
+      mensaje: '¿Estás seguro de reactivar a "${cliente.nombre}"?',
+      textoConfirmar: 'Reactivar',
     );
+    if (!reactivar || !context.mounted) return;
+
+    await ref.read(deleteClienteProvider.notifier).reactivateCliente(_id);
   }
 }

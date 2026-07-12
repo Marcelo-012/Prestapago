@@ -15,18 +15,23 @@ class ClientesListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 12.0,
-        ),
-        child: ClientesDetalles(
-          nombre: cliente.nombre,
-          telefono: cliente.telefono,
-          score: cliente.score,
-          estado: cliente.estado,
+    final isInactive = cliente.estado == 'inactivo';
+
+    return Opacity(
+      opacity: isInactive ? 0.45 : 1.0,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 12.0,
+          ),
+          child: ClientesDetalles(
+            nombre: cliente.nombre,
+            telefono: cliente.telefono,
+            score: cliente.score,
+            estado: cliente.estado,
+          ),
         ),
       ),
     );

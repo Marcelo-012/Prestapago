@@ -186,14 +186,58 @@ class ClienteRepositoryImpl implements ClienteRepository {
   }
 
   @override
-  Future<void> deleteCliente(int idDeudor) {
-    // TODO: implement deleteCliente
-    throw UnimplementedError();
+  Future<void> deleteCliente(int idDeudor) async {
+    await (_db.delete(_db.deudores)
+      ..where((t) => t.id.equals(idDeudor))
+    ).go();
   }
 
   @override
-  Future<void> updateCliente(Cliente cliente) {
-    // TODO: implement updateCliente
-    throw UnimplementedError();
+  Future<int> countRelatedRecords(int idDeudor) async {
+    final rows = await _db.customSelect(
+      '''
+      SELECT COUNT(*) AS total FROM prestamos p WHERE p.id_deudor = ?
+    ''',
+      variables: [Variable<int>(idDeudor)],
+    ).getSingle();
+    return rows.read<int>('total');
+  }
+
+  @override
+  Future<void> deactivateCliente(int idDeudor) async {
+    await (_db.update(_db.deudores)
+      ..where((t) => t.id.equals(idDeudor))
+    ).write(DeudoresCompanion(
+      estado: Value(EstadoCliente.inactivo),
+      fechaActualizacion: Value(DateTime.now()),
+    ));
+  }
+
+  @override
+  Future<void> reactivateCliente(int idDeudor) async {
+    await (_db.update(_db.deudores)
+      ..where((t) => t.id.equals(idDeudor))
+    ).write(DeudoresCompanion(
+      estado: Value(EstadoCliente.activo),
+      fechaActualizacion: Value(DateTime.now()),
+    ));
+  }
+
+  @override
+  Future<void> updateCliente(Cliente cliente) async {
+    await (_db.update(
+      _db.deudores,
+    )..where((t) => t.id.equals(cliente.idDeudor))).write(
+      DeudoresCompanion(
+        nombre: Value(cliente.nombre),
+        telefono: Value(cliente.telefono),
+        correoElectronico: Value(cliente.email),
+        direccion: Value(cliente.direccion),
+        numeroIdentificacion: Value(cliente.dni),
+        edad: Value(cliente.edad),
+        estado: Value(EstadoCliente.activo),
+        fechaActualizacion: Value(DateTime.now()),
+      ),
+    );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:prestapagos/presentation/screens/cliente/edit_cliente_screen.dart';
 import 'package:prestapagos/presentation/screens/screens.dart';
 
 import 'package:go_router/go_router.dart';
@@ -33,6 +34,14 @@ final appRouter = GoRouter(
       path: '/create-cliente',
       name: CreateClienteScreen.name,
       builder: (context, state) => const CreateClienteScreen(),
+    ),
+    GoRoute(
+      path: '/edit-cliente/:id',
+      name: EditClienteScreen.name,
+      builder: (context, state) {
+        final clienteId = state.pathParameters['id'] ?? 'no-id';
+        return EditClienteScreen(clienteId: clienteId);
+      },
     ),
   ],
 );

@@ -11,12 +11,14 @@ class ClientesProfile extends StatelessWidget {
   final ClienteDetalle detalle;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback? onReactivate;
 
   const ClientesProfile({
     super.key,
     required this.detalle,
     required this.onEdit,
     required this.onDelete,
+    this.onReactivate,
   });
 
   @override
@@ -40,6 +42,25 @@ class ClientesProfile extends StatelessWidget {
             ),
           ],
         ),
+        if (onReactivate != null) ...[
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: onReactivate,
+                icon: const Icon(Icons.refresh),
+                label: Text('Reactivar cliente', style: GoogleFonts.poppins()),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.orange[400],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+          ),
+        ],
         const Divider(),
         Padding(
           padding: const EdgeInsets.all(10.0),
