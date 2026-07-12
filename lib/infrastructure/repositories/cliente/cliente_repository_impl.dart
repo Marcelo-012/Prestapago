@@ -1,6 +1,5 @@
-import 'package:prestapagos/domain/entities/dtos/clientes/cliente_detalle.dart';
-import 'package:prestapagos/domain/entities/dtos/clientes/cliente_resumen.dart';
-import 'package:prestapagos/domain/entities/clientes/cliente.dart';
+import 'package:drift/drift.dart';
+import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/domain/repositories/clientes/cliente_repository.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
 
@@ -10,65 +9,55 @@ class ClienteRepositoryImpl implements ClienteRepository {
   ClienteRepositoryImpl(this._db);
 
   @override
-  Future<void> actualizarCliente(Cliente cliente) {
-    throw UnimplementedError();
-  }
+  Future<PagedResult<ClienteResumen>> getPaged({
+    required int page,
+    required int pageSize,
+    String? search,
+  }) async {
+    final limit = pageSize + 1;
+    final offset = page * pageSize;
 
-  @override
-  Future<void> crearCliente(Cliente cliente) {
-    // TODO: implement crearCliente
-    throw UnimplementedError();
-  }
+    final searchPattern = (search != null && search.isNotEmpty)
+        ? '%$search%'
+        : '';
+    final applyFilter = searchPattern.isNotEmpty;
 
-  @override
-  Future<void> eliminarCliente(int idDeudor) {
-    // TODO: implement eliminarCliente
-    throw UnimplementedError();
-  }
+    final rows = await _db
+        .customSelect(
+          '''
+      SELECT
+        d.id_deudor,
+        d.nombre,
+        d.telefono,
+        d.estado,
+        COALESCE((SELECT AVG(s.score) FROM scores s WHERE s.id_deudor = d.id_deudor), 0) AS score
+      FROM deudores d
+      WHERE (? = 0 OR d.nombre LIKE ? OR d.telefono LIKE ?)
+      ORDER BY d.nombre ASC
+      LIMIT ? OFFSET ?
+    ''',
+          variables: [
+            Variable<int>(applyFilter ? 1 : 0),
+            Variable<String>(searchPattern),
+            Variable<String>(searchPattern),
+            Variable<int>(limit),
+            Variable<int>(offset),
+          ],
+        )
+        .get();
 
-  @override
-  Future<List<ClienteResumen>> getAll() async {
-    //obtiene toda la tabla
-    final clientes = await _db.select(_db.deudores).get();
+    final hasMore = rows.length > pageSize;
+    final items = rows.take(pageSize).map((row) {
+      return ClienteResumen(
+        idDeudor: row.read<int>('id_deudor'),
+        nombre: row.read<String>('nombre'),
+        telefono: row.read<String>('telefono'),
+        estado: row.read<String>('estado'),
+        score: row.read<double>('score'),
+      );
+    }).toList();
 
-    return Future.wait(
-      clientes.map((cliente) async {
-        // Obtén los scores del cliente
-
-        final scores = await (_db.select(
-          _db.scores,
-        )..where((s) => s.idDeudor.equals(cliente.id))).get();
-
-        // Calcula el promedio de score
-
-        final scorePromedio = scores.isNotEmpty
-            ? scores.map((s) => s.score).reduce((a, b) => a + b) / scores.length
-            : 0.0;
-
-        // Obtén total de préstamos
-
-        final prestamos = await (_db.select(
-          _db.prestamos,
-        )..where((prestamos) => prestamos.idDeudor.equals(cliente.id))).get();
-
-        // Calcula total deuda
-
-        final totalDeuda = prestamos.fold<double>(
-          0,
-          (sum, prestamos) => sum + (prestamos.monto),
-        );
-
-        return ClienteResumen(
-          idDeudor: cliente.id,
-          nombre: cliente.nombre,
-          telefono: cliente.telefono,
-          estado: cliente.estado.name,
-          score: scorePromedio,
-          totalPrestamos: prestamos.length,
-          totalDeuda: totalDeuda,
-        );
-      }),
-    );
+    return PagedResult(items: items, hasMore: hasMore);
   }
 
   @override
@@ -95,27 +84,116 @@ class ClienteRepositoryImpl implements ClienteRepository {
   Future<ClienteDetalle> getDetalle(int idDeudor) async {
     final cliente = await getById(idDeudor);
 
-    final scores = await (_db.select(
-      _db.scores,
-    )..where((score) => score.idDeudor.equals(idDeudor))).get();
+    final prestamosRows = await _db
+        .customSelect(
+          '''
+      SELECT
+        p.id_prestamo,
+        p.id_deudor,
+        p.tasa_interes,
+        p.tasa_interes_moratoria,
+        p.monto,
+        p.plazo_meses,
+        p.monto_cuota,
+        p.fecha_creacion,
+        COALESCE(cp.estado_prestamo, 'activo') AS estado_prestamo,
+        cp.fecha_actualizacion AS fecha_actualizacion,
+        COALESCE((SELECT SUM(a.monto_capital) FROM amortizaciones a
+         WHERE a.id_prestamo = p.id_prestamo AND a.estado_amortizacion = 'pagado'), 0) AS total_pagado
+      FROM prestamos p
+      LEFT JOIN configuracion_prestamos cp ON cp.id_prestamo = p.id_prestamo
+      WHERE p.id_deudor = ?
+      ORDER BY p.fecha_creacion DESC
+    ''',
+          variables: [Variable<int>(idDeudor)],
+        )
+        .get();
 
-    final scorePromedio = scores.isNotEmpty
-        ? scores
-              .map((promedio) => promedio.score)
-              .reduce((a, b) => a + b / scores.length)
-        : 0.0;
+    final row = await _db
+        .customSelect(
+          '''
+      SELECT
+        COALESCE((SELECT AVG(s.score) FROM scores s WHERE s.id_deudor = ?), 0) AS score_promedio,
+        (SELECT COUNT(*) FROM prestamos p WHERE p.id_deudor = ?) AS total_prestamos,
+        (SELECT COUNT(*) FROM configuracion_prestamos cp
+         INNER JOIN prestamos p ON cp.id_prestamo = p.id_prestamo
+         WHERE p.id_deudor = ? AND cp.estado_prestamo = 'activo') AS total_prestamos_activos,
+        (SELECT COUNT(*) FROM configuracion_prestamos cp
+         INNER JOIN prestamos p ON cp.id_prestamo = p.id_prestamo
+         WHERE p.id_deudor = ? AND cp.estado_prestamo = 'finalizado') AS total_prestamos_finalizados,
+        COALESCE((SELECT SUM(p.monto) FROM prestamos p
+         WHERE p.id_deudor = ?), 0) AS total_prestado,
+        COALESCE((SELECT SUM(a.monto_capital) FROM amortizaciones a
+         INNER JOIN prestamos p ON a.id_prestamo = p.id_prestamo
+         WHERE p.id_deudor = ? AND a.estado_amortizacion = 'pagado'), 0) AS total_deuda_pagada
+    ''',
+          variables: [
+            Variable<int>(idDeudor),
+            Variable<int>(idDeudor),
+            Variable<int>(idDeudor),
+            Variable<int>(idDeudor),
+            Variable<int>(idDeudor),
+            Variable<int>(idDeudor),
+          ],
+        )
+        .getSingle();
 
-    // Obtén total de préstamos
-
-    final prestamos = await (_db.select(
-      _db.prestamos,
-    )..where((prestamos) => prestamos.idDeudor.equals(cliente.idDeudor))).get();
+    final prestamosDomain = prestamosRows
+        .map(
+          (p) => Loan(
+            idPrestamo: p.read<int>('id_prestamo'),
+            idDeudor: p.read<int>('id_deudor'),
+            tasaInteres: p.read<double>('tasa_interes'),
+            tasaInteresMoratoria: p.read<double>('tasa_interes_moratoria'),
+            monto: p.read<double>('monto'),
+            plazo: p.read<int>('plazo_meses'),
+            montoCuota: p.read<double>('monto_cuota'),
+            fechaCreacion: p.read<DateTime>('fecha_creacion'),
+            estado: p.read<String>('estado_prestamo'),
+            totalPagado: p.read<double>('total_pagado'),
+            fechaActualizacion: p.read<DateTime?>('fecha_actualizacion'),
+          ),
+        )
+        .toList();
 
     return ClienteDetalle(
       cliente: cliente,
-      scores: scores,
-      prestamos: prestamos,
-      scorePromedio: scorePromedio,
+      scorePromedio: row.read<double>('score_promedio'),
+      prestamos: prestamosDomain,
+      totalPrestamos: row.read<int>('total_prestamos'),
+      totalPrestamosActivos: row.read<int>('total_prestamos_activos'),
+      totalPrestamosFinalizados: row.read<int>('total_prestamos_finalizados'),
+      totalPrestado: row.read<double>('total_prestado'),
+      totalDeudaPagada: row.read<double>('total_deuda_pagada'),
     );
+  }
+
+  @override
+  Future<void> createCliente(Cliente cliente) async {
+    await _db
+        .into(_db.deudores)
+        .insert(
+          DeudoresCompanion.insert(
+            nombre: cliente.nombre,
+            telefono: cliente.telefono,
+            direccion: cliente.direccion,
+            numeroIdentificacion: cliente.dni,
+            edad: cliente.edad,
+            estado: EstadoCliente.activo,
+            fechaCreacion: Value(DateTime.now()),
+          ),
+        );
+  }
+
+  @override
+  Future<void> deleteCliente(int idDeudor) {
+    // TODO: implement deleteCliente
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updateCliente(Cliente cliente) {
+    // TODO: implement updateCliente
+    throw UnimplementedError();
   }
 }

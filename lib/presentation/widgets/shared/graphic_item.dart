@@ -35,6 +35,8 @@ class GraphicItem extends StatelessWidget {
         children: [
           Text(
             nombreGrafica,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),

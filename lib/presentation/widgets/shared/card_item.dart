@@ -13,7 +13,7 @@ class CardItem extends StatelessWidget {
   final double? fontSizeSubtitle;
   final double? fontSizeText;
   final VoidCallback? onTap;
-  final CrossAxisAlignment alignment; // ← nuevo parámetro
+  final CrossAxisAlignment alignment;
 
   const CardItem({
     this.width,
@@ -27,8 +27,7 @@ class CardItem extends StatelessWidget {
     this.fontSizeTitle,
     this.fontSizeSubtitle,
     this.fontSizeText,
-    this.alignment =
-        CrossAxisAlignment.start, // ← valor por defecto: como estaba antes
+    this.alignment = CrossAxisAlignment.start,
   });
 
   @override
@@ -52,6 +51,8 @@ class CardItem extends StatelessWidget {
                 Text(
                   title ?? '',
                   textAlign: textAlign,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
                     fontSize: fontSizeTitle ?? 25,
                     fontWeight: FontWeight.bold,
@@ -82,6 +83,8 @@ class CardItem extends StatelessWidget {
                   Text(
                     text!,
                     textAlign: textAlign,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.poppins(
                       fontSize: fontSizeText ?? 15,
                       fontWeight: FontWeight.w400,

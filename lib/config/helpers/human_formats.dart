@@ -28,4 +28,8 @@ class HumanFormats {
     final fecha = DateTime(2026, 1, 4 + index); // domingo es 4 de enero 2026
     return DateFormat.EEEE('es_MX').format(fecha); // "lunes", "martes", etc.
   }
+
+  static String date(DateTime date) {
+    return DateFormat('dd/MM/yyyy', 'es_MX').format(date);
+  }
 }

@@ -27,8 +27,7 @@ class HomeView extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    SizedBox(
-                      width: 300,
+                    Expanded(
                       child: Text(
                         'Resumen de tu actividad',
                         style: Theme.of(context).textTheme.titleMedium,
@@ -37,7 +36,7 @@ class HomeView extends ConsumerWidget {
                     IconButton.filledTonal(
                       onPressed: () {},
                       icon: const Icon(Icons.add),
-                      tooltip: 'Agregar nuevo prestamo',
+                      tooltip: 'Agregar nuevo préstamo',
                     ),
                   ],
                 ),

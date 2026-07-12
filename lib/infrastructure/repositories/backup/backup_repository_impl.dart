@@ -35,7 +35,7 @@ class BackupRepositoryImpl implements BackupRepository {
     try {
       yield BackupStatus(
         status: BackupStatusEnum.authenticating,
-        message: 'Verificando requerimientos de sistema...',
+        message: 'Verificando requisitos del sistema...',
       );
 
       if (!await _checkInternetConnection()) throw NoInternetException();

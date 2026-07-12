@@ -15,6 +15,24 @@ final appRouter = GoRouter(
 
         return HomeScreen(pageIndex: pageIndex);
       },
+      routes: [
+        //
+        GoRoute(
+          //
+          path: '/cliente/:id',
+          name: ClienteScreen.name,
+          builder: (context, state) {
+            final clienteId = state.pathParameters['id'] ?? 'no-id';
+
+            return ClienteScreen(clienteId: clienteId);
+          },
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/create-cliente',
+      name: CreateClienteScreen.name,
+      builder: (context, state) => const CreateClienteScreen(),
     ),
   ],
 );

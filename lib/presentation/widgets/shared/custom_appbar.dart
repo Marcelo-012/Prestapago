@@ -30,6 +30,8 @@ class CustomAppbar extends StatelessWidget {
               ],
               Text(
                 title ?? 'PRESTAPAGO',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: titleStyle,
               ),
               const Spacer(),

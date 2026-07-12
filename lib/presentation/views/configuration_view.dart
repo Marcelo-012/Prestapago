@@ -5,6 +5,6 @@ class ConfigurationView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text('Configuracion');
+    return Text('Configuración');
   }
 }

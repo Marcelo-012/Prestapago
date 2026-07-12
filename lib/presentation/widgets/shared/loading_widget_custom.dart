@@ -18,6 +18,8 @@ class LoadingWidgetCustom extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               mensaje!,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colors.onSurfaceVariant,
               ),

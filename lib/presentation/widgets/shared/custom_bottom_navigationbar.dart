@@ -60,7 +60,7 @@ class CustomBottomNavigationbar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.monetization_on_outlined),
           activeIcon: Icon(Icons.monetization_on),
-          label: 'Prestamos',
+          label: 'Préstamos',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.bar_chart_outlined),

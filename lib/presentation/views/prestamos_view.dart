@@ -5,6 +5,6 @@ class PrestamosView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text('Prestamos');
+    return Text('Préstamos');
   }
 }

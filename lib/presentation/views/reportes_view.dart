@@ -50,7 +50,7 @@ class ReportesView extends ConsumerWidget {
                     onRetry: () => ref.refresh(reporteLoanGraphicProvider),
                   ),
                   data: (reporteLoanGraphic) => GraphicItem(
-                    nombreGrafica: 'Prestamos otorgados por mes',
+                    nombreGrafica: 'Préstamos otorgados por mes',
                     ejeX: reporteLoanGraphic.nombreMes,
                     ejeY: reporteLoanGraphic.montoMes,
                     contenido: reporteLoanGraphic.montoMes
@@ -67,7 +67,7 @@ class ReportesView extends ConsumerWidget {
                     onRetry: () => ref.refresh(reportePaymentsGraphicProvider),
                   ),
                   data: (reportePaymentGraphic) => GraphicItem(
-                    nombreGrafica: 'Pagos recibidos por dia',
+                    nombreGrafica: 'Pagos recibidos por día',
                     ejeX: reportePaymentGraphic.fechaPago,
                     ejeY: reportePaymentGraphic.montoPago,
                     contenido: reportePaymentGraphic.montoPago
@@ -94,27 +94,30 @@ class _ResumenCards extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          children: [
-            const SizedBox(width: 5),
-            _MiniCard(
-              titulo: 'Total Clientes',
-              valor: reporteCard.totalClientes.toString(),
-              color: Colors.green[700],
-            ),
-            const SizedBox(width: 3),
-            _MiniCard(
-              titulo: 'Total Prestamos',
-              valor: reporteCard.totalPrestamos.toString(),
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(width: 3),
-            _MiniCard(
-              titulo: 'Prestamos activos',
-              valor: reporteCard.totalPrestamosActivos.toString(),
-              color: Colors.redAccent[700],
-            ),
-          ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: Wrap(
+            spacing: 3,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: [
+              _MiniCard(
+                titulo: 'Total Clientes',
+                valor: reporteCard.totalClientes.toString(),
+                color: Colors.green[700],
+              ),
+              _MiniCard(
+                titulo: 'Total Préstamos',
+                valor: reporteCard.totalPrestamos.toString(),
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              _MiniCard(
+                titulo: 'Préstamos activos',
+                valor: reporteCard.totalPrestamosActivos.toString(),
+                color: Colors.redAccent[700],
+              ),
+            ],
+          ),
         ),
         _SeccionEsteMes(reporteCard: reporteCard),
         _SeccionGeneral(reporteCard: reporteCard),
@@ -173,8 +176,10 @@ class _SeccionEsteMes extends StatelessWidget {
           ).textTheme.titleSmall?.copyWith(color: colors.primary),
         ),
         const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          alignment: WrapAlignment.center,
           children: [
             SizedBox(
               width: 180,
@@ -192,7 +197,6 @@ class _SeccionEsteMes extends StatelessWidget {
               child: CardResumo(
                 titulo: 'Total cobrado',
                 fontSizeTitle: 18,
-
                 valor: reporteCard.totalCobradoEsteMes ?? 0.00,
                 color: Colors.red,
               ),
@@ -247,8 +251,10 @@ class _SeccionGeneral extends StatelessWidget {
           color: Colors.yellow[700],
         ),
         const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          alignment: WrapAlignment.center,
           children: [
             SizedBox(
               width: 180,
@@ -256,19 +262,16 @@ class _SeccionGeneral extends StatelessWidget {
               child: CardResumo(
                 titulo: 'Intereses cobrados',
                 fontSizeTitle: 18,
-
                 valor: reporteCard.totalInteresesCobrados ?? 0.00,
                 color: Colors.blue[400],
               ),
             ),
-            const SizedBox(width: 20),
             SizedBox(
               width: 180,
               height: 140,
               child: CardResumo(
                 titulo: 'Moratorios cobrados',
                 fontSizeTitle: 18,
-
                 valor: reporteCard.totalInteresesMoraCobrados ?? 0.00,
                 color: Colors.orange[400],
               ),

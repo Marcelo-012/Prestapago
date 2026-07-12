@@ -32,6 +32,8 @@ class ErrorWidgetCustom extends StatelessWidget {
             Text(
               error.toString(),
               textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: colors.onSurfaceVariant,
               ),
