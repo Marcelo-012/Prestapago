@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prestapagos/presentation/providers/config/config_providers.dart';
+import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 final _flexSchemes = [
   (FlexScheme.blumineBlue, 'Azul', const Color(0xFF3D5AFE)),
@@ -22,22 +24,40 @@ class AppearanceScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Apariencia')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text('Modo de tema', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 12),
-          _ThemeModeSelector(current: themeState.themeMode),
-          const SizedBox(height: 32),
-          Text('Esquema de color', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 12),
-          ..._flexSchemes.map(
-            (s) => _SchemeCard(
-              scheme: s.$1,
-              name: s.$2,
-              color: s.$3,
-              isSelected: themeState.flexScheme == s.$1,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios),
+              onPressed: () => context.pop(),
+            ),
+            floating: true,
+            flexibleSpace: const FlexibleSpaceBar(
+              title: CustomAppbar(title: 'Apariencia'),
+              titlePadding: EdgeInsets.only(left: 30.0),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+              const SizedBox(height: 16),
+              Text('Modo de tema', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 12),
+              _ThemeModeSelector(current: themeState.themeMode),
+              const SizedBox(height: 32),
+              Text('Esquema de color', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 12),
+              ..._flexSchemes.map(
+                (s) => _SchemeCard(
+                  scheme: s.$1,
+                  name: s.$2,
+                  color: s.$3,
+                  isSelected: themeState.flexScheme == s.$1,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ]),
             ),
           ),
         ],
