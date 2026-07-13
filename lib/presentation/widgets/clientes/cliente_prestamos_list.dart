@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
-import 'package:prestapagos/domain/entities/prestamos/loan.dart';
+import 'package:prestapagos/domain/domain.dart';
 
 class ClientePrestamosList extends StatelessWidget {
-  final List<Loan> prestamos;
+  final List<Prestamo> prestamos;
 
   const ClientePrestamosList({super.key, required this.prestamos});
 
@@ -19,10 +19,7 @@ class ClientePrestamosList extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Sin préstamos registrados',
-                style: GoogleFonts.poppins(),
-              ),
+              Text('Sin préstamos registrados', style: GoogleFonts.poppins()),
               const SizedBox(height: 16),
               FilledButton.icon(
                 label: const Text('Nuevo préstamo'),
@@ -67,7 +64,7 @@ class ClientePrestamosList extends StatelessWidget {
     );
   }
 
-  Widget _buildLoanItem(Loan loan) {
+  Widget _buildLoanItem(Prestamo prestamo) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Padding(
@@ -79,7 +76,7 @@ class ClientePrestamosList extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Préstamo #${loan.idPrestamo}',
+                  'Préstamo #${prestamo.idPrestamo}',
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
@@ -90,14 +87,14 @@ class ClientePrestamosList extends StatelessWidget {
             const Divider(),
             const SizedBox(height: 8),
             _BuildData(
-              monto: loan.monto,
-              fechaCreacion: loan.fechaCreacion,
-              estado: loan.estado,
-              plazo: loan.plazo,
-              cuota: loan.montoCuota,
-              totalPagado: loan.totalPagado,
-              tasaInteres: loan.tasaInteres,
-              fechaActualizacion: loan.fechaActualizacion,
+              monto: prestamo.monto,
+              fechaCreacion: prestamo.fechaCreacion,
+              estado: prestamo.estado,
+              plazo: prestamo.plazo,
+              cuota: prestamo.montoCuota,
+              totalPagado: prestamo.totalPagado,
+              tasaInteres: prestamo.tasaInteres,
+              fechaActualizacion: prestamo.fechaActualizacion,
             ),
           ],
         ),

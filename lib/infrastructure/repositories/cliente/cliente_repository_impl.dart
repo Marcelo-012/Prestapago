@@ -1,7 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/domain/repositories/clientes/cliente_repository.dart';
-import 'package:prestapagos/infrastructure/database/database.dart';
+import 'package:prestapagos/infrastructure/database/database.dart'
+    hide Prestamo;
 
 class ClienteRepositoryImpl implements ClienteRepository {
   final AppDatabase _db;
@@ -140,7 +141,7 @@ class ClienteRepositoryImpl implements ClienteRepository {
 
     final prestamosDomain = prestamosRows
         .map(
-          (p) => Loan(
+          (p) => Prestamo(
             idPrestamo: p.read<int>('id_prestamo'),
             idDeudor: p.read<int>('id_deudor'),
             tasaInteres: p.read<double>('tasa_interes'),
@@ -187,40 +188,40 @@ class ClienteRepositoryImpl implements ClienteRepository {
 
   @override
   Future<void> deleteCliente(int idDeudor) async {
-    await (_db.delete(_db.deudores)
-      ..where((t) => t.id.equals(idDeudor))
-    ).go();
+    await (_db.delete(_db.deudores)..where((t) => t.id.equals(idDeudor))).go();
   }
 
   @override
   Future<int> countRelatedRecords(int idDeudor) async {
-    final rows = await _db.customSelect(
-      '''
+    final rows = await _db
+        .customSelect(
+          '''
       SELECT COUNT(*) AS total FROM prestamos p WHERE p.id_deudor = ?
     ''',
-      variables: [Variable<int>(idDeudor)],
-    ).getSingle();
+          variables: [Variable<int>(idDeudor)],
+        )
+        .getSingle();
     return rows.read<int>('total');
   }
 
   @override
   Future<void> deactivateCliente(int idDeudor) async {
-    await (_db.update(_db.deudores)
-      ..where((t) => t.id.equals(idDeudor))
-    ).write(DeudoresCompanion(
-      estado: Value(EstadoCliente.inactivo),
-      fechaActualizacion: Value(DateTime.now()),
-    ));
+    await (_db.update(_db.deudores)..where((t) => t.id.equals(idDeudor))).write(
+      DeudoresCompanion(
+        estado: Value(EstadoCliente.inactivo),
+        fechaActualizacion: Value(DateTime.now()),
+      ),
+    );
   }
 
   @override
   Future<void> reactivateCliente(int idDeudor) async {
-    await (_db.update(_db.deudores)
-      ..where((t) => t.id.equals(idDeudor))
-    ).write(DeudoresCompanion(
-      estado: Value(EstadoCliente.activo),
-      fechaActualizacion: Value(DateTime.now()),
-    ));
+    await (_db.update(_db.deudores)..where((t) => t.id.equals(idDeudor))).write(
+      DeudoresCompanion(
+        estado: Value(EstadoCliente.activo),
+        fechaActualizacion: Value(DateTime.now()),
+      ),
+    );
   }
 
   @override

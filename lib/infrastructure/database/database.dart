@@ -60,8 +60,7 @@ class ConfiguracionPrestamos extends Table {
   IntColumn get idPrestamo => integer()
       .named('id_prestamo')
       .customConstraint('NOT NULL REFERENCES prestamos(id_prestamo)')();
-  TextColumn get tipoInteres =>
-      textEnum<TipoInteres>().named('tipo_interes')();
+  TextColumn get tipoInteres => textEnum<TipoInteres>().named('tipo_interes')();
   TextColumn get estadoMoratorio =>
       textEnum<EstadoCliente>().named('estado_moratorio')();
   TextColumn get manejoExcedente =>
@@ -72,8 +71,9 @@ class ConfiguracionPrestamos extends Table {
       textEnum<EstadoPrestamo>().named('estado_prestamo')();
   DateTimeColumn get fechaCreacion =>
       dateTime().named('fecha_creacion').clientDefault(() => DateTime.now())();
-  DateTimeColumn get fechaActualizacion =>
-      dateTime().named('fecha_actualizacion').clientDefault(() => DateTime.now())();
+  DateTimeColumn get fechaActualizacion => dateTime()
+      .named('fecha_actualizacion')
+      .clientDefault(() => DateTime.now())();
 }
 
 class Amortizaciones extends Table {
@@ -97,18 +97,13 @@ class Amortizaciones extends Table {
   RealColumn get montoExcedente => real().named('monto_excedente')();
   TextColumn get estadoAmortizacion =>
       textEnum<EstadoAmortizacion>().named('estado_amortizacion')();
-  DateTimeColumn get fechaActualizacion =>
-      dateTime().named('fecha_actualizacion').clientDefault(() => DateTime.now())();
+  DateTimeColumn get fechaActualizacion => dateTime()
+      .named('fecha_actualizacion')
+      .clientDefault(() => DateTime.now())();
 }
 
 @DriftDatabase(
-  tables: [
-    Deudores,
-    Scores,
-    Prestamos,
-    ConfiguracionPrestamos,
-    Amortizaciones,
-  ],
+  tables: [Deudores, Scores, Prestamos, ConfiguracionPrestamos, Amortizaciones],
 )
 class AppDatabase extends _$AppDatabase {
   // After generating code, this class needs to define a `schemaVersion` getter

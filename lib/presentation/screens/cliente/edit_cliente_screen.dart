@@ -5,9 +5,7 @@ import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/clientes/clientes_provider.dart';
 import 'package:prestapagos/presentation/providers/clientes/edit_cliente_form_provider.dart';
 import 'package:prestapagos/presentation/providers/clientes/edit_cliente_provider.dart';
-import 'package:prestapagos/presentation/widgets/clientes/cliente_form_body.dart';
-import 'package:prestapagos/presentation/widgets/shared/confirm_exit_dialog.dart';
-import 'package:prestapagos/presentation/widgets/shared/custom_appbar.dart';
+import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class EditClienteScreen extends ConsumerStatefulWidget {
   static const name = 'edit-cliente';

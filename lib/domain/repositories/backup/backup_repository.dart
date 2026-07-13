@@ -1,4 +1,4 @@
-import 'package:prestapagos/domain/entities/backup/backup_status.dart';
+import 'package:prestapagos/domain/domain.dart';
 
 abstract class BackupRepository {
   /// Ejecuta el flujo completo de respaldo emitiendo estados progresivos

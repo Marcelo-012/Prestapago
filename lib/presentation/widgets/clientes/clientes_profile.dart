@@ -2,10 +2,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
-import 'package:prestapagos/domain/entities/dtos/clientes/cliente_detalle.dart';
-import 'package:prestapagos/presentation/widgets/clientes/cliente_prestamos_list.dart';
-import 'package:prestapagos/presentation/widgets/clientes/cliente_stats_section.dart';
-import 'package:prestapagos/presentation/widgets/clientes/clientes_detalles.dart';
+import 'package:prestapagos/domain/domain.dart';
+import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class ClientesProfile extends StatelessWidget {
   final ClienteDetalle detalle;

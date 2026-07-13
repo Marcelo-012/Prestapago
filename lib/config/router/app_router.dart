@@ -1,4 +1,3 @@
-import 'package:prestapagos/presentation/screens/cliente/edit_cliente_screen.dart';
 import 'package:prestapagos/presentation/screens/screens.dart';
 
 import 'package:go_router/go_router.dart';

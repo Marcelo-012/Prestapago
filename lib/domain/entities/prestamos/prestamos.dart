@@ -1,4 +1,4 @@
-class Loan {
+class Prestamo {
   final int idPrestamo;
   final int idDeudor;
   final double tasaInteres;
@@ -11,7 +11,7 @@ class Loan {
   final double totalPagado;
   final DateTime? fechaActualizacion;
 
-  Loan({
+  Prestamo({
     required this.idPrestamo,
     required this.idDeudor,
     required this.tasaInteres,

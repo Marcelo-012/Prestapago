@@ -5,3 +5,12 @@ export 'package:prestapagos/presentation/widgets/shared/custom_bottom_navigation
 export 'package:prestapagos/presentation/widgets/shared/error_widget_custom.dart';
 export 'package:prestapagos/presentation/widgets/shared/graphic_item.dart';
 export 'package:prestapagos/presentation/widgets/shared/loading_widget_custom.dart';
+export 'package:prestapagos/presentation/widgets/shared/confirm_exit_dialog.dart';
+export 'package:prestapagos/presentation/widgets/clientes/cliente_form_body.dart';
+export 'package:prestapagos/presentation/widgets/clientes/cliente_prestamos_list.dart';
+export 'package:prestapagos/presentation/widgets/clientes/cliente_stats_section.dart';
+export 'package:prestapagos/presentation/widgets/clientes/clientes_detalles.dart';
+export 'package:prestapagos/presentation/widgets/clientes/clientes_list_item.dart';
+export 'package:prestapagos/presentation/widgets/clientes/clientes_profile.dart';
+export 'package:prestapagos/presentation/widgets/home/cards_clientes.dart';
+export 'package:prestapagos/presentation/widgets/home/lists_card_clientes.dart';

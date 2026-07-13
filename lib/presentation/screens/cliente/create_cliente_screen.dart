@@ -3,9 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prestapagos/presentation/providers/clientes/create_cliente_form_provider.dart';
 import 'package:prestapagos/presentation/providers/clientes/create_cliente_provider.dart';
-import 'package:prestapagos/presentation/widgets/clientes/cliente_form_body.dart';
-import 'package:prestapagos/presentation/widgets/shared/confirm_exit_dialog.dart';
-import 'package:prestapagos/presentation/widgets/shared/custom_appbar.dart';
+import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class CreateClienteScreen extends ConsumerWidget {
   static const name = 'create-cliente';

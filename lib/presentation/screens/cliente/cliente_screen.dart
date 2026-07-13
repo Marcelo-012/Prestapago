@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prestapagos/domain/entities/clientes/cliente.dart';
+import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/clientes/clientes_provider.dart';
 import 'package:prestapagos/presentation/providers/clientes/delete_cliente_provider.dart';
-import 'package:prestapagos/presentation/widgets/clientes/clientes_profile.dart';
-import 'package:prestapagos/presentation/widgets/shared/confirm_exit_dialog.dart';
-import 'package:prestapagos/presentation/widgets/shared/custom_appbar.dart';
-import 'package:prestapagos/presentation/widgets/shared/loading_widget_custom.dart';
+import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class ClienteScreen extends ConsumerStatefulWidget {
   static const name = 'cliente-profile';

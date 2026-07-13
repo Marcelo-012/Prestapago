@@ -1,10 +1,9 @@
-import 'package:prestapagos/domain/entities/clientes/cliente.dart';
-import 'package:prestapagos/domain/entities/prestamos/loan.dart';
+import 'package:prestapagos/domain/domain.dart';
 
 class ClienteDetalle {
   final Cliente cliente;
   final double scorePromedio;
-  final List<Loan> prestamos;
+  final List<Prestamo> prestamos;
   final int totalPrestamos;
   final int totalPrestamosActivos;
   final int totalPrestamosFinalizados;
