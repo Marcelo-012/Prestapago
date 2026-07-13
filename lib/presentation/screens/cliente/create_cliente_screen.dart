@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prestapagos/presentation/providers/clientes/create_cliente_form_provider.dart';
 import 'package:prestapagos/presentation/providers/clientes/create_cliente_provider.dart';
@@ -34,8 +35,22 @@ class CreateClienteScreen extends ConsumerWidget {
 
     ref.listen(createClienteProvider, (prev, next) {
       if (prev?.isSuccess != true && next.isSuccess && context.mounted) {
+        Fluttertoast.showToast(
+          msg: 'Cliente creado exitosamente',
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
         ref.read(createClienteFormProvider.notifier).reset();
         context.pop();
+      }
+      if (next.errorMessage != null && prev?.errorMessage != next.errorMessage && context.mounted) {
+        Fluttertoast.showToast(
+          msg: next.errorMessage!,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
       }
     });
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/presentation/widgets/shared/card_item.dart';
 
@@ -22,9 +22,10 @@ class CardResumo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardItem(
-      onTap: () => ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('$titulo tocado'))),
+      onTap: () => Fluttertoast.showToast(
+        msg: '$titulo tocado',
+        gravity: ToastGravity.TOP,
+      ),
       title: titulo,
       fontSizeTitle: fontSizeTitle,
       subtitle: HumanFormats.monuted(valor),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/clientes/clientes_provider.dart';
@@ -109,11 +110,27 @@ class _EditClienteScreenState extends ConsumerState<EditClienteScreen> {
           if (previous?.isSuccess != true &&
               next.isSuccess &&
               context.mounted) {
+            Fluttertoast.showToast(
+              msg: 'Cliente actualizado exitosamente',
+              gravity: ToastGravity.TOP,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+            );
             ref.invalidate(clienteProvider(id));
             ref.invalidate(clienteDetalleProvider(id));
             ref.read(clientePaginationProvider.notifier).refresh();
             ref.read(editClienteFormProvider.notifier).reset();
             context.pop();
+          }
+          if (next.errorMessage != null &&
+              previous?.errorMessage != next.errorMessage &&
+              context.mounted) {
+            Fluttertoast.showToast(
+              msg: next.errorMessage!,
+              gravity: ToastGravity.TOP,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+            );
           }
         });
 

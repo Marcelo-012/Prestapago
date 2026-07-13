@@ -9,6 +9,7 @@ import 'package:prestapagos/infrastructure/datasources/backup/secure_storage_dat
 class GoogleAuthDatasource {
   final SecureStorageDatasource secureStorage;
   final LocalBackupDatasource localBackupStorage;
+  final String serverClientId;
   bool _initialized = false;
 
   final _logger = Logger(level: kReleaseMode ? Level.warning : Level.trace);
@@ -16,11 +17,14 @@ class GoogleAuthDatasource {
   GoogleAuthDatasource({
     required this.secureStorage,
     required this.localBackupStorage,
+    required this.serverClientId,
   });
 
   Future<void> _ensureInitialized() async {
     if (!_initialized) {
-      await GoogleSignIn.instance.initialize();
+      await GoogleSignIn.instance.initialize(
+        serverClientId: serverClientId,
+      );
       _initialized = true;
     }
   }
@@ -44,10 +48,23 @@ class GoogleAuthDatasource {
 
       await localBackupStorage.setUserEmail(account.email);
       await localBackupStorage.setAccountLinked(true);
+      if (account.displayName != null) {
+        await localBackupStorage.setUserName(account.displayName!);
+      }
+      if (account.photoUrl != null) {
+        await localBackupStorage.setUserPhotoUrl(account.photoUrl!);
+      }
 
       _logger.i('✅ Autenticación exitosa: ${account.email}');
     } on BackupException {
       rethrow;
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        _logger.i('Autenticación cancelada por el usuario');
+        return;
+      }
+      _logger.e('Error en autenticación: $e');
+      throw AuthenticationFailedException(e.toString());
     } catch (e, stack) {
       _logger.e('Error en autenticación: $e', stackTrace: stack);
       throw AuthenticationFailedException(e.toString());

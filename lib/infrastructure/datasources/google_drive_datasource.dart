@@ -30,6 +30,15 @@ class GoogleDriveDatasource {
     return _AuthenticatedClient(client, accessToken);
   }
 
+  String _pad(int n) => n.toString().padLeft(2, '0');
+
+  String _generateBackupFilename() {
+    final now = DateTime.now();
+    final fecha = '${now.year}-${_pad(now.month)}-${_pad(now.day)}';
+    final hora = '${_pad(now.hour)}-${_pad(now.minute)}-${_pad(now.second)}';
+    return '${BackupConstants.backupFilePrefix}${fecha}_$hora${BackupConstants.backupFileExtension}';
+  }
+
   // ============ OPERACIONES DE ENTRADA / SALIDA ============
 
   Future<String> uploadBackup(
@@ -60,7 +69,7 @@ class GoogleDriveDatasource {
         );
 
         final driveFile = drive.File()
-          ..name = BackupConstants.databaseFilename
+          ..name = _generateBackupFilename()
           ..mimeType = 'application/octet-stream'
           ..description = 'Respaldo automático PRESTAPAGO - ${DateTime.now()}'
           ..parents = ['appDataFolder'];
@@ -95,7 +104,7 @@ class GoogleDriveDatasource {
       _logger.i('Buscando respaldo en Google Drive...');
 
       final files = await _driveApi.files.list(
-        q: 'name = "${BackupConstants.databaseFilename}" and trashed = false',
+        q: "name contains '${BackupConstants.backupFilePrefix}' and trashed = false",
         spaces: 'appDataFolder',
         pageSize: 1,
         orderBy: 'modifiedTime desc',
@@ -154,6 +163,30 @@ class GoogleDriveDatasource {
     } catch (e) {
       _logger.e('Error validando integridad física: $e');
       return false;
+    }
+  }
+
+  Future<void> cleanupOldBackups() async {
+    try {
+      final files = await _driveApi.files.list(
+        q: "name contains '${BackupConstants.backupFilePrefix}' and trashed = false",
+        spaces: 'appDataFolder',
+        orderBy: 'modifiedTime desc',
+        $fields: 'files(id, name, modifiedTime)',
+      );
+
+      final allFiles = files.files ?? [];
+      if (allFiles.length <= BackupConstants.maxBackupsToKeep) return;
+
+      final toDelete = allFiles.sublist(BackupConstants.maxBackupsToKeep);
+      for (final file in toDelete) {
+        if (file.id != null) {
+          await _driveApi.files.delete(file.id!);
+          _logger.i('Backup antiguo eliminado: ${file.name}');
+        }
+      }
+    } catch (e) {
+      _logger.e('Error limpiando backups antiguos: $e');
     }
   }
 }

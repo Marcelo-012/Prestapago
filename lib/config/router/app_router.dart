@@ -1,5 +1,4 @@
 import 'package:prestapagos/presentation/screens/screens.dart';
-
 import 'package:go_router/go_router.dart';
 
 final appRouter = GoRouter(
@@ -41,6 +40,16 @@ final appRouter = GoRouter(
         final clienteId = state.pathParameters['id'] ?? 'no-id';
         return EditClienteScreen(clienteId: clienteId);
       },
+    ),
+    GoRoute(
+      path: '/ajustes/apariencia',
+      name: AppearanceScreen.name,
+      builder: (context, state) => const AppearanceScreen(),
+    ),
+    GoRoute(
+      path: '/ajustes/respaldo',
+      name: BackupScreen.name,
+      builder: (context, state) => const BackupScreen(),
     ),
   ],
 );

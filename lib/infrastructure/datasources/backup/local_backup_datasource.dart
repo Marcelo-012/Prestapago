@@ -27,6 +27,24 @@ class LocalBackupDatasource {
     return _prefs.getString(BackupConstants.keyUserEmail);
   }
 
+  Future<void> setUserPhotoUrl(String url) async {
+    await _prefs.setString(BackupConstants.keyUserPhotoUrl, url);
+    _logger.i('URL de foto guardada');
+  }
+
+  String? getUserPhotoUrl() {
+    return _prefs.getString(BackupConstants.keyUserPhotoUrl);
+  }
+
+  Future<void> setUserName(String name) async {
+    await _prefs.setString(BackupConstants.keyUserName, name);
+    _logger.i('Nombre guardado: $name');
+  }
+
+  String? getUserName() {
+    return _prefs.getString(BackupConstants.keyUserName);
+  }
+
   Future<void> setLastBackupTime(DateTime time) async {
     await _prefs.setString(
       BackupConstants.keyLastBackup,
@@ -60,6 +78,8 @@ class LocalBackupDatasource {
   Future<void> clearLocalBackupData() async {
     await _prefs.remove(BackupConstants.keyAccountLinked);
     await _prefs.remove(BackupConstants.keyUserEmail);
+    await _prefs.remove(BackupConstants.keyUserName);
+    await _prefs.remove(BackupConstants.keyUserPhotoUrl);
     await _prefs.remove(BackupConstants.keyLastBackup);
     await _prefs.remove(BackupConstants.keyBackupStatus);
     _logger.i('Datos locales de respaldo eliminados de SharedPreferences');

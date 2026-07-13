@@ -82,7 +82,7 @@ class ClientesProfile extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 15),
-              Text('Fecha de activmeación', style: style),
+              Text('Fecha de activación', style: style),
               Row(
                 children: [
                   const Icon(Icons.calendar_month_outlined),

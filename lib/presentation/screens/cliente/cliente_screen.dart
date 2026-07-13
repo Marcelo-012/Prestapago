@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/clientes/clientes_provider.dart';
@@ -80,6 +81,22 @@ class _ClienteScreenState extends ConsumerState<ClienteScreen> {
       await ref.read(deleteClienteProvider.notifier).deleteCliente(idDeudor);
 
       if (!context.mounted) return;
+      final deleteState = ref.read(deleteClienteProvider);
+      if (deleteState.isSuccess) {
+        Fluttertoast.showToast(
+          msg: 'Cliente eliminado',
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+      } else if (deleteState.errorMessage != null) {
+        Fluttertoast.showToast(
+          msg: deleteState.errorMessage!,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
       context.pop();
     } else {
       final desactivar = await confirmarAccion(
@@ -95,6 +112,23 @@ class _ClienteScreenState extends ConsumerState<ClienteScreen> {
       if (!desactivar || !context.mounted) return;
 
       await ref.read(deleteClienteProvider.notifier).deactivateCliente(idDeudor);
+      if (!context.mounted) return;
+      final deleteState = ref.read(deleteClienteProvider);
+      if (deleteState.isSuccess) {
+        Fluttertoast.showToast(
+          msg: 'Cliente desactivado',
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.orange,
+          textColor: Colors.white,
+        );
+      } else if (deleteState.errorMessage != null) {
+        Fluttertoast.showToast(
+          msg: deleteState.errorMessage!,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
     }
   }
 
@@ -108,5 +142,22 @@ class _ClienteScreenState extends ConsumerState<ClienteScreen> {
     if (!reactivar || !context.mounted) return;
 
     await ref.read(deleteClienteProvider.notifier).reactivateCliente(_id);
+    if (!context.mounted) return;
+    final deleteState = ref.read(deleteClienteProvider);
+    if (deleteState.isSuccess) {
+      Fluttertoast.showToast(
+        msg: 'Cliente reactivado',
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+    } else if (deleteState.errorMessage != null) {
+      Fluttertoast.showToast(
+        msg: deleteState.errorMessage!,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
   }
 }

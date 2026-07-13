@@ -6,6 +6,7 @@ export 'package:prestapagos/presentation/widgets/shared/error_widget_custom.dart
 export 'package:prestapagos/presentation/widgets/shared/graphic_item.dart';
 export 'package:prestapagos/presentation/widgets/shared/loading_widget_custom.dart';
 export 'package:prestapagos/presentation/widgets/shared/confirm_exit_dialog.dart';
+export 'package:prestapagos/presentation/widgets/shared/full_screen_loader.dart';
 export 'package:prestapagos/presentation/widgets/clientes/cliente_form_body.dart';
 export 'package:prestapagos/presentation/widgets/clientes/cliente_prestamos_list.dart';
 export 'package:prestapagos/presentation/widgets/clientes/cliente_stats_section.dart';

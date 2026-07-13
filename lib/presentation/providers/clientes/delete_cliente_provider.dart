@@ -1,3 +1,4 @@
+import 'package:prestapagos/config/errors/error_mapper.dart';
 import 'package:prestapagos/presentation/providers/clientes/clientes_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -40,7 +41,7 @@ class DeleteClienteNotifier extends Notifier<DeleteClienteState> {
       _invalidateProviders(idDeudor);
       state = state.copyWith(isSubmitting: false, isSuccess: true);
     } catch (e) {
-      state = state.copyWith(isSubmitting: false, errorMessage: e.toString());
+      state = state.copyWith(isSubmitting: false, errorMessage: mapErrorToMessage(e));
     }
   }
 
@@ -52,7 +53,7 @@ class DeleteClienteNotifier extends Notifier<DeleteClienteState> {
       _invalidateProviders(idDeudor);
       state = state.copyWith(isSubmitting: false, isSuccess: true);
     } catch (e) {
-      state = state.copyWith(isSubmitting: false, errorMessage: e.toString());
+      state = state.copyWith(isSubmitting: false, errorMessage: mapErrorToMessage(e));
     }
   }
 
@@ -64,7 +65,7 @@ class DeleteClienteNotifier extends Notifier<DeleteClienteState> {
       _invalidateProviders(idDeudor);
       state = state.copyWith(isSubmitting: false, isSuccess: true);
     } catch (e) {
-      state = state.copyWith(isSubmitting: false, errorMessage: e.toString());
+      state = state.copyWith(isSubmitting: false, errorMessage: mapErrorToMessage(e));
     }
   }
 

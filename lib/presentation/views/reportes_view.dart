@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/reportes/reporte_card_provider.dart';
@@ -141,9 +142,10 @@ class _MiniCard extends StatelessWidget {
           width: 125,
           height: 125,
           child: CardItem(
-            onTap: () => ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('$titulo tocado'))),
+            onTap: () => Fluttertoast.showToast(
+              msg: '$titulo tocado',
+              gravity: ToastGravity.TOP,
+            ),
             alignment: CrossAxisAlignment.center,
             title: titulo,
             fontSizeTitle: 14,

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prestapagos/config/errors/error_mapper.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/domain/repositories/clientes/cliente_repository.dart';
 import 'package:prestapagos/infrastructure/repositories/cliente/cliente_repository_impl.dart';
@@ -71,7 +72,7 @@ class ClientePaginationNotifier extends Notifier<ClientePaginationState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.toString(),
+        error: mapErrorToMessage(e),
       );
     }
   }

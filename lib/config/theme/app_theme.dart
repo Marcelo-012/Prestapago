@@ -9,9 +9,9 @@ class AppTheme {
     titleSmall: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w500),
   );
 
-  ThemeData getLightTheme() {
+  ThemeData getLightTheme({FlexScheme scheme = FlexScheme.blumineBlue}) {
     return FlexThemeData.light(
-      scheme: FlexScheme.blumineBlue,
+      scheme: scheme,
       useMaterial3: true,
       textTheme: _buildTextTheme,
     ).copyWith(
@@ -25,9 +25,9 @@ class AppTheme {
     );
   }
 
-  ThemeData getDarkTheme() {
+  ThemeData getDarkTheme({FlexScheme scheme = FlexScheme.blumineBlue}) {
     return FlexThemeData.dark(
-      scheme: FlexScheme.blumineBlue,
+      scheme: scheme,
       useMaterial3: true,
       textTheme: _buildTextTheme,
     ).copyWith(

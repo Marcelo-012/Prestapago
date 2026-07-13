@@ -4,6 +4,7 @@ import 'package:logger/logger.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/domain/repositories/backup/backup_repository.dart';
 import 'package:prestapagos/config/errors/backup_exceptions.dart';
+import 'package:prestapagos/infrastructure/database/database.dart';
 import 'package:prestapagos/infrastructure/datasources/backup/local_backup_datasource.dart';
 import 'package:prestapagos/infrastructure/datasources/backup/secure_storage_datasource.dart';
 import 'package:prestapagos/infrastructure/datasources/google_auth_datasource.dart';
@@ -15,6 +16,7 @@ class BackupRepositoryImpl implements BackupRepository {
   final LocalBackupDatasource _localBackupDatasource;
   final SecureStorageDatasource _secureStorageDatasource;
   final File _databaseFile;
+  final AppDatabase? _database;
 
   final _logger = Logger(level: kReleaseMode ? Level.warning : Level.trace);
 
@@ -24,11 +26,13 @@ class BackupRepositoryImpl implements BackupRepository {
     required LocalBackupDatasource localBackupDatasource,
     required SecureStorageDatasource secureStorageDatasource,
     required File databaseFile,
+    AppDatabase? database,
   }) : _authDatasource = authDatasource,
        _driveDatasource = driveDatasource,
        _localBackupDatasource = localBackupDatasource,
        _secureStorageDatasource = secureStorageDatasource,
-       _databaseFile = databaseFile;
+       _databaseFile = databaseFile,
+       _database = database;
 
   @override
   Stream<BackupStatus> performBackup() async* {
@@ -63,8 +67,9 @@ class BackupRepositoryImpl implements BackupRepository {
         progress: 0.0,
       );
 
-      // Aquí ejecutamos la subida controlada
       await _driveDatasource.uploadBackup(_databaseFile);
+
+      await _driveDatasource.cleanupOldBackups();
 
       yield BackupStatus(
         status: BackupStatusEnum.validating,
@@ -152,11 +157,27 @@ class BackupRepositoryImpl implements BackupRepository {
         progress: 0.9,
       );
 
-      // TODO: Invocar cierre de conexiones de Drift (AppDatabase) aquí antes del swap físico.
-      if (await _databaseFile.exists()) {
-        await _databaseFile.delete();
+      if (_database != null) {
+        await _database.close();
       }
-      await tempFile.rename(_databaseFile.path);
+
+      final backupPath = '${_databaseFile.parent.path}/respaldo_previo_temp.db';
+      final backupFile = File(backupPath);
+
+      if (await _databaseFile.exists()) {
+        await _databaseFile.rename(backupPath);
+      }
+
+      try {
+        await tempFile.rename(_databaseFile.path);
+
+        if (await backupFile.exists()) await backupFile.delete();
+      } catch (e) {
+        if (await backupFile.exists()) {
+          await backupFile.rename(_databaseFile.path);
+        }
+        rethrow;
+      }
 
       await _localBackupDatasource.setLastBackupTime(DateTime.now());
       await _localBackupDatasource.setBackupStatus('Restaurado');
@@ -173,6 +194,13 @@ class BackupRepositoryImpl implements BackupRepository {
         status: BackupStatusEnum.failed,
         message: e.message,
         errorCode: e.code,
+      );
+    } catch (e, stack) {
+      _logger.e('Fallo crítico no controlado en restauración: $e', stackTrace: stack);
+      yield BackupStatus(
+        status: BackupStatusEnum.failed,
+        message: 'Error inesperado durante la restauración',
+        errorCode: 'UNKNOWN',
       );
     }
   }

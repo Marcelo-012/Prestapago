@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prestapagos/config/errors/error_mapper.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/clientes/clientes_provider.dart';
 import 'package:prestapagos/presentation/providers/clientes/edit_cliente_form_provider.dart';
@@ -51,7 +52,7 @@ class EditClienteNotifier extends Notifier<EditClienteState> {
 
       state = state.copyWith(isSubmitting: false, isSuccess: true);
     } catch (e) {
-      state = state.copyWith(isSubmitting: false, errorMessage: e.toString());
+      state = state.copyWith(isSubmitting: false, errorMessage: mapErrorToMessage(e));
     }
   }
 

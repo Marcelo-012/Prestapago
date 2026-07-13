@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/domain/domain.dart';
@@ -23,9 +24,10 @@ class ClientePrestamosList extends StatelessWidget {
               const SizedBox(height: 16),
               FilledButton.icon(
                 label: const Text('Nuevo préstamo'),
-                onPressed: () => ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('tocado'))),
+                onPressed: () => Fluttertoast.showToast(
+                  msg: 'tocado',
+                  gravity: ToastGravity.TOP,
+                ),
                 icon: const Icon(Icons.add_card_outlined),
               ),
             ],
@@ -51,9 +53,10 @@ class ClientePrestamosList extends StatelessWidget {
               ),
               FilledButton.icon(
                 label: Text('Nuevo préstamo'),
-                onPressed: () => ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('tocado'))),
+                onPressed: () => Fluttertoast.showToast(
+                  msg: 'tocado',
+                  gravity: ToastGravity.TOP,
+                ),
                 icon: const Icon(Icons.add_card_outlined),
               ),
             ],
