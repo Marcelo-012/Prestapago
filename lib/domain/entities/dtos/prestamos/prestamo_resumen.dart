@@ -9,6 +9,10 @@ class PrestamoResumen {
   final String estadoUltimoPago;
   final String estadoPrestamo;
   final DateTime fechaCreacion;
+  final double tasaInteres;
+  final double totalPagado;
+  final DateTime? fechaActualizacion;
+  final String periodidadIntereses;
 
   PrestamoResumen({
     required this.idDeudor,
@@ -21,5 +25,9 @@ class PrestamoResumen {
     required this.estadoUltimoPago,
     required this.estadoPrestamo,
     required this.fechaCreacion,
+    required this.tasaInteres,
+    required this.totalPagado,
+    this.fechaActualizacion,
+    this.periodidadIntereses = 'mensual',
   });
 }

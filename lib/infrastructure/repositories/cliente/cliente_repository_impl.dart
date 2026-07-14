@@ -9,6 +9,9 @@ class ClienteRepositoryImpl implements ClienteRepository {
 
   ClienteRepositoryImpl(this._db);
 
+  String _scoreSubquery(String alias) =>
+      '(SELECT AVG(s.score) FROM scores s WHERE s.id_deudor = $alias.id_deudor)';
+
   @override
   Future<PagedResult<ClienteResumen>> getPaged({
     required int page,
@@ -31,7 +34,7 @@ class ClienteRepositoryImpl implements ClienteRepository {
         d.nombre,
         d.telefono,
         d.estado,
-        COALESCE((SELECT AVG(s.score) FROM scores s WHERE s.id_deudor = d.id_deudor), 0) AS score
+        COALESCE(${_scoreSubquery('d')}, 0) AS score
       FROM deudores d
       WHERE (? = 0 OR d.nombre LIKE ? OR d.telefono LIKE ?)
       ORDER BY d.nombre ASC
@@ -83,11 +86,11 @@ class ClienteRepositoryImpl implements ClienteRepository {
 
   @override
   Future<ClienteDetalle> getDetalle(int idDeudor) async {
-    final cliente = await getById(idDeudor);
-
-    final prestamosRows = await _db
-        .customSelect(
-          '''
+    final results = await Future.wait([
+      getById(idDeudor),
+      _db
+          .customSelect(
+            '''
       SELECT
         p.id_prestamo,
         p.id_deudor,
@@ -99,6 +102,7 @@ class ClienteRepositoryImpl implements ClienteRepository {
         p.fecha_creacion,
         COALESCE(cp.estado_prestamo, 'activo') AS estado_prestamo,
         cp.fecha_actualizacion AS fecha_actualizacion,
+        cp.periodidad_intereses AS periodidad_intereses,
         COALESCE((SELECT SUM(a.monto_capital) FROM amortizaciones a
          WHERE a.id_prestamo = p.id_prestamo AND a.estado_amortizacion = 'pagado'), 0) AS total_pagado
       FROM prestamos p
@@ -106,13 +110,12 @@ class ClienteRepositoryImpl implements ClienteRepository {
       WHERE p.id_deudor = ?
       ORDER BY p.fecha_creacion DESC
     ''',
-          variables: [Variable<int>(idDeudor)],
-        )
-        .get();
-
-    final row = await _db
-        .customSelect(
-          '''
+            variables: [Variable<int>(idDeudor)],
+          )
+          .get(),
+      _db
+          .customSelect(
+            '''
       SELECT
         COALESCE((SELECT AVG(s.score) FROM scores s WHERE s.id_deudor = ?), 0) AS score_promedio,
         (SELECT COUNT(*) FROM prestamos p WHERE p.id_deudor = ?) AS total_prestamos,
@@ -128,32 +131,45 @@ class ClienteRepositoryImpl implements ClienteRepository {
          INNER JOIN prestamos p ON a.id_prestamo = p.id_prestamo
          WHERE p.id_deudor = ? AND a.estado_amortizacion = 'pagado'), 0) AS total_deuda_pagada
     ''',
-          variables: [
-            Variable<int>(idDeudor),
-            Variable<int>(idDeudor),
-            Variable<int>(idDeudor),
-            Variable<int>(idDeudor),
-            Variable<int>(idDeudor),
-            Variable<int>(idDeudor),
-          ],
-        )
-        .getSingle();
+            variables: [
+              Variable<int>(idDeudor),
+              Variable<int>(idDeudor),
+              Variable<int>(idDeudor),
+              Variable<int>(idDeudor),
+              Variable<int>(idDeudor),
+              Variable<int>(idDeudor),
+            ],
+          )
+          .getSingle(),
+    ]);
+
+    final cliente = results[0] as Cliente;
+    final prestamosRows = results[1] as List<QueryRow>;
+    final row = results[2] as QueryRow;
 
     final prestamosDomain = prestamosRows
         .map(
-          (p) => Prestamo(
-            idPrestamo: p.read<int>('id_prestamo'),
-            idDeudor: p.read<int>('id_deudor'),
-            tasaInteres: p.read<double>('tasa_interes'),
-            tasaInteresMoratoria: p.read<double>('tasa_interes_moratoria'),
-            monto: p.read<double>('monto'),
-            plazo: p.read<int>('plazo_meses'),
-            montoCuota: p.read<double>('monto_cuota'),
-            fechaCreacion: p.read<DateTime>('fecha_creacion'),
-            estado: p.read<String>('estado_prestamo'),
-            totalPagado: p.read<double>('total_pagado'),
-            fechaActualizacion: p.read<DateTime?>('fecha_actualizacion'),
-          ),
+          (p) {
+            final monto = p.read<double>('monto');
+            final totalPagado = p.read<double>('total_pagado');
+            final periodidad = p.read<String?>('periodidad_intereses');
+            return PrestamoResumen(
+              idDeudor: p.read<int>('id_deudor'),
+              monto: monto,
+              plazo: p.read<int>('plazo_meses'),
+              cuota: p.read<double>('monto_cuota'),
+              saldoPorPagar: (monto - totalPagado).clamp(0, double.infinity),
+              nombre: '',
+              idPrestamo: p.read<int>('id_prestamo'),
+              estadoUltimoPago: 'noPagado',
+              estadoPrestamo: p.read<String>('estado_prestamo'),
+              fechaCreacion: p.read<DateTime>('fecha_creacion'),
+              tasaInteres: p.read<double>('tasa_interes'),
+              totalPagado: totalPagado,
+              fechaActualizacion: p.read<DateTime?>('fecha_actualizacion'),
+              periodidadIntereses: periodidad ?? 'mensual',
+            );
+          },
         )
         .toList();
 
@@ -204,25 +220,22 @@ class ClienteRepositoryImpl implements ClienteRepository {
     return rows.read<int>('total');
   }
 
-  @override
-  Future<void> deactivateCliente(int idDeudor) async {
+  Future<void> _actualizarEstado(int idDeudor, EstadoCliente estado) async {
     await (_db.update(_db.deudores)..where((t) => t.id.equals(idDeudor))).write(
       DeudoresCompanion(
-        estado: Value(EstadoCliente.inactivo),
+        estado: Value(estado),
         fechaActualizacion: Value(DateTime.now()),
       ),
     );
   }
 
   @override
-  Future<void> reactivateCliente(int idDeudor) async {
-    await (_db.update(_db.deudores)..where((t) => t.id.equals(idDeudor))).write(
-      DeudoresCompanion(
-        estado: Value(EstadoCliente.activo),
-        fechaActualizacion: Value(DateTime.now()),
-      ),
-    );
-  }
+  Future<void> deactivateCliente(int idDeudor) =>
+      _actualizarEstado(idDeudor, EstadoCliente.inactivo);
+
+  @override
+  Future<void> reactivateCliente(int idDeudor) =>
+      _actualizarEstado(idDeudor, EstadoCliente.activo);
 
   @override
   Future<void> updateCliente(Cliente cliente) async {
@@ -236,7 +249,7 @@ class ClienteRepositoryImpl implements ClienteRepository {
         direccion: Value(cliente.direccion),
         numeroIdentificacion: Value(cliente.dni),
         edad: Value(cliente.edad),
-        estado: Value(EstadoCliente.activo),
+        estado: Value(EstadoCliente.values.byName(cliente.estado)),
         fechaActualizacion: Value(DateTime.now()),
       ),
     );

@@ -7,9 +7,6 @@ class Prestamo {
   final int plazo;
   final double montoCuota;
   final DateTime fechaCreacion;
-  final String estado;
-  final double totalPagado;
-  final DateTime? fechaActualizacion;
 
   Prestamo({
     required this.idPrestamo,
@@ -20,8 +17,5 @@ class Prestamo {
     required this.plazo,
     required this.montoCuota,
     required this.fechaCreacion,
-    required this.estado,
-    required this.totalPagado,
-    this.fechaActualizacion,
   });
 }

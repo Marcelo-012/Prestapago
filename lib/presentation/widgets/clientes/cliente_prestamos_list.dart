@@ -5,7 +5,7 @@ import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/domain/domain.dart';
 
 class ClientePrestamosList extends StatelessWidget {
-  final List<Prestamo> prestamos;
+  final List<PrestamoResumen> prestamos;
 
   const ClientePrestamosList({super.key, required this.prestamos});
 
@@ -67,7 +67,7 @@ class ClientePrestamosList extends StatelessWidget {
     );
   }
 
-  Widget _buildLoanItem(Prestamo prestamo) {
+  Widget _buildLoanItem(PrestamoResumen prestamo) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Padding(
@@ -92,9 +92,9 @@ class ClientePrestamosList extends StatelessWidget {
             _BuildData(
               monto: prestamo.monto,
               fechaCreacion: prestamo.fechaCreacion,
-              estado: prestamo.estado,
+              estado: prestamo.estadoPrestamo,
               plazo: prestamo.plazo,
-              cuota: prestamo.montoCuota,
+              cuota: prestamo.cuota,
               totalPagado: prestamo.totalPagado,
               tasaInteres: prestamo.tasaInteres,
               fechaActualizacion: prestamo.fechaActualizacion,

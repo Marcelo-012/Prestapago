@@ -3,7 +3,7 @@ import 'package:prestapagos/domain/domain.dart';
 class ClienteDetalle {
   final Cliente cliente;
   final double scorePromedio;
-  final List<Prestamo> prestamos;
+  final List<PrestamoResumen> prestamos;
   final int totalPrestamos;
   final int totalPrestamosActivos;
   final int totalPrestamosFinalizados;

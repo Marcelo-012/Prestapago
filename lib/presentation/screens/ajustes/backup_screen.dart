@@ -103,6 +103,45 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                             ).format(backupState.lastSuccessfulBackup!)
                           : 'Sin respaldos previos',
                     ),
+                    trailing: backupState.lastBackupStatus == 'Exitoso'
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.green.shade200),
+                            ),
+                            child: Text(
+                              backupState.lastBackupStatus,
+                              style: TextStyle(
+                                color: Colors.green.shade700,
+                                fontSize: 12,
+                              ),
+                            ),
+                          )
+                        : backupState.lastBackupStatus == 'Falló'
+                            ? Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.red.shade200),
+                                ),
+                                child: Text(
+                                  backupState.lastBackupStatus,
+                                  style: TextStyle(
+                                    color: Colors.red.shade700,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              )
+                            : null,
                   ),
                   const SizedBox(height: 16),
                   FilledButton.icon(

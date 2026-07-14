@@ -11,7 +11,9 @@ import 'package:prestapagos/config/constants/backup_constants.dart';
 import 'package:prestapagos/config/router/app_router.dart';
 import 'package:prestapagos/config/theme/app_theme.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
+import 'package:prestapagos/infrastructure/database/seed_data.dart';
 import 'package:prestapagos/infrastructure/datasources/backup/local_backup_datasource.dart';
+import 'package:prestapagos/infrastructure/datasources/backup/notification_service.dart';
 import 'package:prestapagos/infrastructure/datasources/backup/secure_storage_datasource.dart';
 import 'package:prestapagos/infrastructure/datasources/google_auth_datasource.dart';
 import 'package:prestapagos/infrastructure/datasources/google_drive_datasource.dart';
@@ -24,6 +26,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   await initializeDateFormatting('es_MX', null);
+  await NotificationService.initialize();
 
   final prefs = await SharedPreferences.getInstance();
   final localBackup = LocalBackupDatasource(prefs);
@@ -35,6 +38,15 @@ void main() async {
   );
   final driveDatasource = GoogleDriveDatasource();
   final database = AppDatabase();
+
+  try {
+    final deudores = await database.select(database.deudores).get();
+    if (deudores.isEmpty) {
+      await seedDatabase(database);
+    }
+  } catch (e, st) {
+    debugPrint('Error al sembrar datos: $e\n$st');
+  }
 
   final dir = await getApplicationSupportDirectory();
   final databaseFile = File('${dir.path}/${BackupConstants.localDatabaseFilename}');
@@ -49,6 +61,16 @@ void main() async {
   );
 
   await Workmanager().initialize(callbackDispatcher);
+
+  final now = DateTime.now();
+  final oneAm = DateTime(now.year, now.month, now.day + 1, 1);
+  await Workmanager().registerPeriodicTask(
+    'dailyAmortizationUpdate',
+    'dailyAmortizationUpdate',
+    frequency: const Duration(hours: 24),
+    initialDelay: oneAm.difference(now),
+    existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
+  );
 
   runApp(ProviderScope(
     overrides: [

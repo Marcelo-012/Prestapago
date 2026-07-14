@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqlite3/sqlite3.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:prestapagos/config/constants/backup_constants.dart';
+import 'package:prestapagos/config/constants/notification_constants.dart';
 import 'package:prestapagos/infrastructure/datasources/backup/local_backup_datasource.dart';
 import 'package:prestapagos/infrastructure/datasources/backup/secure_storage_datasource.dart';
 import 'package:prestapagos/infrastructure/datasources/google_auth_datasource.dart';
@@ -11,14 +14,106 @@ import 'package:prestapagos/infrastructure/datasources/google_drive_datasource.d
 import 'package:prestapagos/infrastructure/repositories/backup/backup_repository_impl.dart';
 
 const _autoBackupTaskName = 'autoBackup';
+const _dailyTaskName = 'dailyAmortizationUpdate';
+
+final _notifications = FlutterLocalNotificationsPlugin();
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
+    if (task == _dailyTaskName) {
+      try {
+        await dotenv.load();
+        final dir = await getApplicationSupportDirectory();
+        final db = sqlite3.open('${dir.path}/${BackupConstants.localDatabaseFilename}');
+
+        db.execute("""
+          UPDATE amortizaciones SET
+            estado_amortizacion = 'atrasado',
+            dias_mora = CAST(julianday('now') - julianday(fecha_vencimiento) AS INTEGER)
+          WHERE estado_amortizacion = 'noPagado'
+            AND date(fecha_vencimiento) < date('now')
+        """);
+
+        db.execute("""
+          UPDATE amortizaciones SET monto_mora = ROUND(
+            monto_inicial * (SELECT tasa_interes_moratoria FROM prestamos
+             WHERE id_prestamo = amortizaciones.id_prestamo) / 100.0 /
+            CASE WHEN (SELECT periodidad_intereses FROM configuracion_prestamos
+             WHERE id_prestamo = amortizaciones.id_prestamo) = 'mensual' THEN 30 ELSE 360 END
+            * dias_mora, 2)
+          WHERE estado_amortizacion = 'atrasado'
+            AND (SELECT tipo_interes FROM configuracion_prestamos
+             WHERE id_prestamo = amortizaciones.id_prestamo) = 'compuesto'
+            AND monto_mora = 0
+        """);
+
+        db.execute("""
+          UPDATE configuracion_prestamos SET estado_prestamo = 'atrasado'
+          WHERE id_prestamo IN (
+            SELECT DISTINCT id_prestamo FROM amortizaciones
+            WHERE estado_amortizacion = 'atrasado'
+          )
+          AND estado_prestamo NOT IN ('finalizado', 'cancelado')
+        """);
+
+        db.execute("""
+          UPDATE configuracion_prestamos SET
+            estado_prestamo = 'finalizado',
+            fecha_actualizacion = CAST(strftime('%s', 'now') AS INTEGER)
+          WHERE estado_prestamo NOT IN ('finalizado', 'cancelado')
+            AND (
+              SELECT COUNT(*) FROM amortizaciones a
+              WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
+                AND a.estado_amortizacion NOT IN ('pagado', 'cancelado')
+            ) = 0
+            AND (
+              SELECT COALESCE(SUM(a.monto_capital), 0) FROM amortizaciones a
+              WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
+                AND a.estado_amortizacion = 'pagado'
+            ) >= (SELECT COALESCE(p.monto, 0) FROM prestamos p WHERE p.id_prestamo = configuracion_prestamos.id_prestamo)
+        """);
+
+        db.execute("""
+          UPDATE configuracion_prestamos SET
+            estado_prestamo = 'atrasado',
+            fecha_actualizacion = CAST(strftime('%s', 'now') AS INTEGER)
+          WHERE estado_prestamo = 'activo'
+            AND EXISTS (
+              SELECT 1 FROM amortizaciones a
+              WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
+                AND a.estado_amortizacion = 'atrasado'
+            )
+        """);
+
+        db.execute("""
+          UPDATE configuracion_prestamos SET
+            estado_prestamo = 'activo',
+            fecha_actualizacion = CAST(strftime('%s', 'now') AS INTEGER)
+          WHERE estado_prestamo = 'atrasado'
+            AND NOT EXISTS (
+              SELECT 1 FROM amortizaciones a
+              WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
+                AND a.estado_amortizacion = 'atrasado'
+            )
+        """);
+
+        db.close();
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
     if (task != _autoBackupTaskName) return false;
 
     try {
       await dotenv.load();
+
+      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const initSettings = InitializationSettings(android: androidSettings);
+      await _notifications.initialize(initSettings);
+
       final prefs = await SharedPreferences.getInstance();
       final localBackup = LocalBackupDatasource(prefs);
 
@@ -54,8 +149,49 @@ void callbackDispatcher() {
 
       await for (final _ in repository.performBackup()) {}
 
+      await localBackup.setLastBackupTime(DateTime.now());
+      await localBackup.setBackupStatus('Exitoso');
+
+      await _notifications.show(
+        NotificationConstants.successNotificationId,
+        'Respaldo completado',
+        'El respaldo automático se ha realizado correctamente.',
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            NotificationConstants.channelId,
+            NotificationConstants.channelName,
+            channelDescription: NotificationConstants.channelDescription,
+            importance: Importance.defaultImportance,
+            priority: Priority.defaultPriority,
+            icon: '@mipmap/ic_launcher',
+          ),
+        ),
+      );
+
       return true;
     } catch (_) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final localBackup = LocalBackupDatasource(prefs);
+        await localBackup.setBackupStatus('Falló');
+
+        await _notifications.show(
+          NotificationConstants.failureNotificationId,
+          'Respaldo fallido',
+          'El respaldo automático no pudo completarse. Revisa tu conexión e intenta de nuevo.',
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              NotificationConstants.channelId,
+              NotificationConstants.channelName,
+              channelDescription: NotificationConstants.channelDescription,
+              importance: Importance.defaultImportance,
+              priority: Priority.defaultPriority,
+              icon: '@mipmap/ic_launcher',
+            ),
+          ),
+        );
+      } catch (_) {}
+
       return false;
     }
   });

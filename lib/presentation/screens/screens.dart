@@ -4,3 +4,6 @@ export 'home/home_screen.dart';
 export 'cliente/cliente_screen.dart';
 export 'cliente/create_cliente_screen.dart';
 export 'cliente/edit_cliente_screen.dart';
+export 'prestamos/prestamo_screen.dart';
+export 'prestamos/create_prestamo_screen.dart';
+export 'prestamos/prestamo_preview_screen.dart';

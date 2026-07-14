@@ -162,6 +162,7 @@ class _ClientesViewState extends ConsumerState<ClientesView> {
           right: 16,
           bottom: 16,
           child: FloatingActionButton.extended(
+            heroTag: 'fab_clientes',
             onPressed: () => context.push('/create-cliente'),
             icon: const Icon(Icons.person_add),
             label: const Text('Nuevo cliente'),

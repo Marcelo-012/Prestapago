@@ -4,3 +4,7 @@ export 'clientes/dni.dart';
 export 'clientes/email.dart';
 export 'clientes/name.dart';
 export 'clientes/phone.dart';
+export 'prestamos/required_string.dart';
+export 'prestamos/positive_number.dart';
+export 'prestamos/percentage.dart';
+export 'prestamos/optional_number.dart';

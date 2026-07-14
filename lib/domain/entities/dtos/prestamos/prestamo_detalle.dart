@@ -2,7 +2,7 @@ import 'package:prestapagos/domain/domain.dart';
 
 class PrestamoDetalle {
   final int idPrestamo;
-  final int nombreDeudor;
+  final String nombreDeudor;
   final Prestamo prestamo;
   final ConfiguracionPrestamo configuracionPrestamo;
   final String estadoPagos;

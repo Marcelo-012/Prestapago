@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prestapagos/config/errors/error_mapper.dart';
 import 'package:prestapagos/domain/entities/backup/backup_status.dart';
 import 'package:prestapagos/domain/repositories/backup/backup_repository.dart';
+import 'package:prestapagos/infrastructure/datasources/backup/notification_service.dart';
 import 'package:prestapagos/presentation/providers/config/account_provider.dart';
 
 enum BackupFrequency { manual, daily, weekly }
@@ -12,6 +13,7 @@ class BackupState {
   final String currentMessage;
   final double? progress;
   final DateTime? lastSuccessfulBackup;
+  final String lastBackupStatus;
   final bool isAutoBackupEnabled;
   final BackupFrequency frequency;
 
@@ -20,6 +22,7 @@ class BackupState {
     required this.currentMessage,
     this.progress,
     this.lastSuccessfulBackup,
+    required this.lastBackupStatus,
     required this.isAutoBackupEnabled,
     required this.frequency,
   });
@@ -29,6 +32,7 @@ class BackupState {
     String? currentMessage,
     double? progress,
     DateTime? lastSuccessfulBackup,
+    String? lastBackupStatus,
     bool? isAutoBackupEnabled,
     BackupFrequency? frequency,
   }) {
@@ -37,6 +41,7 @@ class BackupState {
       currentMessage: currentMessage ?? this.currentMessage,
       progress: progress ?? this.progress,
       lastSuccessfulBackup: lastSuccessfulBackup ?? this.lastSuccessfulBackup,
+      lastBackupStatus: lastBackupStatus ?? this.lastBackupStatus,
       isAutoBackupEnabled: isAutoBackupEnabled ?? this.isAutoBackupEnabled,
       frequency: frequency ?? this.frequency,
     );
@@ -71,10 +76,13 @@ class BackupNotifier extends Notifier<BackupState> {
       _backupSubscription?.cancel();
     });
 
+    final backupStatus = localBackup.getBackupStatus();
+
     return BackupState(
       currentStatus: BackupStatusEnum.idle,
       currentMessage: '',
       lastSuccessfulBackup: lastBackup,
+      lastBackupStatus: backupStatus,
       isAutoBackupEnabled: isAuto,
       frequency: frequency,
     );
@@ -101,11 +109,13 @@ class BackupNotifier extends Notifier<BackupState> {
             currentStatus: BackupStatusEnum.failed,
             currentMessage: mapErrorToMessage(error),
           );
+          NotificationService.showBackupFailure(state.currentMessage);
           completer.complete();
         },
         onDone: () {
           if (state.currentStatus != BackupStatusEnum.failed) {
             state = state.copyWith(currentStatus: BackupStatusEnum.idle);
+            NotificationService.showBackupSuccess();
           }
           completer.complete();
         },
@@ -117,6 +127,7 @@ class BackupNotifier extends Notifier<BackupState> {
         currentStatus: BackupStatusEnum.failed,
         currentMessage: mapErrorToMessage(e),
       );
+      NotificationService.showBackupFailure(state.currentMessage);
     }
   }
 
@@ -141,11 +152,13 @@ class BackupNotifier extends Notifier<BackupState> {
             currentStatus: BackupStatusEnum.failed,
             currentMessage: mapErrorToMessage(error),
           );
+          NotificationService.showRestoreFailure(state.currentMessage);
           completer.complete();
         },
         onDone: () {
           if (state.currentStatus != BackupStatusEnum.failed) {
             state = state.copyWith(currentStatus: BackupStatusEnum.idle);
+            NotificationService.showRestoreSuccess();
           }
           completer.complete();
         },
@@ -157,6 +170,7 @@ class BackupNotifier extends Notifier<BackupState> {
         currentStatus: BackupStatusEnum.failed,
         currentMessage: mapErrorToMessage(e),
       );
+      NotificationService.showRestoreFailure(state.currentMessage);
     }
   }
 
