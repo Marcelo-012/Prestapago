@@ -59,7 +59,8 @@ class ConfiguracionPrestamos extends Table {
   IntColumn get id => integer().named('id_configuracion').autoIncrement()();
   IntColumn get idPrestamo => integer()
       .named('id_prestamo')
-      .customConstraint('NOT NULL REFERENCES prestamos(id_prestamo)')();
+      .customConstraint('NOT NULL REFERENCES prestamos(id_prestamo)')
+      .unique()();
   TextColumn get tipoInteres => textEnum<TipoInteres>().named('tipo_interes')();
   TextColumn get estadoMoratorio =>
       textEnum<EstadoCliente>().named('estado_moratorio')();
@@ -106,13 +107,39 @@ class Amortizaciones extends Table {
   tables: [Deudores, Scores, Prestamos, ConfiguracionPrestamos, Amortizaciones],
 )
 class AppDatabase extends _$AppDatabase {
-  // After generating code, this class needs to define a `schemaVersion` getter
-  // and a constructor telling drift where the database should be stored.
-  // These are described in the getting started guide: https://drift.simonbinder.eu/setup/
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  DriftDatabaseOptions get options =>
+      const DriftDatabaseOptions(storeDateTimeAsText: false);
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onUpgrade: (migrator, from, to) async {
+        if (from == 1) {
+          await customStatement(
+            "UPDATE deudores SET fecha_creacion = CAST(strftime('%s', fecha_creacion) AS INTEGER), fecha_actualizacion = CAST(strftime('%s', fecha_actualizacion) AS INTEGER)",
+          );
+          await customStatement(
+            "UPDATE scores SET fecha_creacion = CAST(strftime('%s', fecha_creacion) AS INTEGER)",
+          );
+          await customStatement(
+            "UPDATE prestamos SET fecha_creacion = CAST(strftime('%s', fecha_creacion) AS INTEGER)",
+          );
+          await customStatement(
+            "UPDATE configuracion_prestamos SET fecha_creacion = CAST(strftime('%s', fecha_creacion) AS INTEGER), fecha_actualizacion = CAST(strftime('%s', fecha_actualizacion) AS INTEGER)",
+          );
+          await customStatement(
+            "UPDATE amortizaciones SET fecha_vencimiento = CAST(strftime('%s', fecha_vencimiento) AS INTEGER), fecha_pagado = CAST(strftime('%s', fecha_pagado) AS INTEGER), fecha_actualizacion = CAST(strftime('%s', fecha_actualizacion) AS INTEGER)",
+          );
+        }
+      },
+    );
+  }
 
   static QueryExecutor _openConnection() {
     return driftDatabase(

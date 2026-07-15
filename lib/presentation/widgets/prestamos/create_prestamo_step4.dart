@@ -73,7 +73,7 @@ class CreatePrestamoStep4 extends ConsumerWidget {
             child: FilledButton(
               onPressed: () {
                 notifier.touchAll();
-                if (formState.isFormValid) {
+                if (ref.read(createPrestamoFormProvider).isFormValid) {
                   onPreview();
                 }
               },

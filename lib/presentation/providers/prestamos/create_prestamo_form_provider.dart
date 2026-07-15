@@ -69,14 +69,14 @@ class PrestamoFormState {
     required List<CreateAmortizacionDTO> amortizaciones,
   }) {
     return CreatePrestamoDTO(
-      idDeudor: int.parse(idDeudor.value),
-      monto: double.parse(monto.value),
-      plazo: int.parse(plazo.value),
-      tasaInteres: double.parse(tasaInteres.value),
+      idDeudor: int.tryParse(idDeudor.value) ?? 0,
+      monto: double.tryParse(monto.value) ?? 0,
+      plazo: (double.tryParse(plazo.value) ?? 0).toInt(),
+      tasaInteres: double.tryParse(tasaInteres.value) ?? 0,
       tasaInteresMoratoria: tasaInteresMoratoria.value.isEmpty
           ? 0
-          : double.parse(tasaInteresMoratoria.value),
-      montoCuota: double.parse(montoCuota.value),
+          : double.tryParse(tasaInteresMoratoria.value) ?? 0,
+      montoCuota: double.tryParse(montoCuota.value) ?? 0,
       tipoInteres: tipoInteres,
       estadoMoratorio: estadoMoratorio,
       manejoExcedente: manejoExcedente,
@@ -87,13 +87,18 @@ class PrestamoFormState {
   }
 
   List<CreateAmortizacionDTO> calcularAmortizaciones() {
-    final monto = double.parse(this.monto.value);
-    final tasa = double.parse(tasaInteres.value);
+    final monto = double.tryParse(this.monto.value);
+    final tasa = double.tryParse(tasaInteres.value);
+    if (monto == null || tasa == null) return [];
+
     final tasaMora = tasaInteresMoratoria.value.isEmpty
         ? 0.0
-        : double.parse(tasaInteresMoratoria.value);
-    final meses = int.parse(plazo.value);
-    final cuota = double.parse(montoCuota.value);
+        : double.tryParse(tasaInteresMoratoria.value) ?? 0.0;
+    final meses = int.tryParse(plazo.value);
+    if (meses == null || meses <= 0) return [];
+
+    final cuota = double.tryParse(montoCuota.value);
+    if (cuota == null || cuota <= 0) return [];
 
     final amortizaciones = AmortizationCalculator.calcular(
       idPrestamo: 0,

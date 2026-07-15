@@ -12,6 +12,36 @@ class ReporteCardRepositoryImpl implements ReporteCardRepository {
   Future<ReporteCard> getReporteCard() async {
     final now = DateTime.now();
 
+    await _db.customStatement("""
+      UPDATE amortizaciones SET
+        estado_amortizacion = 'atrasado',
+        dias_mora = CAST(julianday('now') - julianday(fecha_vencimiento, 'unixepoch') AS INTEGER)
+      WHERE estado_amortizacion = 'noPagado'
+        AND date(fecha_vencimiento, 'unixepoch') < date('now')
+    """);
+
+    await _db.customStatement("""
+      UPDATE amortizaciones SET monto_mora = ROUND(
+        monto_inicial * (SELECT tasa_interes_moratoria FROM prestamos
+         WHERE id_prestamo = amortizaciones.id_prestamo) / 100.0 /
+        CASE WHEN (SELECT periodidad_intereses FROM configuracion_prestamos
+         WHERE id_prestamo = amortizaciones.id_prestamo) = 'mensual' THEN 30 ELSE 360 END
+        * dias_mora, 2)
+      WHERE estado_amortizacion = 'atrasado'
+        AND (SELECT tipo_interes FROM configuracion_prestamos
+         WHERE id_prestamo = amortizaciones.id_prestamo) = 'compuesto'
+        AND monto_mora = 0
+    """);
+
+    await _db.customStatement("""
+      UPDATE configuracion_prestamos SET estado_prestamo = 'atrasado'
+      WHERE id_prestamo IN (
+        SELECT DISTINCT id_prestamo FROM amortizaciones
+        WHERE estado_amortizacion = 'atrasado'
+      )
+      AND estado_prestamo NOT IN ('finalizado', 'cancelado')
+    """);
+
     final prestamos = _db.prestamos;
     final amortizaciones = _db.amortizaciones;
     final clientes = _db.deudores;
@@ -43,34 +73,44 @@ class ReporteCardRepositoryImpl implements ReporteCardRepository {
     final totalPendiente = restanteRow.read<double>('total_restante');
 
     //Total de intereses cobrados (histórico)
-    final interesesRow = await _db.customSelect(
-      "SELECT COALESCE(SUM(monto_interes),0) AS total FROM amortizaciones WHERE estado_amortizacion = 'pagado'",
-    ).getSingle();
+    final interesesRow = await _db
+        .customSelect(
+          "SELECT COALESCE(SUM(monto_interes),0) AS total FROM amortizaciones WHERE estado_amortizacion = 'pagado'",
+        )
+        .getSingle();
     final totalInteresesCobrados = interesesRow.read<double>('total');
 
     //Total de intereses de mora cobrados (histórico)
-    final moraRow = await _db.customSelect(
-      "SELECT COALESCE(SUM(monto_mora),0) AS total FROM amortizaciones WHERE estado_amortizacion = 'pagado'",
-    ).getSingle();
+    final moraRow = await _db
+        .customSelect(
+          "SELECT COALESCE(SUM(monto_mora),0) AS total FROM amortizaciones WHERE estado_amortizacion = 'pagado'",
+        )
+        .getSingle();
     final totalInteresesMoraCobrados = moraRow.read<double>('total');
 
     //Total prestado este mes
     final yM = '${now.year}-${now.month.toString().padLeft(2, '0')}';
-    final prestadoMesRow = await _db.customSelect(
-      "SELECT COALESCE(SUM(monto),0) AS total FROM prestamos WHERE strftime('%Y-%m',fecha_creacion,'unixepoch') = '$yM'",
-    ).getSingle();
+    final prestadoMesRow = await _db
+        .customSelect(
+          "SELECT COALESCE(SUM(monto),0) AS total FROM prestamos WHERE strftime('%Y-%m',fecha_creacion,'unixepoch') = '$yM'",
+        )
+        .getSingle();
     final totalPrestadoEsteMes = prestadoMesRow.read<double>('total');
 
     //Total cobrado este mes
-    final cobradoMesRow = await _db.customSelect(
-      "SELECT COALESCE(SUM(monto_pagado),0) AS total FROM amortizaciones WHERE strftime('%Y-%m',fecha_pagado,'unixepoch') = '$yM' AND estado_amortizacion = 'pagado'",
-    ).getSingle();
+    final cobradoMesRow = await _db
+        .customSelect(
+          "SELECT COALESCE(SUM(monto_pagado),0) AS total FROM amortizaciones WHERE strftime('%Y-%m',fecha_pagado,'unixepoch') = '$yM' AND estado_amortizacion = 'pagado'",
+        )
+        .getSingle();
     final totalCobradoEsteMes = cobradoMesRow.read<double>('total');
 
     //Total ganado este mes (intereses + mora)
-    final ganadoMesRow = await _db.customSelect(
-      "SELECT COALESCE(SUM(monto_interes+monto_mora),0) AS total FROM amortizaciones WHERE strftime('%Y-%m',fecha_pagado,'unixepoch') = '$yM' AND estado_amortizacion = 'pagado'",
-    ).getSingle();
+    final ganadoMesRow = await _db
+        .customSelect(
+          "SELECT COALESCE(SUM(monto_interes+monto_mora),0) AS total FROM amortizaciones WHERE strftime('%Y-%m',fecha_pagado,'unixepoch') = '$yM' AND estado_amortizacion = 'pagado'",
+        )
+        .getSingle();
     final totalGanadoEsteMes = ganadoMesRow.read<double>('total');
 
     //Total de clientes
@@ -84,7 +124,14 @@ class ReporteCardRepositoryImpl implements ReporteCardRepository {
     // Total de prestamos activos
     final query = _db.selectOnly(configuracionPrestamos)
       ..addColumns([configuracionPrestamos.id.count()])
-      ..where(configuracionPrestamos.estadoPrestamo.equalsValue(EstadoPrestamo.activo));
+      ..where(
+        configuracionPrestamos.estadoPrestamo.equalsValue(
+              EstadoPrestamo.activo,
+            ) |
+            configuracionPrestamos.estadoPrestamo.equalsValue(
+              EstadoPrestamo.atrasado,
+            ),
+      );
 
     final result = await query.getSingle();
     final totalPrestamosActivos =

@@ -30,9 +30,9 @@ void callbackDispatcher() {
         db.execute("""
           UPDATE amortizaciones SET
             estado_amortizacion = 'atrasado',
-            dias_mora = CAST(julianday('now') - julianday(fecha_vencimiento) AS INTEGER)
+            dias_mora = CAST(julianday('now') - julianday(fecha_vencimiento, 'unixepoch') AS INTEGER)
           WHERE estado_amortizacion = 'noPagado'
-            AND date(fecha_vencimiento) < date('now')
+            AND date(fecha_vencimiento, 'unixepoch') < date('now')
         """);
 
         db.execute("""

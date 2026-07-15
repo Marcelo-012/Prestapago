@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
 import 'package:prestapagos/presentation/widgets/prestamos/filtros_prestamos.dart';
 import 'package:prestapagos/presentation/widgets/prestamos/prestamo_list_item.dart';
-import 'package:prestapagos/presentation/widgets/prestamos/pago_dialog.dart';
+
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class PrestamosView extends ConsumerStatefulWidget {
@@ -64,11 +64,16 @@ class _PrestamosViewState extends ConsumerState<PrestamosView> {
               // Search bar
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: TextField(
                     controller: _searchController,
                     onChanged: (value) {
-                      ref.read(prestamoPaginationProvider.notifier).search(value);
+                      ref
+                          .read(prestamoPaginationProvider.notifier)
+                          .search(value);
                     },
                     decoration: InputDecoration(
                       isDense: true,
@@ -78,7 +83,9 @@ class _PrestamosViewState extends ConsumerState<PrestamosView> {
                           ? IconButton(
                               onPressed: () {
                                 _searchController.clear();
-                                ref.read(prestamoPaginationProvider.notifier).search('');
+                                ref
+                                    .read(prestamoPaginationProvider.notifier)
+                                    .search('');
                               },
                               icon: const Icon(Icons.clear),
                             )
@@ -87,7 +94,8 @@ class _PrestamosViewState extends ConsumerState<PrestamosView> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       contentPadding: const EdgeInsetsDirectional.symmetric(
-                        horizontal: 12, vertical: 10,
+                        horizontal: 12,
+                        vertical: 10,
                       ),
                     ),
                   ),
@@ -97,7 +105,10 @@ class _PrestamosViewState extends ConsumerState<PrestamosView> {
               // Filters below search
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
                   child: FiltrosPrestamos(
                     initialFilter: 'al_dia',
                     onFilterChanged: (filter) {
@@ -114,18 +125,30 @@ class _PrestamosViewState extends ConsumerState<PrestamosView> {
                 SliverFillRemaining(
                   child: ErrorWidgetCustom(
                     error: paginationState.error!,
-                    onRetry: () => ref.read(prestamoPaginationProvider.notifier).refresh(),
+                    onRetry: () =>
+                        ref.read(prestamoPaginationProvider.notifier).refresh(),
                   ),
                 )
-              else if (paginationState.items.isEmpty && !paginationState.isLoading)
+              else if (paginationState.items.isEmpty &&
+                  !paginationState.isLoading)
                 SliverFillRemaining(
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.credit_card_outlined, size: 64, color: Colors.grey[400]),
+                        Icon(
+                          Icons.credit_card_outlined,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
                         const SizedBox(height: 16),
-                        Text('Sin préstamos', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+                        Text(
+                          'Sin préstamos',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -136,15 +159,8 @@ class _PrestamosViewState extends ConsumerState<PrestamosView> {
                     final loan = paginationState.items[index];
                     return PrestamoListItem(
                       prestamo: loan,
-                      onTap: () => context.push('/home/1/prestamo/${loan.idPrestamo}'),
-                      onPagar: () async {
-                        final detalle = await ref.read(prestamoRepositoryProvider).getDetalle(loan.idPrestamo);
-                        if (!context.mounted) return;
-                        showDialog(
-                          context: context,
-                          builder: (_) => PagoDialog(detalle: detalle),
-                        );
-                      },
+                      onTap: () =>
+                          context.push('/home/1/prestamo/${loan.idPrestamo}'),
                     );
                   }, childCount: paginationState.items.length),
                 ),

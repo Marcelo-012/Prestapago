@@ -37,8 +37,8 @@ class CreatePrestamoNotifier extends Notifier<CreatePrestamoState> {
   );
 
   Future<void> submit() async {
-    final formState = ref.read(createPrestamoFormProvider);
     ref.read(createPrestamoFormProvider.notifier).touchAll();
+    final formState = ref.read(createPrestamoFormProvider);
     if (!formState.isFormValid) return;
 
     state = state.copyWith(isSubmitting: true, errorMessage: null);
@@ -47,7 +47,7 @@ class CreatePrestamoNotifier extends Notifier<CreatePrestamoState> {
       final dto = CreatePrestamoDTO(
         idDeudor: int.parse(formState.idDeudor.value),
         monto: double.parse(formState.monto.value),
-        plazo: int.parse(formState.plazo.value),
+        plazo: (double.parse(formState.plazo.value)).toInt(),
         tasaInteres: double.parse(formState.tasaInteres.value),
         tasaInteresMoratoria: formState.tasaInteresMoratoria.value.isEmpty
             ? 0

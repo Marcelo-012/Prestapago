@@ -44,7 +44,7 @@ class EditClienteNotifier extends Notifier<EditClienteState> {
               direccion: formState.address.value,
               dni: formState.dni.value,
               edad: int.tryParse(formState.age.value) ?? 0,
-              estado: EstadoCliente.activo.toString(),
+              estado: EstadoCliente.activo.name,
               fechaCreacion: fechaCreacion,
               fechaActualizacion: DateTime.now(),
             ),

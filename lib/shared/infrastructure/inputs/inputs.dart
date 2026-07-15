@@ -8,3 +8,4 @@ export 'prestamos/required_string.dart';
 export 'prestamos/positive_number.dart';
 export 'prestamos/percentage.dart';
 export 'prestamos/optional_number.dart';
+export 'prestamos/pago_monto.dart';

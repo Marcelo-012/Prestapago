@@ -19,6 +19,7 @@ class PrestamoPreviewScreen extends ConsumerWidget {
     final client = formState.selectedClient;
     final amortizaciones = formState.calcularAmortizaciones();
     final total = amortizaciones.fold<double>(0.0, (sum, a) => sum + a.montoCapital + a.montoInteres);
+    final totalInteres = amortizaciones.fold<double>(0.0, (sum, a) => sum + a.montoInteres);
 
     return Scaffold(
       body: CustomScrollView(
@@ -30,7 +31,7 @@ class PrestamoPreviewScreen extends ConsumerWidget {
             ),
             floating: true,
             flexibleSpace: const FlexibleSpaceBar(
-              title: CustomAppbar(title: 'Revisar préstamo'),
+              title: CustomAppbar(title: 'Visualizar préstamo'),
               titlePadding: EdgeInsets.only(left: 30.0),
             ),
           ),
@@ -56,7 +57,9 @@ class PrestamoPreviewScreen extends ConsumerWidget {
                           _resumenRow('Cuota mensual', HumanFormats.monuted(double.tryParse(formState.montoCuota.value) ?? 0)),
                           if (formState.estadoMoratorio == 'activo')
                             _resumenRow('Tasa moratoria', '${formState.tasaInteresMoratoria.value}% ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'}'),
-                          _resumenRow('Capital + Intereses', HumanFormats.monuted(total)),
+                          _resumenRow('Intereses', HumanFormats.monuted(totalInteres)),
+                          const Divider(),
+                          _resumenRow('Monto + Intereses', HumanFormats.monuted(total)),
                         ],
                       ),
                     ),
@@ -138,6 +141,7 @@ class PrestamoPreviewScreen extends ConsumerWidget {
     state,
     List amortizaciones,
   ) async {
+    if (!state.isFormValid) return;
     try {
       final dto = state.toDTO(amortizaciones: amortizaciones);
       final idPrestamo = await ref.read(prestamoRepositoryProvider).createPrestamo(dto);
@@ -145,7 +149,7 @@ class PrestamoPreviewScreen extends ConsumerWidget {
       Fluttertoast.showToast(msg: 'Préstamo creado exitosamente', gravity: ToastGravity.TOP);
       ref.read(createPrestamoFormProvider.notifier).reset();
       ref.invalidate(prestamoPaginationProvider);
-      context.go('/prestamo/$idPrestamo');
+      context.go('/home/1/prestamo/$idPrestamo');
     } catch (e) {
       if (!context.mounted) return;
       Fluttertoast.showToast(msg: 'Error al crear el préstamo', gravity: ToastGravity.TOP);

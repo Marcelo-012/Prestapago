@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prestapagos/presentation/providers/clientes/clientes_provider.dart';
 import 'package:prestapagos/presentation/providers/clientes/create_cliente_form_provider.dart';
 import 'package:prestapagos/presentation/providers/clientes/create_cliente_provider.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
@@ -42,6 +43,7 @@ class CreateClienteScreen extends ConsumerWidget {
           textColor: Colors.white,
         );
         ref.read(createClienteFormProvider.notifier).reset();
+        ref.read(clientePaginationProvider.notifier).refresh();
         context.pop();
       }
       if (next.errorMessage != null && prev?.errorMessage != next.errorMessage && context.mounted) {

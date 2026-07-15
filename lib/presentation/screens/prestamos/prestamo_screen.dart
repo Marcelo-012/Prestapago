@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/presentation/providers/prestamos/delete_prestamo_provider.dart';
 import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
-import 'package:prestapagos/presentation/widgets/prestamos/pago_dialog.dart';
+import 'package:prestapagos/presentation/screens/prestamos/pagar_screen.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class PrestamoScreen extends ConsumerStatefulWidget {
@@ -200,21 +200,24 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
                       // Siguiente pago button
                       if (detalle.configuracionPrestamo.estadoPrestamo !=
                               'finalizado' &&
-                          detalle.amortizaciones
-                              .any((a) => a.estadoAmortizacion == 'noPagado'))
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (_) => PagoDialog(detalle: detalle),
-                              );
-                            },
-                            icon: const Icon(Icons.payment),
-                            label: const Text('Siguiente pago'),
+                          detalle.amortizaciones.any((a) =>
+                              a.estadoAmortizacion == 'noPagado' ||
+                              a.estadoAmortizacion == 'atrasado'))
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => PagarScreen(detalle: detalle),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.payment),
+                              label: const Text('Pagar'),
+                            ),
                           ),
-                        ),
                       const SizedBox(height: 16),
 
                       // Amortizaciones table
@@ -237,6 +240,8 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
                             DataColumn(label: Text('Capital')),
                             DataColumn(label: Text('Interés')),
                             DataColumn(label: Text('Pagado')),
+                            DataColumn(label: Text('Días mora')),
+                            DataColumn(label: Text('Excedente')),
                             DataColumn(label: Text('Estado')),
                           ],
                           rows: detalle.amortizaciones
@@ -269,6 +274,20 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
                                         a.fechaPagado != null
                                             ? HumanFormats.monuted(
                                                 a.montoPagado,
+                                              )
+                                            : '—',
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Text(a.diasMora > 0 ? '${a.diasMora}' : '—'),
+                                    ),
+                                    DataCell(
+                                      Text(
+                                        a.montoExcedente > 0 ||
+                                                (a.estadoAmortizacion == 'pagado' &&
+                                                    a.montoPagado == 0)
+                                            ? HumanFormats.monuted(
+                                                a.montoExcedente,
                                               )
                                             : '—',
                                       ),
