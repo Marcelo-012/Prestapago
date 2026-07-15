@@ -12,13 +12,6 @@ abstract class PrestamoRepository {
   Future<int> createPrestamo(CreatePrestamoDTO prestamo);
   Future<void> updatePrestamo(Prestamo prestamo);
   Future<void> deletePrestamo(int idPrestamo);
-  Future<int> countAmortizaciones(int idPrestamo);
   Future<void> cancelarPrestamo(int idPrestamo);
   Future<void> finalizarPrestamo(int idPrestamo);
-  Future<void> registrarPago(
-    int idPrestamo,
-    double monto,
-    DateTime fecha, {
-    required ManejoExcedente tipoExcedente,
-  });
 }

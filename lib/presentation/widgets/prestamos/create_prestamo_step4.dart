@@ -19,47 +19,64 @@ class CreatePrestamoStep4 extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Datos del préstamo',
-            style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            'Datos del préstamo',
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text('Completa todos los campos para generar el préstamo',
-            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey)),
+          Text(
+            'Completa todos los campos para generar el préstamo',
+            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
+          ),
           const SizedBox(height: 24),
 
           _NumericField(
             label: 'Monto',
             hint: '\$0.00',
             value: formState.monto.value,
-            error: formState.monto.displayError != null ? 'Campo inválido' : null,
+            error: formState.monto.displayError != null
+                ? 'Campo inválido'
+                : null,
             onChanged: notifier.onMontoChanged,
             formatAsCurrency: true,
           ),
           const SizedBox(height: 16),
 
           _NumericField(
-            label: 'Tasa de interés ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'} (%)',
+            label:
+                'Tasa de interés ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'} (%)',
             hint: '0.00',
             value: formState.tasaInteres.value,
-            error: formState.tasaInteres.displayError != null ? 'Campo inválido' : null,
+            error: formState.tasaInteres.displayError != null
+                ? 'Campo inválido'
+                : null,
             onChanged: notifier.onTasaInteresChanged,
           ),
           const SizedBox(height: 16),
 
           if (moratorioActivo)
             _NumericField(
-              label: 'Tasa de interés moratoria ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'} (%)',
+              label:
+                  'Tasa de interés moratoria ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'} (%)',
               hint: '0.00',
               value: formState.tasaInteresMoratoria.value,
-              error: formState.tasaInteresMoratoria.displayError != null ? 'Campo inválido' : null,
+              error: formState.tasaInteresMoratoria.displayError != null
+                  ? 'Campo inválido'
+                  : null,
               onChanged: notifier.onTasaInteresMoratoriaChanged,
             ),
           if (moratorioActivo) const SizedBox(height: 16),
 
           _NumericField(
-            label: 'Plazo (meses)',
-            hint: '12',
+            label: 'Cuotas',
+            hint: 'Numero de cuotas ej.: 10',
             value: formState.plazo.value,
-            error: formState.plazo.displayError != null ? 'Campo inválido' : null,
+            error: formState.plazo.displayError != null
+                ? 'Campo inválido'
+                : null,
             onChanged: notifier.onPlazoChanged,
           ),
           const SizedBox(height: 16),
@@ -99,7 +116,10 @@ class _ReadOnlyCuota extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Cuota mensual', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+        Text(
+          'Cuota mensual',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -110,8 +130,13 @@ class _ReadOnlyCuota extends ConsumerWidget {
             border: Border.all(color: Colors.grey[300]!),
           ),
           child: Text(
-            value.isNotEmpty ? HumanFormats.monuted(double.tryParse(value) ?? 0) : '—',
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+            value.isNotEmpty
+                ? HumanFormats.monuted(double.tryParse(value) ?? 0)
+                : '—',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
@@ -153,7 +178,9 @@ class _NumericFieldState extends State<_NumericField> {
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusChange);
     _isUpdating = true;
-    _controller = TextEditingController(text: widget.formatAsCurrency ? _formatRaw(widget.value) : widget.value);
+    _controller = TextEditingController(
+      text: widget.formatAsCurrency ? _formatRaw(widget.value) : widget.value,
+    );
     _isUpdating = false;
     _controller.addListener(_onControllerChanged);
   }
@@ -169,7 +196,9 @@ class _NumericFieldState extends State<_NumericField> {
       } else {
         _controller.text = widget.value;
       }
-      _controller.selection = TextSelection.collapsed(offset: _controller.text.length);
+      _controller.selection = TextSelection.collapsed(
+        offset: _controller.text.length,
+      );
       _isUpdating = false;
     }
   }
@@ -187,7 +216,9 @@ class _NumericFieldState extends State<_NumericField> {
         if (formatted != _controller.text) {
           _isUpdating = true;
           _controller.text = formatted;
-          _controller.selection = TextSelection.collapsed(offset: formatted.length);
+          _controller.selection = TextSelection.collapsed(
+            offset: formatted.length,
+          );
           _isUpdating = false;
         }
       }
@@ -215,7 +246,10 @@ class _NumericFieldState extends State<_NumericField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+        Text(
+          widget.label,
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 4),
         TextField(
           controller: _controller,

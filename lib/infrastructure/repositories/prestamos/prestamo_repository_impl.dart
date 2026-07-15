@@ -1,13 +1,18 @@
 import 'package:drift/drift.dart';
-import 'package:prestapagos/config/helpers/amortization_calculator.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/domain/repositories/prestamos/prestamos_repository.dart';
 import 'package:prestapagos/infrastructure/database/database.dart' as drift;
+import 'package:prestapagos/infrastructure/services/estado_prestamo_service.dart';
 
 class PrestamoRepositoryImpl implements PrestamoRepository {
   final drift.AppDatabase _db;
+  final EstadoPrestamoService _estadoPrestamoService;
 
-  PrestamoRepositoryImpl({required this._db});
+  PrestamoRepositoryImpl({
+    required drift.AppDatabase db,
+    required EstadoPrestamoService estadoPrestamoService,
+  })  : _db = db,
+        _estadoPrestamoService = estadoPrestamoService;
 
   @override
   Future<Prestamo> getById(int idPrestamo) async {
@@ -121,19 +126,6 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
   }
 
   @override
-  Future<int> countAmortizaciones(int idPrestamo) async {
-    final row = await _db
-        .customSelect(
-          '''
-      SELECT COUNT(*) AS total FROM amortizaciones WHERE id_prestamo = ?
-    ''',
-          variables: [Variable<int>(idPrestamo)],
-        )
-        .getSingle();
-    return row.read<int>('total');
-  }
-
-  @override
   Future<void> cancelarPrestamo(int idPrestamo) async {
     await (_db.update(
       _db.configuracionPrestamos,
@@ -166,222 +158,10 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
     );
   }
 
-  Future<void> _actualizarMorosidad() async {
-    // FIX: ahora también corre sobre filas ya marcadas 'atrasado',
-    // para que dias_mora siga subiendo día con día en vez de congelarse.
-    await _db.customStatement("""
-    UPDATE amortizaciones SET
-      estado_amortizacion = 'atrasado',
-      dias_mora = CAST(julianday('now') - julianday(fecha_vencimiento, 'unixepoch') AS INTEGER)
-    WHERE estado_amortizacion IN ('noPagado', 'atrasado')
-      AND date(fecha_vencimiento, 'unixepoch') < date('now')
-  """);
-
-    // FIX: se quitó "AND monto_mora = 0" -- ese guard congelaba
-    // monto_mora en el valor del primer cálculo para siempre.
-    await _db.customStatement("""
-    UPDATE amortizaciones SET monto_mora = ROUND(
-      monto_inicial * (SELECT tasa_interes_moratoria FROM prestamos
-       WHERE id_prestamo = amortizaciones.id_prestamo) / 100.0 /
-      CASE WHEN (SELECT periodidad_intereses FROM configuracion_prestamos
-       WHERE id_prestamo = amortizaciones.id_prestamo) = 'mensual' THEN 30 ELSE 360 END
-      * dias_mora, 2)
-    WHERE estado_amortizacion = 'atrasado'
-      AND (SELECT tipo_interes FROM configuracion_prestamos
-       WHERE id_prestamo = amortizaciones.id_prestamo) = 'compuesto'
-  """);
-
-    await _db.customStatement("""
-    UPDATE configuracion_prestamos SET estado_prestamo = 'atrasado'
-    WHERE id_prestamo IN (
-      SELECT DISTINCT id_prestamo FROM amortizaciones
-      WHERE estado_amortizacion = 'atrasado'
-    )
-    AND estado_prestamo NOT IN ('finalizado', 'cancelado')
-  """);
-  }
-
-  @override
-  Future<void> registrarPago(
-    int idPrestamo,
-    double montoPagado,
-    DateTime fechaPago, {
-    required ManejoExcedente tipoExcedente,
-  }) async {
-    await _db.transaction(() async {
-      final completo = await getDetalle(idPrestamo);
-      final config = completo.configuracionPrestamo;
-      final prestamo = completo.prestamo;
-      final esSimple = config.tipoInteres == 'simple';
-
-      final prox = completo.amortizaciones.firstWhere(
-        (a) =>
-            a.estadoAmortizacion == 'atrasado' ||
-            a.estadoAmortizacion == 'noPagado',
-      );
-
-      final saldoPreCargado = prox.montoExcedente;
-      final diasMora = prox.diasMora;
-      final montoMora = AmortizationCalculator.calcularMontoMora(
-        montoInicial: prox.montoInicial,
-        tasaMoratoria: prestamo.tasaInteresMoratoria,
-        periodicidad: config.periodidadIntereses,
-        diasMora: diasMora,
-      );
-
-      final totalDebido = prox.montoInicial + (esSimple ? montoMora : 0);
-      double excedente = montoPagado + saldoPreCargado - totalDebido;
-
-      double abonoACapital = 0;
-      if (tipoExcedente == ManejoExcedente.abonoCapital && excedente > 0.01) {
-        abonoACapital = excedente;
-        excedente = 0;
-      }
-
-      // 1. Marcar cuota actual pagada
-      await (_db.update(
-        _db.amortizaciones,
-      )..where((t) => t.id.equals(prox.idAmortizacion))).write(
-        drift.AmortizacionesCompanion(
-          estadoAmortizacion: const Value(EstadoAmortizacion.pagado),
-          fechaPagado: Value(fechaPago),
-          montoPagado: Value(montoPagado),
-          diasMora: Value(diasMora),
-          montoMora: Value(montoMora),
-          montoExcedente: Value(excedente > 0.01 ? excedente : 0),
-        ),
-      );
-
-      final pendientes =
-          completo.amortizaciones
-              .where(
-                (a) =>
-                    a.idAmortizacion != prox.idAmortizacion &&
-                    (a.estadoAmortizacion == 'noPagado' ||
-                        a.estadoAmortizacion == 'atrasado'),
-              )
-              .toList()
-            ..sort((a, b) => a.idCuota.compareTo(b.idCuota));
-
-      // 2. Mora compuesta (solo cuota original, no tocar)
-      if (diasMora > 0 &&
-          config.tipoInteres == 'compuesto' &&
-          pendientes.isNotEmpty) {
-        final recalculadas = AmortizationCalculator.recalcularPorMora(
-          pendientes: pendientes,
-          montoMora: montoMora,
-          tasaInteres: prestamo.tasaInteres,
-          periodicidadIntereses: config.periodidadIntereses,
-          cuotaMensual: prestamo.montoCuota,
-        );
-        for (final r in recalculadas) {
-          await (_db.update(
-            _db.amortizaciones,
-          )..where((t) => t.id.equals(r.idAmortizacion))).write(
-            drift.AmortizacionesCompanion(
-              montoInicial: Value(r.montoInicial),
-              montoACapital: Value(r.montoCapital),
-              montoInteres: Value(r.montoInteres),
-            ),
-          );
-        }
-      }
-
-      // 3. Auto-pagar siguientes cuotas (solo saldoFavor)
-      if (tipoExcedente == ManejoExcedente.saldoFavor && excedente > 0.01) {
-        final pendientesActualizados =
-            await (_db.select(_db.amortizaciones)
-                  ..where((t) => t.idPrestamo.equals(idPrestamo))
-                  ..where(
-                    (t) => t.estadoAmortizacion.isIn([
-                      EstadoAmortizacion.noPagado.name,
-                      EstadoAmortizacion.atrasado.name,
-                    ]),
-                  )
-                  ..where((t) => t.id.equals(prox.idAmortizacion).not())
-                  ..orderBy([
-                    (t) => OrderingTerm(expression: t.idCuota),
-                  ]))
-                .get();
-
-        for (final sig in pendientesActualizados) {
-          if (excedente <= 0.01) break;
-
-          final sigMora = sig.diasMora > 0
-              ? AmortizationCalculator.calcularMontoMora(
-                  montoInicial: sig.montoInicial,
-                  tasaMoratoria: prestamo.tasaInteresMoratoria,
-                  periodicidad: config.periodidadIntereses,
-                  diasMora: sig.diasMora,
-                )
-              : 0.0;
-          final sigTotal = sig.montoInicial + (esSimple ? sigMora : 0);
-
-          if (excedente < sigTotal) {
-            await (_db.update(
-              _db.amortizaciones,
-            )..where((t) => t.id.equals(sig.id))).write(
-              drift.AmortizacionesCompanion(
-                montoExcedente: Value(excedente),
-              ),
-            );
-            break;
-          }
-
-          excedente -= sigTotal;
-          await (_db.update(
-            _db.amortizaciones,
-          )..where((t) => t.id.equals(sig.id))).write(
-            drift.AmortizacionesCompanion(
-              estadoAmortizacion: const Value(EstadoAmortizacion.pagado),
-              fechaPagado: Value(fechaPago),
-              montoPagado: const Value(0),
-              montoExcedente: Value(excedente > 0.01 ? excedente : 0),
-              montoMora: Value(sigMora),
-            ),
-          );
-        }
-      }
-
-      // 4. Abono a capital
-      if (abonoACapital > 0 && pendientes.isNotEmpty) {
-        final result = AmortizationCalculator.recalcularPorAbonoCapital(
-          pendientes: pendientes,
-          abono: abonoACapital,
-          tasaInteres: prestamo.tasaInteres,
-          periodicidadIntereses: config.periodidadIntereses,
-          cuotaMensual: prestamo.montoCuota,
-        );
-        for (final r in result.actualizadas) {
-          await (_db.update(
-            _db.amortizaciones,
-          )..where((t) => t.id.equals(r.idAmortizacion))).write(
-            drift.AmortizacionesCompanion(
-              montoInicial: Value(r.montoInicial),
-              montoACapital: Value(r.montoCapital),
-              montoInteres: Value(r.montoInteres),
-            ),
-          );
-        }
-        for (final idCancel in result.idsCanceladas) {
-          await (_db.update(
-            _db.amortizaciones,
-          )..where((t) => t.id.equals(idCancel))).write(
-            const drift.AmortizacionesCompanion(
-              estadoAmortizacion: Value(EstadoAmortizacion.cancelado),
-            ),
-          );
-        }
-      }
-
-      await _recalcularEstadoPrestamo();
-    });
-  }
-
   @override
   Future<PrestamoDetalle> getDetalle(int idPrestamo) async {
-    await _actualizarMorosidad();
-    await _recalcularEstadoPrestamo();
+    await _estadoPrestamoService.actualizarMorosidad();
+    await _estadoPrestamoService.recalcularEstadoPrestamo();
 
     final results = await Future.wait([
       _db
@@ -527,49 +307,6 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
     );
   }
 
-  Future<void> _recalcularEstadoPrestamo() async {
-    await _db.customStatement("""
-      UPDATE configuracion_prestamos SET
-        estado_prestamo = 'finalizado',
-        fecha_actualizacion = CAST(strftime('%s', 'now') AS INTEGER)
-      WHERE estado_prestamo NOT IN ('finalizado', 'cancelado')
-        AND (
-          SELECT COUNT(*) FROM amortizaciones a
-          WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
-            AND a.estado_amortizacion NOT IN ('pagado', 'cancelado')
-        ) = 0
-       AND (
-  SELECT COALESCE(SUM(a.monto_pagado), 0) FROM amortizaciones a
-  WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
-    AND a.estado_amortizacion = 'pagado'
-) >= (SELECT COALESCE(p.monto, 0) FROM prestamos p WHERE p.id_prestamo = configuracion_prestamos.id_prestamo)
-    """);
-
-    await _db.customStatement("""
-      UPDATE configuracion_prestamos SET
-        estado_prestamo = 'atrasado',
-        fecha_actualizacion = CAST(strftime('%s', 'now') AS INTEGER)
-      WHERE estado_prestamo = 'activo'
-        AND EXISTS (
-          SELECT 1 FROM amortizaciones a
-          WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
-            AND a.estado_amortizacion = 'atrasado'
-        )
-    """);
-
-    await _db.customStatement("""
-      UPDATE configuracion_prestamos SET
-        estado_prestamo = 'activo',
-        fecha_actualizacion = CAST(strftime('%s', 'now') AS INTEGER)
-      WHERE estado_prestamo = 'atrasado'
-        AND NOT EXISTS (
-          SELECT 1 FROM amortizaciones a
-          WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
-            AND a.estado_amortizacion = 'atrasado'
-        )
-    """);
-  }
-
   String _buildFilterCondition(String? filter) {
     if (filter == null || filter == 'todos') {
       return '1 = 1';
@@ -602,8 +339,8 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
     String? search,
     String? filter,
   }) async {
-    await _actualizarMorosidad();
-    await _recalcularEstadoPrestamo();
+    await _estadoPrestamoService.actualizarMorosidad();
+    await _estadoPrestamoService.recalcularEstadoPrestamo();
 
     final limit = pageSize + 1;
     final offset = page * pageSize;

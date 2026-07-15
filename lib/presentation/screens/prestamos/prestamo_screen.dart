@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/presentation/providers/prestamos/delete_prestamo_provider.dart';
 import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
-import 'package:prestapagos/presentation/screens/prestamos/pagar_screen.dart';
+import 'package:prestapagos/presentation/screens/pagos/pagar_screen.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class PrestamoScreen extends ConsumerStatefulWidget {
@@ -283,9 +283,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
                                     ),
                                     DataCell(
                                       Text(
-                                        a.montoExcedente > 0 ||
-                                                (a.estadoAmortizacion == 'pagado' &&
-                                                    a.montoPagado == 0)
+                                        a.montoExcedente >= 0.01
                                             ? HumanFormats.monuted(
                                                 a.montoExcedente,
                                               )

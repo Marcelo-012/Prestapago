@@ -7,4 +7,4 @@ export 'cliente/edit_cliente_screen.dart';
 export 'prestamos/prestamo_screen.dart';
 export 'prestamos/create_prestamo_screen.dart';
 export 'prestamos/prestamo_preview_screen.dart';
-export 'prestamos/pagar_screen.dart';
+export 'pagos/pagar_screen.dart';

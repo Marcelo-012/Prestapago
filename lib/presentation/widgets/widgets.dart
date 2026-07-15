@@ -16,3 +16,5 @@ export 'package:prestapagos/presentation/widgets/clientes/clientes_list_item.dar
 export 'package:prestapagos/presentation/widgets/clientes/clientes_profile.dart';
 export 'package:prestapagos/presentation/widgets/home/cards_clientes.dart';
 export 'package:prestapagos/presentation/widgets/home/lists_card_clientes.dart';
+export 'package:prestapagos/presentation/widgets/pagos/pago_text_field.dart';
+export 'package:prestapagos/presentation/widgets/pagos/payment_info_card.dart';

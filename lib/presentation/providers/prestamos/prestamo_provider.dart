@@ -4,10 +4,15 @@ import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/domain/repositories/prestamos/prestamos_repository.dart';
 import 'package:prestapagos/infrastructure/repositories/prestamos/prestamo_repository_impl.dart';
 import 'package:prestapagos/presentation/providers/database/app_database_provider.dart';
+import 'package:prestapagos/presentation/providers/pagos/estado_prestamo_service_provider.dart';
 
 final prestamoRepositoryProvider = Provider<PrestamoRepository>((ref) {
   final db = ref.watch(appDatabaseProvider);
-  return PrestamoRepositoryImpl(db: db);
+  final estadoPrestamoService = ref.watch(estadoPrestamoServiceProvider);
+  return PrestamoRepositoryImpl(
+    db: db,
+    estadoPrestamoService: estadoPrestamoService,
+  );
 });
 
 class PrestamoPaginationState {
