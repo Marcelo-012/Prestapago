@@ -15,7 +15,7 @@ final previewPagoProvider = Provider.family<
   (ref, detalle) {
     Amortizacion? prox;
     for (final a in detalle.amortizaciones) {
-      if (a.estadoAmortizacion == 'noPagado' || a.estadoAmortizacion == 'atrasado') {
+      if (a.estadoAmortizacion == 'pendiente' || a.estadoAmortizacion == 'atrasado') {
         prox = a;
         break;
       }

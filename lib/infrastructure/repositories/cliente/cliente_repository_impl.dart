@@ -161,7 +161,7 @@ class ClienteRepositoryImpl implements ClienteRepository {
               saldoPorPagar: (monto - totalPagado).clamp(0, double.infinity),
               nombre: '',
               idPrestamo: p.read<int>('id_prestamo'),
-              estadoUltimoPago: 'noPagado',
+              estadoUltimoPago: 'pendiente',
               estadoPrestamo: p.read<String>('estado_prestamo'),
               fechaCreacion: p.read<DateTime>('fecha_creacion'),
               tasaInteres: p.read<double>('tasa_interes'),

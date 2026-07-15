@@ -88,6 +88,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
                       const SizedBox(height: 8),
                       AmortizacionTable(
                         amortizaciones: detalle.amortizaciones,
+                        montoCuota: detalle.prestamo.montoCuota,
                         onViewPayment: (_) {},
                       ),
                     ],

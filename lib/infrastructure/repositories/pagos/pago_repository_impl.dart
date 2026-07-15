@@ -46,7 +46,7 @@ class PagoRepositoryImpl implements PagoRepository {
       final prox = completo.amortizaciones.firstWhere(
         (a) =>
             a.estadoAmortizacion == 'atrasado' ||
-            a.estadoAmortizacion == 'noPagado',
+            a.estadoAmortizacion == 'pendiente',
       );
 
       final saldoPreCargado = prox.montoExcedente;
@@ -85,7 +85,7 @@ class PagoRepositoryImpl implements PagoRepository {
               .where(
                 (a) =>
                     a.idAmortizacion != prox.idAmortizacion &&
-                    (a.estadoAmortizacion == 'noPagado' ||
+                    (a.estadoAmortizacion == 'pendiente' ||
                         a.estadoAmortizacion == 'atrasado'),
               )
               .toList()
@@ -120,7 +120,7 @@ class PagoRepositoryImpl implements PagoRepository {
                   ..where((t) => t.idPrestamo.equals(idPrestamo))
                   ..where(
                     (t) => t.estadoAmortizacion.isIn([
-                      EstadoAmortizacion.noPagado.name,
+                      EstadoAmortizacion.pendiente.name,
                       EstadoAmortizacion.atrasado.name,
                     ]),
                   )

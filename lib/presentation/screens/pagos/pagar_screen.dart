@@ -26,7 +26,7 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
 
   Amortizacion? get _prox {
     for (final a in widget.detalle.amortizaciones) {
-      if (a.estadoAmortizacion == 'noPagado' || a.estadoAmortizacion == 'atrasado') {
+      if (a.estadoAmortizacion == 'pendiente' || a.estadoAmortizacion == 'atrasado') {
         return a;
       }
     }

@@ -1,5 +1,5 @@
 enum EstadoAmortizacion {
-  noPagado('nopagado'),
+  pendiente('pendiente'),
   pagado('pagado'),
   atrasado('atrasado'),
   cancelado('cancelado');

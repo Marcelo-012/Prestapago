@@ -14,6 +14,6 @@ class CreateAmortizacionDTO {
     required this.montoCapital,
     required this.montoInteres,
     required this.montoMora,
-    this.estadoAmortizacion = 'noPagado',
+    this.estadoAmortizacion = 'pendiente',
   });
 }

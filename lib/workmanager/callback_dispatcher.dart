@@ -31,7 +31,7 @@ void callbackDispatcher() {
           UPDATE amortizaciones SET
             estado_amortizacion = 'atrasado',
             dias_mora = CAST(julianday('now') - julianday(fecha_vencimiento, 'unixepoch') AS INTEGER)
-          WHERE estado_amortizacion = 'noPagado'
+          WHERE estado_amortizacion = 'pendiente'
             AND date(fecha_vencimiento, 'unixepoch') < date('now')
         """);
 

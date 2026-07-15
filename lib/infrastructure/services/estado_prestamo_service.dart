@@ -10,7 +10,7 @@ class EstadoPrestamoService {
     UPDATE amortizaciones SET
       estado_amortizacion = 'atrasado',
       dias_mora = CAST(julianday('now') - julianday(fecha_vencimiento, 'unixepoch') AS INTEGER)
-    WHERE estado_amortizacion IN ('noPagado', 'atrasado')
+    WHERE estado_amortizacion IN ('pendiente', 'atrasado')
       AND date(fecha_vencimiento, 'unixepoch') < date('now')
   """);
 

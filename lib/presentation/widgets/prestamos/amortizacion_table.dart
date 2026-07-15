@@ -2,91 +2,144 @@ import 'package:flutter/material.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/domain/domain.dart';
 
-class AmortizacionTable extends StatelessWidget {
+class AmortizacionTable extends StatefulWidget {
   final List<Amortizacion> amortizaciones;
+  final double montoCuota;
   final void Function(Amortizacion) onViewPayment;
 
   const AmortizacionTable({
     super.key,
     required this.amortizaciones,
+    required this.montoCuota,
     required this.onViewPayment,
   });
 
   @override
+  State<AmortizacionTable> createState() => _AmortizacionTableState();
+}
+
+class _AmortizacionTableState extends State<AmortizacionTable> {
+  bool _showFull = false;
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columnSpacing: 12,
-        columns: [
-          const DataColumn(label: Text('#')),
-          const DataColumn(label: Text('Vencimiento')),
-          const DataColumn(label: Text('Cuota')),
-          const DataColumn(label: Text('Capital')),
-          const DataColumn(label: Text('Interés')),
-          const DataColumn(label: Text('Pagado')),
-          const DataColumn(label: Text('Excedente')),
-          const DataColumn(label: Text('Estado')),
-          const DataColumn(label: Text('')),
-        ],
-        rows: amortizaciones
-            .map(
-              (a) => DataRow(
-                cells: [
-                  DataCell(Text('${a.idCuota}')),
-                  DataCell(
-                    Text(
-                      '${a.fechaVencimiento.day}/${a.fechaVencimiento.month}/${a.fechaVencimiento.year}',
-                    ),
-                  ),
-                  DataCell(Text(HumanFormats.monuted(a.montoInicial))),
-                  DataCell(Text(HumanFormats.monuted(a.montoCapital))),
-                  DataCell(Text(HumanFormats.monuted(a.montoInteres))),
-                  DataCell(
-                    Text(
-                      a.fechaPagado != null
-                          ? HumanFormats.monuted(a.montoPagado)
-                          : '—',
-                    ),
-                  ),
-                  DataCell(
-                    Text(
-                      a.fechaPagado != null && a.montoExcedente >= 0.01
-                          ? HumanFormats.monuted(a.montoExcedente)
-                          : '—',
-                    ),
-                  ),
-                  DataCell(
-                    Chip(
-                      label: Text(
-                        a.estadoAmortizacion[0].toUpperCase() +
-                            a.estadoAmortizacion.substring(1),
-                        style: const TextStyle(fontSize: 10, color: Colors.white),
-                      ),
-                      backgroundColor: _chipColor(a.estadoAmortizacion),
-                      padding: EdgeInsets.zero,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                  DataCell(
-                    SizedBox(
-                      height: 28,
-                      child: TextButton(
-                        onPressed: null,
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          textStyle: const TextStyle(fontSize: 11),
-                        ),
-                        child: const Text('Ver pago'),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-            .toList(),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextButton.icon(
+          onPressed: () => setState(() => _showFull = !_showFull),
+          icon: Icon(_showFull ? Icons.expand_less : Icons.expand_more),
+          label: Text(_showFull ? 'Ocultar detalles' : 'Desplegar tabla completa'),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: _showFull ? _buildFullTable() : _buildCompactTable(),
+        ),
+      ],
     );
+  }
+
+  Widget _buildCompactTable() {
+    return DataTable(
+      columnSpacing: 12,
+      columns: const [
+        DataColumn(label: Text('#')),
+        DataColumn(label: Text('Vencimiento')),
+        DataColumn(label: Text('Cuota')),
+        DataColumn(label: Text('Capital')),
+        DataColumn(label: Text('Interés')),
+        DataColumn(label: Text('Pagado')),
+        DataColumn(label: Text('Excedente')),
+        DataColumn(label: Text('Estado')),
+        DataColumn(label: Text('')),
+      ],
+      rows:
+          widget.amortizaciones.map((a) => _buildRow(a, full: false)).toList(),
+    );
+  }
+
+  Widget _buildFullTable() {
+    return DataTable(
+      columnSpacing: 12,
+      columns: const [
+        DataColumn(label: Text('#')),
+        DataColumn(label: Text('Vencimiento')),
+        DataColumn(label: Text('Fecha pago')),
+        DataColumn(label: Text('Monto inicial')),
+        DataColumn(label: Text('Cuota')),
+        DataColumn(label: Text('Capital')),
+        DataColumn(label: Text('Interés')),
+        DataColumn(label: Text('Pagado')),
+        DataColumn(label: Text('Excedente')),
+        DataColumn(label: Text('Días mora')),
+        DataColumn(label: Text('Estado')),
+        DataColumn(label: Text('')),
+      ],
+      rows: widget.amortizaciones.map((a) => _buildRow(a, full: true)).toList(),
+    );
+  }
+
+  DataRow _buildRow(Amortizacion a, {required bool full}) {
+    return DataRow(cells: [
+      DataCell(Text('${a.idCuota}')),
+      DataCell(
+        Text(
+          '${a.fechaVencimiento.day}/${a.fechaVencimiento.month}/${a.fechaVencimiento.year}',
+        ),
+      ),
+      if (full)
+        DataCell(
+          Text(
+            a.fechaPagado != null
+                ? '${a.fechaPagado!.day}/${a.fechaPagado!.month}/${a.fechaPagado!.year}'
+                : '—',
+          ),
+        ),
+      DataCell(Text(HumanFormats.monuted(a.montoInicial))),
+      if (full) DataCell(Text(HumanFormats.monuted(widget.montoCuota))),
+      DataCell(Text(HumanFormats.monuted(a.montoCapital))),
+      DataCell(Text(HumanFormats.monuted(a.montoInteres))),
+      DataCell(
+        Text(
+          a.fechaPagado != null
+              ? HumanFormats.monuted(a.montoPagado)
+              : '—',
+        ),
+      ),
+      DataCell(
+        Text(
+          a.fechaPagado != null && a.montoExcedente >= 0.01
+              ? HumanFormats.monuted(a.montoExcedente)
+              : '—',
+        ),
+      ),
+      if (full) DataCell(Text('${a.diasMora}')),
+      DataCell(
+        Chip(
+          label: Text(
+            a.estadoAmortizacion[0].toUpperCase() +
+                a.estadoAmortizacion.substring(1),
+            style: const TextStyle(fontSize: 10, color: Colors.white),
+          ),
+          backgroundColor: _chipColor(a.estadoAmortizacion),
+          padding: EdgeInsets.zero,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+      ),
+      DataCell(
+        SizedBox(
+          height: 28,
+          child: TextButton(
+            onPressed: null,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              textStyle: const TextStyle(fontSize: 11),
+            ),
+            child: const Text('Ver pago'),
+          ),
+        ),
+      ),
+    ]);
   }
 
   Color _chipColor(String estado) {
@@ -101,7 +154,7 @@ class AmortizacionTable extends StatelessWidget {
         return Colors.red;
       case 'finalizado':
         return Colors.green;
-      case 'nopagado':
+      case 'pendiente':
         return Colors.grey;
       default:
         return Colors.grey;

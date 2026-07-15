@@ -87,7 +87,7 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
                 montoInteres: a.montoInteres,
                 montoMora: a.montoMora,
                 montoExcedente: 0,
-                estadoAmortizacion: EstadoAmortizacion.noPagado,
+                estadoAmortizacion: EstadoAmortizacion.pendiente,
               ),
             );
       }

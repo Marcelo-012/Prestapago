@@ -209,7 +209,7 @@ class AmortizationCalculator {
           diasMora: 0,
           montoMora: montoMora,
           montoExcedente: 0,
-          estadoAmortizacion: 'noPagado',
+          estadoAmortizacion: 'pendiente',
           fechaActualizacion: DateTime.now(),
         ),
       );
@@ -256,7 +256,7 @@ class AmortizationCalculator {
     final saldoPreCargado = prox.montoExcedente;
 
     final totalRestante = amortizaciones
-        .where((a) => a.estadoAmortizacion == 'noPagado' || a.estadoAmortizacion == 'atrasado')
+        .where((a) => a.estadoAmortizacion == 'pendiente' || a.estadoAmortizacion == 'atrasado')
         .fold<double>(0, (sum, a) => sum + a.montoInicial);
 
     final bruto = prox.montoInicial + (esSimple ? montoMora : 0);
