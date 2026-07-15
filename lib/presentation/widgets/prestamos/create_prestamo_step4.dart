@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/presentation/providers/prestamos/create_prestamo_form_provider.dart';
+import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class CreatePrestamoStep4 extends ConsumerWidget {
   final VoidCallback onPreview;
@@ -37,9 +38,7 @@ class CreatePrestamoStep4 extends ConsumerWidget {
             label: 'Monto',
             hint: '\$0.00',
             value: formState.monto.value,
-            error: formState.monto.displayError != null
-                ? 'Campo inválido'
-                : null,
+            error: formState.monto.errorMessage,
             onChanged: notifier.onMontoChanged,
             formatAsCurrency: true,
           ),
@@ -50,9 +49,7 @@ class CreatePrestamoStep4 extends ConsumerWidget {
                 'Tasa de interés ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'} (%)',
             hint: '0.00',
             value: formState.tasaInteres.value,
-            error: formState.tasaInteres.displayError != null
-                ? 'Campo inválido'
-                : null,
+            error: formState.tasaInteres.errorMessage,
             onChanged: notifier.onTasaInteresChanged,
           ),
           const SizedBox(height: 16),
@@ -63,9 +60,7 @@ class CreatePrestamoStep4 extends ConsumerWidget {
                   'Tasa de interés moratoria ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'} (%)',
               hint: '0.00',
               value: formState.tasaInteresMoratoria.value,
-              error: formState.tasaInteresMoratoria.displayError != null
-                  ? 'Campo inválido'
-                  : null,
+              error: formState.tasaInteresMoratoria.errorMessage,
               onChanged: notifier.onTasaInteresMoratoriaChanged,
             ),
           if (moratorioActivo) const SizedBox(height: 16),
@@ -74,15 +69,13 @@ class CreatePrestamoStep4 extends ConsumerWidget {
             label: 'Cuotas',
             hint: 'Numero de cuotas ej.: 10',
             value: formState.plazo.value,
-            error: formState.plazo.displayError != null
-                ? 'Campo inválido'
-                : null,
+            error: formState.plazo.errorMessage,
             onChanged: notifier.onPlazoChanged,
           ),
           const SizedBox(height: 16),
 
           // Cuota read-only - auto-calculated
-          _ReadOnlyCuota(value: formState.montoCuota.value),
+          ReadonlyCuota(value: formState.montoCuota.value),
           const SizedBox(height: 32),
 
           SizedBox(
@@ -102,44 +95,6 @@ class CreatePrestamoStep4 extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ReadOnlyCuota extends ConsumerWidget {
-  final String value;
-
-  const _ReadOnlyCuota({required this.value});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Cuota mensual',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: Colors.grey[300]!),
-          ),
-          child: Text(
-            value.isNotEmpty
-                ? HumanFormats.monuted(double.tryParse(value) ?? 0)
-                : '—',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

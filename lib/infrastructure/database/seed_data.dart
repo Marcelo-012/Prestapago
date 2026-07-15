@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import 'package:prestapagos/config/helpers/amortization_calculator.dart';
+import 'package:prestapagos/shared/domain/services/amortization_calculator.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
 

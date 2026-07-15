@@ -8,6 +8,10 @@ export 'package:prestapagos/presentation/widgets/shared/loading_widget_custom.da
 export 'package:prestapagos/presentation/widgets/shared/confirm_exit_dialog.dart';
 export 'package:prestapagos/presentation/widgets/shared/full_screen_loader.dart';
 export 'package:prestapagos/presentation/widgets/shared/info_row.dart';
+export 'package:prestapagos/presentation/widgets/shared/compact_card.dart';
+export 'package:prestapagos/presentation/widgets/shared/moratorio_toggle.dart';
+export 'package:prestapagos/presentation/widgets/shared/resumen_row.dart';
+export 'package:prestapagos/presentation/widgets/shared/readonly_cuota.dart';
 export 'package:prestapagos/presentation/widgets/clientes/cliente_form_body.dart';
 export 'package:prestapagos/presentation/widgets/clientes/cliente_prestamos_list.dart';
 export 'package:prestapagos/presentation/widgets/clientes/cliente_stats_section.dart';
@@ -17,4 +21,8 @@ export 'package:prestapagos/presentation/widgets/clientes/clientes_profile.dart'
 export 'package:prestapagos/presentation/widgets/home/cards_clientes.dart';
 export 'package:prestapagos/presentation/widgets/home/lists_card_clientes.dart';
 export 'package:prestapagos/presentation/widgets/pagos/pago_text_field.dart';
+export 'package:prestapagos/presentation/widgets/pagos/pago_action_buttons.dart';
 export 'package:prestapagos/presentation/widgets/pagos/payment_info_card.dart';
+export 'package:prestapagos/presentation/widgets/prestamos/amortizacion_table.dart';
+export 'package:prestapagos/presentation/widgets/prestamos/progress_card.dart';
+export 'package:prestapagos/presentation/widgets/prestamos/prestamo_info_card.dart';

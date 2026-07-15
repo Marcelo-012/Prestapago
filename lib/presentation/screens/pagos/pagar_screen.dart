@@ -24,17 +24,22 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
   late TextEditingController _montoController;
   late double _minimo;
 
-  Amortizacion get _prox => widget.detalle.amortizaciones.firstWhere(
-    (a) =>
-        a.estadoAmortizacion == 'noPagado' ||
-        a.estadoAmortizacion == 'atrasado',
-  );
+  Amortizacion? get _prox {
+    for (final a in widget.detalle.amortizaciones) {
+      if (a.estadoAmortizacion == 'noPagado' || a.estadoAmortizacion == 'atrasado') {
+        return a;
+      }
+    }
+    return null;
+  }
 
   @override
   void initState() {
     super.initState();
+    final prox = _prox;
+    if (prox == null) return;
     final preview = ref.read(previewPagoProvider(widget.detalle));
-    _minimo = preview.montoCuota;
+    _minimo = preview.totalMinimo;
     _montoController = TextEditingController(text: _minimo.toStringAsFixed(2));
     ref.read(
       pagoFormProvider((minimo: _minimo, maximo: preview.montoMaximo)).notifier,
@@ -59,7 +64,9 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
   }
 
   Future<void> _pagar(double monto) async {
-    final submitNotifier = ref.read(pagoSubmitProvider(widget.detalle.idPrestamo).notifier);
+    final submitNotifier = ref.read(
+      pagoSubmitProvider(widget.detalle.idPrestamo).notifier,
+    );
     await submitNotifier.submitPago(
       monto: monto,
       fecha: DateTime.now(),
@@ -74,8 +81,11 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
       Fluttertoast.showToast(msg: 'Pago registrado exitosamente');
       ref.invalidate(prestamoDetalleProvider(widget.detalle.idPrestamo));
       ref.invalidate(prestamoPaginationProvider);
+      ref.read(prestamoPaginationProvider.notifier).refresh();
     } else if (submitState.status == PagoSubmitStatus.error) {
-      Fluttertoast.showToast(msg: submitState.error ?? 'Error al registrar el pago');
+      Fluttertoast.showToast(
+        msg: submitState.error ?? 'Error al registrar el pago',
+      );
     }
   }
 
@@ -97,16 +107,32 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final prox = _prox;
+    if (prox == null) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const CustomAppbar(title: 'Pagar'),
+        ),
+        body: const Center(child: Text('Préstamo liquidado')),
+      );
+    }
+
     final colors = Theme.of(context).colorScheme;
     final textTheme = GoogleFonts.poppins();
     final preview = ref.watch(previewPagoProvider(widget.detalle));
-    final minimo = preview.montoCuota;
+    final minimo = preview.totalMinimo;
     if (_minimo != minimo) _minimo = minimo;
     final formState = ref.watch(
       pagoFormProvider((minimo: minimo, maximo: preview.montoMaximo)),
     );
     final cubierto = minimo <= 0;
-    final submitState = ref.watch(pagoSubmitProvider(widget.detalle.idPrestamo));
+    final submitState = ref.watch(
+      pagoSubmitProvider(widget.detalle.idPrestamo),
+    );
 
     return Scaffold(
       body: CustomScrollView(
@@ -130,7 +156,7 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
                 children: [
                   PaymentInfoCard(
                     detalle: widget.detalle,
-                    prox: _prox,
+                    prox: prox,
                     preview: preview,
                     colors: colors,
                   ),
@@ -189,7 +215,7 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
                           Text(
                             cubierto
                                 ? '\$0.00'
-                                : HumanFormats.monuted(preview.montoCuota),
+                                : HumanFormats.monuted(preview.totalMinimo),
                             style: textTheme.copyWith(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -201,71 +227,14 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  if (submitState.status == PagoSubmitStatus.loading)
-                    const Center(child: CircularProgressIndicator())
-                  else if (cubierto) ...[
-                    Row(
-                      children: [
-                        Expanded(
-                          child: FilledButton.icon(
-                            onPressed: _onPagarCero,
-                            icon: const Icon(Icons.payment),
-                            label: const Text(
-                              'Pagar \$0',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            style: FilledButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              final monto =
-                                  double.tryParse(_montoController.text) ?? 0;
-                              if (monto <= 0) {
-                                Fluttertoast.showToast(
-                                  msg: 'Ingresa un monto para abonar',
-                                );
-                                return;
-                              }
-                              _pagar(monto);
-                            },
-                            icon: const Icon(Icons.add_circle_outline),
-                            label: const Text(
-                              'Abonar',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    PagoTextField(
-                      controller: _montoController,
-                      label: 'Abono extra',
-                    ),
-                  ] else ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: formState.isFormValid ? _onPagar : null,
-                        icon: const Icon(Icons.payment),
-                        label: const Text(
-                          'Pagar',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                      ),
-                    ),
-                  ],
+                  PagoActionButtons(
+                    submitStatus: submitState.status,
+                    cubierto: cubierto,
+                    isFormValid: formState.isFormValid,
+                    montoController: _montoController,
+                    onPagarCero: _onPagarCero,
+                    onPagar: _onPagar,
+                  ),
                 ],
               ),
             ),

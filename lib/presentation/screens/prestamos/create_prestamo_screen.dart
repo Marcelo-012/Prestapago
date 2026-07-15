@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/prestamos/create_prestamo_form_provider.dart';
 import 'package:prestapagos/presentation/widgets/prestamos/create_prestamo_step1.dart';
 import 'package:prestapagos/presentation/widgets/prestamos/create_prestamo_step2.dart';
@@ -9,7 +10,9 @@ import 'package:prestapagos/presentation/widgets/prestamos/create_prestamo_step4
 
 class CreatePrestamoScreen extends ConsumerStatefulWidget {
   static const name = 'create-prestamo';
-  const CreatePrestamoScreen({super.key});
+  final ClienteResumen? clientePreSeleccionado;
+
+  const CreatePrestamoScreen({super.key, this.clientePreSeleccionado});
 
   @override
   ConsumerState<CreatePrestamoScreen> createState() =>
@@ -23,7 +26,16 @@ class _CreatePrestamoScreenState extends ConsumerState<CreatePrestamoScreen> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    final cliente = widget.clientePreSeleccionado;
+    if (cliente != null) {
+      _currentStep = 1;
+      _pageController = PageController(initialPage: 1);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(createPrestamoFormProvider.notifier).onClientSelected(cliente);
+      });
+    } else {
+      _pageController = PageController();
+    }
   }
 
   @override

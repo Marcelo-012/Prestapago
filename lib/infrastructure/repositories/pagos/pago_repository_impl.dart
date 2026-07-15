@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:prestapagos/config/helpers/amortization_calculator.dart';
+import 'package:prestapagos/shared/domain/services/amortization_calculator.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/domain/repositories/pagos/pago_repository.dart';
 import 'package:prestapagos/domain/repositories/prestamos/prestamos_repository.dart';
@@ -12,12 +12,10 @@ class PagoRepositoryImpl implements PagoRepository {
   final EstadoPrestamoService _estadoPrestamoService;
 
   PagoRepositoryImpl({
-    required drift.AppDatabase db,
-    required PrestamoRepository prestamoRepository,
-    required EstadoPrestamoService estadoPrestamoService,
-  })  : _db = db,
-        _prestamoRepository = prestamoRepository,
-        _estadoPrestamoService = estadoPrestamoService;
+    required this._db,
+    required this._prestamoRepository,
+    required this._estadoPrestamoService,
+  });
 
   @override
   Future<int> countAmortizaciones(int idPrestamo) async {

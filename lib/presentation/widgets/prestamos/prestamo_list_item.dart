@@ -141,7 +141,7 @@ class PrestamoListItem extends StatelessWidget {
                         minHeight: 6,
                         backgroundColor: Colors.grey[300],
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          prestamo.totalPagado >= prestamo.monto
+                          prestamo.totalPagado >= prestamo.monto - 0.001
                               ? Colors.green
                               : Colors.blue,
                         ),

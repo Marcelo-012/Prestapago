@@ -50,16 +50,16 @@ class PrestamoPreviewScreen extends ConsumerWidget {
                           Text('Resumen', style: GoogleFonts.poppins(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 12),
-                          _resumenRow('Cliente', client?.nombre ?? '—'),
-                          _resumenRow('Monto', HumanFormats.monuted(double.tryParse(formState.monto.value) ?? 0)),
-                          _resumenRow('Plazo', '${formState.plazo.value} meses'),
-                          _resumenRow('Tasa interés', '${formState.tasaInteres.value}% ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'}'),
-                          _resumenRow('Cuota mensual', HumanFormats.monuted(double.tryParse(formState.montoCuota.value) ?? 0)),
+                          ResumenRow(label: 'Cliente', value: client?.nombre ?? '—'),
+                          ResumenRow(label: 'Monto', value: HumanFormats.monuted(double.tryParse(formState.monto.value) ?? 0)),
+                          ResumenRow(label: 'Plazo', value: '${formState.plazo.value} meses'),
+                          ResumenRow(label: 'Tasa interés', value: '${formState.tasaInteres.value}% ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'}'),
+                          ResumenRow(label: 'Cuota mensual', value: HumanFormats.monuted(double.tryParse(formState.montoCuota.value) ?? 0)),
                           if (formState.estadoMoratorio == 'activo')
-                            _resumenRow('Tasa moratoria', '${formState.tasaInteresMoratoria.value}% ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'}'),
-                          _resumenRow('Intereses', HumanFormats.monuted(totalInteres)),
+                            ResumenRow(label: 'Tasa moratoria', value: '${formState.tasaInteresMoratoria.value}% ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'}'),
+                          ResumenRow(label: 'Intereses', value: HumanFormats.monuted(totalInteres)),
                           const Divider(),
-                          _resumenRow('Monto + Intereses', HumanFormats.monuted(total)),
+                          ResumenRow(label: 'Monto + Intereses', value: HumanFormats.monuted(total)),
                         ],
                       ),
                     ),
@@ -98,19 +98,6 @@ class PrestamoPreviewScreen extends ConsumerWidget {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _resumenRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: GoogleFonts.poppins(color: Colors.grey.shade600)),
-          Text(value, style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
         ],
       ),
     );

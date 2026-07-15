@@ -3,7 +3,7 @@ import 'package:prestapagos/infrastructure/database/database.dart' as drift;
 class EstadoPrestamoService {
   final drift.AppDatabase _db;
 
-  EstadoPrestamoService({required drift.AppDatabase db}) : _db = db;
+  EstadoPrestamoService({required this._db});
 
   Future<void> actualizarMorosidad() async {
     await _db.customStatement("""

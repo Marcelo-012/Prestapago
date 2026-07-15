@@ -1,3 +1,4 @@
+import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/screens/screens.dart';
 import 'package:go_router/go_router.dart';
 
@@ -46,7 +47,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/create-prestamo',
       name: CreatePrestamoScreen.name,
-      builder: (context, state) => const CreatePrestamoScreen(),
+      builder: (context, state) {
+        final cliente = state.extra as ClienteResumen?;
+        return CreatePrestamoScreen(clientePreSeleccionado: cliente);
+      },
     ),
     GoRoute(
       path: '/prestamo/preview',

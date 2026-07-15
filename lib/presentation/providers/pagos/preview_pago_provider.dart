@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prestapagos/config/helpers/amortization_calculator.dart';
+import 'package:prestapagos/shared/domain/services/amortization_calculator.dart';
 import 'package:prestapagos/domain/domain.dart';
 
 final previewPagoProvider = Provider.family<
@@ -13,9 +13,23 @@ final previewPagoProvider = Provider.family<
     }),
     PrestamoDetalle>(
   (ref, detalle) {
-    final prox = detalle.amortizaciones.firstWhere(
-      (a) => a.estadoAmortizacion == 'noPagado' || a.estadoAmortizacion == 'atrasado',
-    );
+    Amortizacion? prox;
+    for (final a in detalle.amortizaciones) {
+      if (a.estadoAmortizacion == 'noPagado' || a.estadoAmortizacion == 'atrasado') {
+        prox = a;
+        break;
+      }
+    }
+    if (prox == null) {
+      return (
+        montoCuota: 0,
+        montoMora: 0,
+        diasMora: 0,
+        saldoAFavor: 0,
+        totalMinimo: 0,
+        montoMaximo: 0,
+      );
+    }
     return AmortizationCalculator.calcularPreviewPago(
       prox: prox,
       prestamo: detalle.prestamo,

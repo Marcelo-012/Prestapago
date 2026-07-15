@@ -29,8 +29,8 @@ class PagoMonto extends FormzInput<String, PagoMontoError> {
     final number = double.tryParse(value);
     if (number == null) return PagoMontoError.invalid;
     if (number <= 0) return PagoMontoError.notPositive;
-    if ((number * 100).round() < (minimo * 100).round()) return PagoMontoError.belowMinimum;
-    if ((number * 100).round() > (maximo * 100).round()) return PagoMontoError.aboveMaximum;
+    if (number < minimo - 0.001) return PagoMontoError.belowMinimum;
+    if (number > maximo + 0.001) return PagoMontoError.aboveMaximum;
     return null;
   }
 }

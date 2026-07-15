@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prestapagos/config/helpers/amortization_calculator.dart';
+import 'package:prestapagos/shared/domain/services/amortization_calculator.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/shared/infrastructure/inputs/inputs.dart';
 
@@ -177,7 +177,7 @@ class CreatePrestamoFormNotifier extends Notifier<PrestamoFormState> {
       periodicidadIntereses: s.periodidadIntereses,
     );
     state = state.copyWith(
-      montoCuota: PositiveNumber.dirty(cuota.toStringAsFixed(2)),
+      montoCuota: PositiveNumber.dirty(cuota.toStringAsFixed(6)),
     );
   }
 

@@ -9,10 +9,9 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
   final EstadoPrestamoService _estadoPrestamoService;
 
   PrestamoRepositoryImpl({
-    required drift.AppDatabase db,
-    required EstadoPrestamoService estadoPrestamoService,
-  })  : _db = db,
-        _estadoPrestamoService = estadoPrestamoService;
+    required this._db,
+    required this._estadoPrestamoService,
+  });
 
   @override
   Future<Prestamo> getById(int idPrestamo) async {

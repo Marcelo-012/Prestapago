@@ -21,18 +21,13 @@ class BackupRepositoryImpl implements BackupRepository {
   final _logger = Logger(level: kReleaseMode ? Level.warning : Level.trace);
 
   BackupRepositoryImpl({
-    required GoogleAuthDatasource authDatasource,
-    required GoogleDriveDatasource driveDatasource,
-    required LocalBackupDatasource localBackupDatasource,
-    required SecureStorageDatasource secureStorageDatasource,
-    required File databaseFile,
-    AppDatabase? database,
-  }) : _authDatasource = authDatasource,
-       _driveDatasource = driveDatasource,
-       _localBackupDatasource = localBackupDatasource,
-       _secureStorageDatasource = secureStorageDatasource,
-       _databaseFile = databaseFile,
-       _database = database;
+    required this._authDatasource,
+    required this._driveDatasource,
+    required this._localBackupDatasource,
+    required this._secureStorageDatasource,
+    required this._databaseFile,
+    this._database,
+  });
 
   @override
   Stream<BackupStatus> performBackup() async* {

@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/domain/domain.dart';
 
 class ClientePrestamosList extends StatelessWidget {
   final List<PrestamoResumen> prestamos;
+  final int idDeudor;
+  final String nombreDeudor;
 
-  const ClientePrestamosList({super.key, required this.prestamos});
+  const ClientePrestamosList({
+    super.key,
+    required this.prestamos,
+    required this.idDeudor,
+    required this.nombreDeudor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +31,18 @@ class ClientePrestamosList extends StatelessWidget {
               const SizedBox(height: 16),
               FilledButton.icon(
                 label: const Text('Nuevo préstamo'),
-                onPressed: () => Fluttertoast.showToast(
-                  msg: 'tocado',
-                  gravity: ToastGravity.TOP,
-                ),
+                onPressed: () {
+                  context.push(
+                    '/create-prestamo',
+                    extra: ClienteResumen(
+                      idDeudor: idDeudor,
+                      nombre: nombreDeudor,
+                      telefono: '',
+                      estado: '',
+                      score: 0,
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.add_card_outlined),
               ),
             ],
@@ -53,21 +68,29 @@ class ClientePrestamosList extends StatelessWidget {
               ),
               FilledButton.icon(
                 label: Text('Nuevo préstamo'),
-                onPressed: () => Fluttertoast.showToast(
-                  msg: 'tocado',
-                  gravity: ToastGravity.TOP,
-                ),
+                onPressed: () {
+                  context.push(
+                    '/create-prestamo',
+                    extra: ClienteResumen(
+                      idDeudor: idDeudor,
+                      nombre: nombreDeudor,
+                      telefono: '',
+                      estado: '',
+                      score: 0,
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.add_card_outlined),
               ),
             ],
           ),
         ),
-        ...activos.map((loan) => _buildLoanItem(loan)),
+        ...activos.map((loan) => _buildLoanItem(loan, context)),
       ],
     );
   }
 
-  Widget _buildLoanItem(PrestamoResumen prestamo) {
+  Widget _buildLoanItem(PrestamoResumen prestamo, BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Padding(
@@ -84,6 +107,12 @@ class ClientePrestamosList extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
+                ),
+                TextButton(
+                  onPressed: () => context.push(
+                    '/home/1/prestamo/${prestamo.idPrestamo}',
+                  ),
+                  child: const Text('Ver detalles'),
                 ),
               ],
             ),
@@ -210,6 +239,8 @@ class _BuildData extends StatelessWidget {
         return Colors.green;
       case 'cancelado':
         return Colors.red;
+      case 'atrasado':
+        return Colors.orange;
       case 'inactivo':
         return Colors.grey;
       default:
@@ -223,6 +254,8 @@ class _BuildData extends StatelessWidget {
         return 'Finalizado';
       case 'cancelado':
         return 'Cancelado';
+      case 'atrasado':
+        return 'Atrasado';
       case 'inactivo':
         return 'Inactivado';
       default:

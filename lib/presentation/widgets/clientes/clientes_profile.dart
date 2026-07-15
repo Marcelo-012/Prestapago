@@ -213,7 +213,11 @@ class ClientesProfile extends StatelessWidget {
           ),
         ),
         const Divider(),
-        ClientePrestamosList(prestamos: detalle.prestamos),
+        ClientePrestamosList(
+          prestamos: detalle.prestamos,
+          idDeudor: detalle.cliente.idDeudor,
+          nombreDeudor: detalle.cliente.nombre,
+        ),
         const SizedBox(height: 24),
       ],
     );
