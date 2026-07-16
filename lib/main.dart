@@ -77,7 +77,7 @@ void main() async {
     initialDelay: oneAm.difference(now),
     existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
   );
-
+  FlutterNativeSplash.remove();
   runApp(
     ProviderScope(
       overrides: [
@@ -100,7 +100,7 @@ class MainApp extends ConsumerWidget {
     final themeState = ref.watch(themeProvider);
     final appTheme = AppTheme();
 
-    FlutterNativeSplash.remove();
+    //FlutterNativeSplash.remove();
     return MaterialApp.router(
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
