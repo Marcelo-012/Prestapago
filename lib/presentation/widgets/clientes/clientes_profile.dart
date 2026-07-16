@@ -1,9 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ClientesProfile extends StatelessWidget {
   final ClienteDetalle detalle;
@@ -135,6 +137,45 @@ class ClientesProfile extends StatelessWidget {
                   const Icon(Icons.calendar_month_outlined),
                   const SizedBox(width: 8),
                   Flexible(child: Text('${client.edad}', style: style)),
+                ],
+              ),
+              const SizedBox(height: 15),
+              Text('Contacto', style: style.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Tooltip(
+                    message: 'Llamar',
+                    child: IconButton(
+                      icon: const Icon(Icons.phone),
+                      color: Colors.blue,
+                      onPressed: () =>
+                          launchUrl(Uri.parse('tel:${client.telefono}')),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Tooltip(
+                    message: 'Enviar mensaje',
+                    child: IconButton(
+                      icon: const Icon(Icons.sms),
+                      color: Colors.green,
+                      onPressed: () =>
+                          launchUrl(Uri.parse('sms:${client.telefono}')),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Tooltip(
+                    message: 'WhatsApp',
+                    child: IconButton(
+                      icon: const FaIcon(FontAwesomeIcons.whatsapp),
+                      color: const Color(0xFF25D366),
+                      onPressed: () => launchUrl(
+                        Uri.parse(
+                            'https://wa.me/${client.telefono.replaceAll(RegExp(r'[^0-9]'), '')}'),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],

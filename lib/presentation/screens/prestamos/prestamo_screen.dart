@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
-import 'package:prestapagos/presentation/screens/pagos/detalle_pago_screen.dart';
 import 'package:prestapagos/presentation/screens/pagos/pagar_screen.dart';
+import 'package:prestapagos/presentation/screens/pagos/receipt_screen.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class PrestamoScreen extends ConsumerStatefulWidget {
@@ -38,12 +38,18 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (detalle) {
           final cuotasTotales = detalle.amortizaciones.length;
+          final completadas = <String>['pagado', 'cancelado'];
           final cuotasPagadas = detalle.amortizaciones
-              .where((a) => a.estadoAmortizacion == 'pagado')
+              .where((a) => completadas.contains(a.estadoAmortizacion))
               .length;
           final capitalPagado = detalle.amortizaciones
-              .where((a) => a.estadoAmortizacion == 'pagado')
+              .where((a) => completadas.contains(a.estadoAmortizacion))
               .fold<double>(0, (sum, a) => sum + a.montoCapital);
+          final hayPendientes = detalle.amortizaciones.any(
+            (a) =>
+                a.estadoAmortizacion == 'pendiente' ||
+                a.estadoAmortizacion == 'atrasado',
+          );
 
           return CustomScrollView(
             slivers: [
@@ -73,7 +79,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
                         cuotasTotales: cuotasTotales,
                       ),
                       const SizedBox(height: 16),
-                      if (cuotasPagadas < cuotasTotales)
+                      if (hayPendientes)
                         SizedBox(
                           width: double.infinity,
                           child: FilledButton.icon(
@@ -98,9 +104,9 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => DetallePagoScreen(
-                                detalle: detalle,
-                                amortizacion: a,
+                              builder: (_) => ReceiptScreen(
+                                idPrestamo: detalle.idPrestamo,
+                                idCuota: a.idCuota,
                               ),
                             ),
                           );

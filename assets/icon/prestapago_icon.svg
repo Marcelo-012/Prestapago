@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1000"
+   height="1000"
+   viewBox="0 0 1000 1000"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <font
+       horiz-adv-x="1030"
+       id="font65"
+       horiz-origin-x="0"
+       horiz-origin-y="0"
+       vert-origin-x="512"
+       vert-origin-y="768"
+       vert-adv-y="1024">
+      <font-face
+         units-per-em="1000"
+         ascent="750"
+         cap-height="600"
+         x-height="400"
+         descent="200"
+         id="font-face65"
+         font-family="SVGFont 1" />
+      <missing-glyph
+         d="M0,0h1000v1000h-1000z"
+         id="missing-glyph65" />
+    </font>
+  </defs>
+  <g
+     id="layer1">
+    <path
+       id="rect107"
+       d="m 349.80368,233.90486 h 35.82327 v 164.36559 h -6.7432 a 29.080066,29.080066 45 0 1 -29.08007,-29.08007 z"
+       transform="matrix(3.3670556,0,0,3.4662231,-864.17014,-575.71772)" />
+    <ellipse
+       style="fill:#000000;stroke-width:4.16575"
+       id="path108"
+       cx="521.76508"
+       cy="416.4364"
+       rx="201.03156"
+       ry="208.16975" />
+    <path
+       style="fill:#ffffff;stroke-width:2.39965"
+       d="m 490.45602,527.3584 c -10.70588,-15.02893 -66.48428,34.44296 -66.25311,-60.66765 0.042,-17.26171 63.26851,-10.06101 63.26851,-38.08061 0,-28.0196 -62.35111,-35.45312 -63.26851,-52.6891 -3.897,-73.21692 56.16731,-65.39552 99.92722,-65.39552 43.75986,0 80.17338,23.83015 99.9272,65.39552 7.36893,15.50559 7.68378,17.36527 7.68378,45.38486 0,28.01964 -0.31482,29.87933 -7.68378,45.38485 -14.15282,29.77996 -38.13129,51.52322 -67.03123,60.78284 -18.7278,6.00037 -18.65949,67.14177 -40.55421,36.4059 z"
+       id="path110" />
+  </g>
+</svg>

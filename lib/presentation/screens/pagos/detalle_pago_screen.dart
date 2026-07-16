@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
@@ -20,23 +21,13 @@ class DetallePagoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final config = detalle.configuracionPrestamo;
-    final esSimple = config.tipoInteres == 'simple';
     final esPagado = amortizacion.estadoAmortizacion == 'pagado';
-    final montoCuota = amortizacion.montoCapital + amortizacion.montoInteres;
-
-    final totalAdeudado = detalle.amortizaciones
-        .where(
-          (a) =>
-              a.estadoAmortizacion == 'pendiente' ||
-              a.estadoAmortizacion == 'atrasado',
-        )
-        .fold<double>(0, (sum, a) => sum + a.montoCapital + a.montoInteres);
-
-    double? abonoCapital;
-    if (config.manejoExcedente == ManejoExcedente.abonoCapital.value) {
-      final excess = amortizacion.montoPagado - montoCuota;
-      if (excess > 0.01) abonoCapital = excess;
-    }
+    final esCancelado = amortizacion.estadoAmortizacion == 'cancelado';
+    final dto = DetallePagoDto.calcular(
+      config: config,
+      amortizacion: amortizacion,
+      amortizaciones: detalle.amortizaciones,
+    );
 
     return Scaffold(
       body: CustomScrollView(
@@ -78,8 +69,16 @@ class DetallePagoScreen extends StatelessWidget {
                       const Divider(),
                       if (esPagado) ...[
                         InfoRow(
-                          label: 'Fecha y hora de pago',
-                          value: HumanFormats.dateTime(amortizacion.fechaPagado!),
+                          label: 'Fecha de pago',
+                          value: HumanFormats.date(amortizacion.fechaPagado!),
+                          icon: Icons.calendar_today,
+                          color: colors.primary,
+                        ),
+                        const SizedBox(height: 4),
+                        InfoRow(
+                          label: 'Hora de pago',
+                          value: DateFormat('hh:mm a', 'es_MX')
+                              .format(amortizacion.fechaPagado!),
                           icon: Icons.access_time,
                           color: colors.primary,
                         ),
@@ -94,51 +93,121 @@ class DetallePagoScreen extends StatelessWidget {
                       const Divider(),
                       InfoRow(
                         label: 'Monto',
-                        value: HumanFormats.monuted(montoCuota),
+                        value: HumanFormats.monuted(dto.montoCuota),
                         icon: Icons.money,
                         color: colors.primary,
                       ),
                       if (esPagado) ...[
-                        const Divider(),
-                        InfoRow(
-                          label: 'Pago',
-                          value: amortizacion.montoPagado == 0
-                              ? 'Pagado con saldo a favor'
-                              : HumanFormats.monuted(amortizacion.montoPagado),
-                          icon: Icons.payment,
-                          color: colors.primary,
-                        ),
-                        if (esSimple && amortizacion.montoMora > 0) ...[
+                        if (config.tipoInteres == 'simple' &&
+                            amortizacion.montoMora > 0) ...[
                           const Divider(),
                           InfoRow(
-                            label: 'Mora',
+                            label: 'Mora (${amortizacion.diasMora} días)',
                             value: HumanFormats.monuted(amortizacion.montoMora),
                             icon: Icons.warning_amber,
                             color: Colors.red,
                           ),
                         ],
-                        if (config.manejoExcedente ==
-                                ManejoExcedente.saldoFavor.value &&
-                            amortizacion.montoExcedente > 0) ...[
+                        const Divider(),
+                        InfoRow(
+                          label: 'Total',
+                          value: HumanFormats.monuted(dto.totalCuotaConMora),
+                          icon: Icons.request_quote,
+                          color: colors.primary,
+                        ),
+                        if (config.manejoExcedente == 'abonoCapital') ...[
                           const Divider(),
-                          InfoRow(
-                            label: 'Nuevo saldo a favor',
-                            value: HumanFormats.monuted(
-                              amortizacion.montoExcedente,
+                          if (amortizacion.montoPagado > 0)
+                            InfoRow(
+                              label: 'Efectivo',
+                              value: HumanFormats.monuted(
+                                amortizacion.montoPagado,
+                              ),
+                              icon: Icons.payment,
+                              color: colors.primary,
                             ),
-                            icon: Icons.credit_score,
-                            color: Colors.green,
-                          ),
-                        ],
-                        if (abonoCapital != null) ...[
+                          if (dto.abonoCapital != null) ...[
+                            const SizedBox(height: 4),
+                            InfoRow(
+                              label: 'Abono a capital',
+                              value: HumanFormats.monuted(dto.abonoCapital),
+                              icon: Icons.trending_down,
+                              color: Colors.blue,
+                            ),
+                          ],
+                        ] else ...[
                           const Divider(),
-                          InfoRow(
-                            label: 'Abono a capital',
-                            value: HumanFormats.monuted(abonoCapital),
-                            icon: Icons.trending_down,
-                            color: Colors.blue,
-                          ),
+                          if (amortizacion.montoPagado > 0 &&
+                              dto.saldoUsado <= 0.01)
+                            InfoRow(
+                              label: 'Efectivo',
+                              value: HumanFormats.monuted(
+                                amortizacion.montoPagado,
+                              ),
+                              icon: Icons.payment,
+                              color: colors.primary,
+                            ),
+                          if (amortizacion.montoPagado > 0 &&
+                              dto.saldoUsado > 0.01) ...[
+                            InfoRow(
+                              label: 'Efectivo',
+                              value: HumanFormats.monuted(
+                                amortizacion.montoPagado,
+                              ),
+                              icon: Icons.payment,
+                              color: colors.primary,
+                            ),
+                            const SizedBox(height: 4),
+                            InfoRow(
+                              label: 'Saldo a favor usado',
+                              value: HumanFormats.monuted(dto.saldoUsado),
+                              icon: Icons.credit_score,
+                              color: Colors.orange,
+                            ),
+                          ],
+                          if (amortizacion.montoPagado == 0)
+                            InfoRow(
+                              label: 'Pagado con saldo a favor',
+                              value: HumanFormats.monuted(dto.totalCuotaConMora),
+                              icon: Icons.credit_score,
+                              color: Colors.orange,
+                            ),
+                          if (amortizacion.montoExcedente > 0) ...[
+                            const Divider(),
+                            InfoRow(
+                              label: 'Nuevo saldo a favor',
+                              value: HumanFormats.monuted(
+                                amortizacion.montoExcedente,
+                              ),
+                              icon: Icons.credit_score,
+                              color: Colors.green,
+                            ),
+                          ],
                         ],
+                      ] else if (esCancelado) ...[
+                        const Divider(),
+                        InfoRow(
+                          label: 'Fecha de cancelación',
+                          value:
+                              HumanFormats.date(amortizacion.fechaActualizacion),
+                          icon: Icons.cancel,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(height: 4),
+                        InfoRow(
+                          label: 'Hora de cancelación',
+                          value: DateFormat('hh:mm a', 'es_MX')
+                              .format(amortizacion.fechaActualizacion),
+                          icon: Icons.access_time,
+                          color: Colors.red,
+                        ),
+                        const Divider(),
+                        InfoRow(
+                          label: 'Motivo',
+                          value: 'Abono a capital',
+                          icon: Icons.info_outline,
+                          color: Colors.red,
+                        ),
                       ] else ...[
                         const Divider(),
                         const InfoRow(
@@ -148,11 +217,11 @@ class DetallePagoScreen extends StatelessWidget {
                           color: Colors.grey,
                         ),
                       ],
-                      if (totalAdeudado > 0) ...[
+                      if (dto.totalAdeudado > 0) ...[
                         const Divider(),
                         InfoRow(
                           label: 'Total adeudado',
-                          value: HumanFormats.monuted(totalAdeudado),
+                          value: HumanFormats.monuted(dto.totalAdeudado),
                           icon: Icons.account_balance,
                           color: Colors.red,
                         ),

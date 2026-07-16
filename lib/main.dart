@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,7 +24,9 @@ import 'package:prestapagos/presentation/providers/database/app_database_provide
 import 'package:prestapagos/workmanager/callback_dispatcher.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   await dotenv.load();
   await initializeDateFormatting('es_MX', null);
   await NotificationService.initialize();
@@ -36,6 +39,7 @@ void main() async {
     localBackupStorage: localBackup,
     serverClientId: BackupConstants.googleServerClientId,
   );
+
   final driveDatasource = GoogleDriveDatasource();
   final database = AppDatabase();
 
@@ -49,7 +53,9 @@ void main() async {
   }
 
   final dir = await getApplicationSupportDirectory();
-  final databaseFile = File('${dir.path}/${BackupConstants.localDatabaseFilename}');
+  final databaseFile = File(
+    '${dir.path}/${BackupConstants.localDatabaseFilename}',
+  );
 
   final backupRepository = BackupRepositoryImpl(
     authDatasource: authDatasource,
@@ -72,16 +78,18 @@ void main() async {
     existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
   );
 
-  runApp(ProviderScope(
-    overrides: [
-      sharedPrefsProvider.overrideWithValue(prefs),
-      localBackupDatasourceProvider.overrideWithValue(localBackup),
-      googleAuthDatasourceProvider.overrideWithValue(authDatasource),
-      appDatabaseProvider.overrideWithValue(database),
-      backupRepositoryProvider.overrideWithValue(backupRepository),
-    ],
-    child: const MainApp(),
-  ));
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPrefsProvider.overrideWithValue(prefs),
+        localBackupDatasourceProvider.overrideWithValue(localBackup),
+        googleAuthDatasourceProvider.overrideWithValue(authDatasource),
+        appDatabaseProvider.overrideWithValue(database),
+        backupRepositoryProvider.overrideWithValue(backupRepository),
+      ],
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends ConsumerWidget {
@@ -92,6 +100,7 @@ class MainApp extends ConsumerWidget {
     final themeState = ref.watch(themeProvider);
     final appTheme = AppTheme();
 
+    FlutterNativeSplash.remove();
     return MaterialApp.router(
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,

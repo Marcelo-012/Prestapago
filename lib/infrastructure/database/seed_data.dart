@@ -6,7 +6,7 @@ import 'package:prestapagos/infrastructure/database/database.dart';
 
 Future<void> seedDatabase(AppDatabase db) async {
   await db.batch((batch) {
-    // ── DEUDORES (10) ──
+    // ── DEUDORES (12) ──
     final deudores = [
       (nombre: 'Juan Pérez', tel: '5550101', email: 'juan@mail.com', dir: 'Calle 1 #123', numId: 'ID001', edad: 35),
       (nombre: 'María García', tel: '5550102', email: 'maria@mail.com', dir: 'Calle 2 #456', numId: 'ID002', edad: 28),
@@ -18,6 +18,10 @@ Future<void> seedDatabase(AppDatabase db) async {
       (nombre: 'Sofía Ramírez', tel: '5550108', email: 'sofia@mail.com', dir: 'Calle 8 #258', numId: 'ID008', edad: 27),
       (nombre: 'Miguel Torres', tel: '5550109', email: 'miguel@mail.com', dir: 'Calle 9 #369', numId: 'ID009', edad: 50),
       (nombre: 'Carmen Flores', tel: '5550110', email: 'carmen@mail.com', dir: 'Calle 10 #159', numId: 'ID010', edad: 29),
+      (nombre: 'Roberto Díaz', tel: '5550111', email: 'roberto@mail.com', dir: 'Calle 11 #753', numId: 'ID011', edad: 41),
+      (nombre: 'Lucía Vargas', tel: '5550112', email: 'lucia@mail.com', dir: 'Calle 12 #951', numId: 'ID012', edad: 32),
+      (nombre: 'Oscar Mendoza', tel: '5550113', email: 'oscar@mail.com', dir: 'Calle 13 #357', numId: 'ID013', edad: 36),
+      (nombre: 'Elena Rivas', tel: '5550114', email: 'elena@mail.com', dir: 'Calle 14 #468', numId: 'ID014', edad: 29),
     ];
     for (final d in deudores) {
       batch.insert(
@@ -77,6 +81,30 @@ Future<void> seedDatabase(AppDatabase db) async {
       (idD: 10, monto: 6000.0, plazo: 6, tOrd: 10.0, tMor: 4.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 2, atras: 0, mora: false, fb: -60, marcar: false),
       (idD: 10, monto: 9000.0, plazo: 12, tOrd: 15.0, tMor: 6.0, tipo: TipoInteres.simple, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 3, atras: 5, mora: true, fb: -240, marcar: true),
       (idD: 10, monto: 14000.0, plazo: 18, tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.finalizado, alDia: 18, atras: 0, mora: false, fb: -540, marcar: false),
+      // Cliente 11 – Roberto Díaz
+      (idD: 11, monto: 5000.0, plazo: 4, tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: -30, marcar: false),
+      (idD: 11, monto: 8000.0, plazo: 6, tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: -30, marcar: false),
+      (idD: 11, monto: 12000.0, plazo: 8, tOrd: 15.0, tMor: 6.0, tipo: TipoInteres.simple, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: -30, marcar: false),
+      (idD: 11, monto: 7000.0, plazo: 5, tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: -29, marcar: false),
+      (idD: 11, monto: 15000.0, plazo: 7, tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: -29, marcar: false),
+      // Cliente 12 – Lucía Vargas
+      (idD: 12, monto: 10000.0, plazo: 10, tOrd: 15.0, tMor: 6.0, tipo: TipoInteres.simple, mEx: ManejoExcedente.saldoFavor, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: -29, marcar: false),
+      (idD: 12, monto: 6000.0, plazo: 4, tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: -28, marcar: false),
+      (idD: 12, monto: 9000.0, plazo: 6, tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: -28, marcar: false),
+      (idD: 12, monto: 11000.0, plazo: 5, tOrd: 15.0, tMor: 6.0, tipo: TipoInteres.simple, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: -27, marcar: false),
+      (idD: 12, monto: 14000.0, plazo: 8, tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: -27, marcar: false),
+      // Cliente 13 – Oscar Mendoza
+      (idD: 13, monto: 5000.0, plazo: 4,  tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: 0, marcar: false),
+      (idD: 13, monto: 7000.0, plazo: 5,  tOrd: 15.0, tMor: 6.0, tipo: TipoInteres.simple,     mEx: ManejoExcedente.saldoFavor,  ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: 0, marcar: false),
+      (idD: 13, monto: 9000.0, plazo: 6,  tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: 0, marcar: false),
+      (idD: 13, monto: 6000.0, plazo: 7,  tOrd: 15.0, tMor: 6.0, tipo: TipoInteres.simple,     mEx: ManejoExcedente.saldoFavor,  ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: 0, marcar: false),
+      (idD: 13, monto: 8000.0, plazo: 8,  tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: 0, marcar: false),
+      // Cliente 14 – Elena Rivas
+      (idD: 14, monto: 10000.0, plazo: 10, tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: 0, marcar: false),
+      (idD: 14, monto: 5000.0, plazo: 4,  tOrd: 15.0, tMor: 6.0, tipo: TipoInteres.simple,     mEx: ManejoExcedente.saldoFavor,  ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: 0, marcar: false),
+      (idD: 14, monto: 7000.0, plazo: 6,  tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: 0, marcar: false),
+      (idD: 14, monto: 9000.0, plazo: 9,  tOrd: 15.0, tMor: 6.0, tipo: TipoInteres.simple,     mEx: ManejoExcedente.saldoFavor,  ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: 0, marcar: false),
+      (idD: 14, monto: 6000.0, plazo: 5,  tOrd: 12.0, tMor: 5.0, tipo: TipoInteres.compuesto, mEx: ManejoExcedente.abonoCapital, ePres: EstadoPrestamo.activo, alDia: 0, atras: 0, mora: false, fb: 0, marcar: false),
     ];
 
     for (final p in prestamos) {
@@ -100,8 +128,8 @@ Future<void> seedDatabase(AppDatabase db) async {
       );
     }
 
-    // ── CONFIGURACIONES (30) ──
-    for (int i = 1; i <= 30; i++) {
+    // ── CONFIGURACIONES (50) ──
+    for (int i = 1; i <= 50; i++) {
       final p = prestamos[i - 1];
       batch.insert(
         db.configuracionPrestamos,
@@ -123,6 +151,10 @@ Future<void> seedDatabase(AppDatabase db) async {
     batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 4, score: 90));
     batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 5, score: 72));
     batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 9, score: 88));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 11, score: 70));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 12, score: 85));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 13, score: 78));
+    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 14, score: 83));
   });
 
   // ── AMORTIZACIONES ──
@@ -168,8 +200,20 @@ Future<void> seedDatabase(AppDatabase db) async {
     // Cliente 10
     (28, 6, 10.0, 4.0, 6000.0, TipoInteres.compuesto, 2, 0, false, -60, false),
     (29, 12, 15.0, 6.0, 9000.0, TipoInteres.simple, 3, 5, true, -240, true),
-    (30, 18, 12.0, 5.0, 14000.0, TipoInteres.compuesto, 18, 0, false, -540, false),
-  ];
+      (30, 18, 12.0, 5.0, 14000.0, TipoInteres.compuesto, 18, 0, false, -540, false),
+      // Cliente 11 – Roberto Díaz
+      (31, 4, 12.0, 5.0, 5000.0, TipoInteres.compuesto, 0, 0, false, -30, false),
+      (32, 6, 12.0, 5.0, 8000.0, TipoInteres.compuesto, 0, 0, false, -30, false),
+      (33, 8, 15.0, 6.0, 12000.0, TipoInteres.simple, 0, 0, false, -30, false),
+      (34, 5, 12.0, 5.0, 7000.0, TipoInteres.compuesto, 0, 0, false, -29, false),
+      (35, 7, 12.0, 5.0, 15000.0, TipoInteres.compuesto, 0, 0, false, -29, false),
+      // Cliente 12 – Lucía Vargas
+      (36, 10, 15.0, 6.0, 10000.0, TipoInteres.simple, 0, 0, false, -29, false),
+      (37, 4, 12.0, 5.0, 6000.0, TipoInteres.compuesto, 0, 0, false, -28, false),
+      (38, 6, 12.0, 5.0, 9000.0, TipoInteres.compuesto, 0, 0, false, -28, false),
+      (39, 5, 15.0, 6.0, 11000.0, TipoInteres.simple, 0, 0, false, -27, false),
+      (40, 8, 12.0, 5.0, 14000.0, TipoInteres.compuesto, 0, 0, false, -27, false),
+    ];
 
   await db.transaction(() async {
     for (final p in prestamos) {
@@ -187,6 +231,60 @@ Future<void> seedDatabase(AppDatabase db) async {
         fechaBase: now.add(Duration(days: p.$10)),
         marcarAtrasadosComoPendiente: p.$11,
       );
+    }
+
+    // ── 10 préstamos con cuotas diarias (16-19 Jul) ──
+    final dailyDates = [16, 17, 18, 19];
+    final nuevosPrestamos = [
+      (41, 4,  5000.0, 12.0, TipoInteres.compuesto),
+      (42, 5,  7000.0, 15.0, TipoInteres.simple),
+      (43, 6,  9000.0, 12.0, TipoInteres.compuesto),
+      (44, 7,  6000.0, 15.0, TipoInteres.simple),
+      (45, 8,  8000.0, 12.0, TipoInteres.compuesto),
+      (46, 10, 10000.0, 12.0, TipoInteres.compuesto),
+      (47, 4,  5000.0, 15.0, TipoInteres.simple),
+      (48, 6,  7000.0, 12.0, TipoInteres.compuesto),
+      (49, 9,  9000.0, 15.0, TipoInteres.simple),
+      (50, 5,  6000.0, 12.0, TipoInteres.compuesto),
+    ];
+    for (final np in nuevosPrestamos) {
+      final r = np.$4 / 12 / 100;
+      final cuota = AmortizationCalculator.calcularCuota(
+        monto: np.$3,
+        tasaInteres: np.$4,
+        plazoMeses: np.$2,
+        tipoInteres: np.$5 == TipoInteres.simple ? 'simple' : 'compuesto',
+        periodicidadIntereses: 'anual',
+      );
+      double saldo = np.$3;
+      for (int i = 1; i <= np.$2; i++) {
+        final day = dailyDates[(i - 1) % 4];
+        final cuotaCapital = np.$5 == TipoInteres.simple
+            ? np.$3 / np.$2
+            : cuota - saldo * r;
+        final interes = saldo * r;
+        await db.into(db.amortizaciones).insert(
+          AmortizacionesCompanion.insert(
+            idPrestamo: np.$1,
+            idCuota: i,
+            fechaVencimiento: DateTime(2026, 7, day),
+            montoInicial: saldo,
+            montoPagado: 0,
+            montoACapital: cuotaCapital,
+            montoInteres: interes,
+            diasMora: const Value(0),
+            montoMora: 0,
+            montoExcedente: 0,
+            estadoAmortizacion: EstadoAmortizacion.pendiente,
+          ),
+        );
+        if (np.$5 == TipoInteres.simple) {
+          saldo -= np.$3 / np.$2;
+        } else {
+          saldo -= cuotaCapital;
+        }
+        if (saldo < 0) saldo = 0;
+      }
     }
   });
 }

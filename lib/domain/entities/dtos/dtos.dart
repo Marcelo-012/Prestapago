@@ -14,3 +14,4 @@ export 'prestamos/prestamo_resumen.dart';
 export 'prestamos/prestamo_detalle.dart';
 export 'home/ultimo_pago.dart';
 export 'home/proximo_vencimiento.dart';
+export 'pagos/detalle_pago_dto.dart';

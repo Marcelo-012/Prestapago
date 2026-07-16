@@ -100,8 +100,11 @@ class _AmortizacionTableState extends State<AmortizacionTable> {
                 : '—',
           ),
         ),
-      DataCell(Text(HumanFormats.monuted(a.montoInicial))),
-      if (full) DataCell(Text(HumanFormats.monuted(widget.montoCuota))),
+      if (full)
+        DataCell(Text(HumanFormats.monuted(a.montoInicial))),
+      if (!full)
+        DataCell(Text(HumanFormats.monuted(a.montoCapital + a.montoInteres))),
+      if (full) DataCell(Text(HumanFormats.monuted(a.montoCapital + a.montoInteres))),
       DataCell(Text(HumanFormats.monuted(a.montoCapital))),
       DataCell(Text(HumanFormats.monuted(a.montoInteres))),
       DataCell(

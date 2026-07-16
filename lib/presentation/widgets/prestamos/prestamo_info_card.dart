@@ -4,10 +4,17 @@ import 'package:prestapagos/config/helpers/human_formats.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
-class PrestamoInfoCard extends StatelessWidget {
+class PrestamoInfoCard extends StatefulWidget {
   final PrestamoDetalle detalle;
 
   const PrestamoInfoCard({super.key, required this.detalle});
+
+  @override
+  State<PrestamoInfoCard> createState() => _PrestamoInfoCardState();
+}
+
+class _PrestamoInfoCardState extends State<PrestamoInfoCard> {
+  bool _showMore = false;
 
   Color _chipColor(String estado) {
     switch (estado.toLowerCase()) {
@@ -45,7 +52,7 @@ class PrestamoInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final det = detalle;
+    final det = widget.detalle;
     final prestamo = det.prestamo;
 
     return Card(
@@ -104,6 +111,36 @@ class PrestamoInfoCard extends StatelessWidget {
               label: 'Estado pagos',
               value: _estadoPagosLabel(det.estadoPagos),
             ),
+            const Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Más detalles',
+                  style: GoogleFonts.poppins(fontSize: 14),
+                ),
+                Switch(
+                  value: _showMore,
+                  onChanged: (v) => setState(() => _showMore = v),
+                ),
+              ],
+            ),
+            if (_showMore) ...[
+              ResumenRow(
+                label: 'Estado moratorio',
+                value: widget.detalle.configuracionPrestamo.estadoMoratorio ==
+                        'activo'
+                    ? 'Activo'
+                    : 'Inactivo',
+              ),
+              ResumenRow(
+                label: 'Manejo de excedente',
+                value: widget.detalle.configuracionPrestamo.manejoExcedente ==
+                        'saldoFavor'
+                    ? 'Saldo a favor'
+                    : 'Abono a capital',
+              ),
+            ],
           ],
         ),
       ),

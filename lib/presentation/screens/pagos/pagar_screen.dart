@@ -8,6 +8,7 @@ import 'package:prestapagos/presentation/providers/pagos/pago_form_provider.dart
 import 'package:prestapagos/presentation/providers/pagos/pago_submit_provider.dart';
 import 'package:prestapagos/presentation/providers/pagos/preview_pago_provider.dart';
 import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
+import 'package:prestapagos/presentation/screens/pagos/receipt_screen.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class PagarScreen extends ConsumerStatefulWidget {
@@ -70,18 +71,28 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
     await submitNotifier.submitPago(
       monto: monto,
       fecha: DateTime.now(),
-      tipoExcedente: ManejoExcedente.saldoFavor,
+      tipoExcedente: ManejoExcedente.values.byName(
+        widget.detalle.configuracionPrestamo.manejoExcedente,
+      ),
     );
 
     if (!mounted) return;
 
     final submitState = ref.read(pagoSubmitProvider(widget.detalle.idPrestamo));
     if (submitState.status == PagoSubmitStatus.success) {
-      Navigator.pop(context);
-      Fluttertoast.showToast(msg: 'Pago registrado exitosamente');
       ref.invalidate(prestamoDetalleProvider(widget.detalle.idPrestamo));
       ref.invalidate(prestamoPaginationProvider);
       ref.read(prestamoPaginationProvider.notifier).refresh();
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ReceiptScreen(
+            idPrestamo: widget.detalle.idPrestamo,
+            idCuota: _prox!.idCuota,
+          ),
+        ),
+      );
     } else if (submitState.status == PagoSubmitStatus.error) {
       Fluttertoast.showToast(
         msg: submitState.error ?? 'Error al registrar el pago',
