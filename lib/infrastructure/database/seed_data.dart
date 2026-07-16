@@ -208,7 +208,6 @@ Future<void> _generateAmortizaciones(
   bool marcarAtrasadosComoPendiente = false,
 }) async {
   final totalPagos = pagosAlDia + pagosAtrasados;
-  if (totalPagos > totalCuotas) return;
 
   final r = tasaAnual / 12 / 100;
   final rMora = tasaMoraAnual / 100 / 360;
@@ -222,7 +221,7 @@ Future<void> _generateAmortizaciones(
     periodicidadIntereses: 'anual',
   );
 
-  for (int i = 1; i <= totalPagos; i++) {
+  for (int i = 1; i <= totalCuotas; i++) {
     final cuotaCapital = tipo == TipoInteres.simple
         ? monto / totalCuotas
         : cuota - saldoRestante * r;
@@ -230,45 +229,61 @@ Future<void> _generateAmortizaciones(
         ? saldoRestante * r
         : saldoRestante * r;
 
-    final esAtrasado = i > pagosAlDia;
-    final diasMora = esAtrasado ? 15 * (i - pagosAlDia) : 0;
-    final montoMora = conMora ? cuota * rMora * diasMora : 0.0;
-
-    final pagoExtra = (pagoExtraCuota != null && i == pagoExtraCuota)
-        ? (montoExtra ?? 0)
-        : 0.0;
-    final pagadoRealmente = !esAtrasado || !marcarAtrasadosComoPendiente;
-    final montoPagado = pagadoRealmente ? (cuota + pagoExtra) : 0.0;
-    final excedente = pagadoRealmente ? (montoPagado - cuota) : 0.0;
-
     final fechaVencimiento = fechaBase.add(Duration(days: 30 * i));
-    final fechaPagado = pagadoRealmente
-        ? (esAtrasado
-              ? fechaVencimiento.add(Duration(days: diasMora))
-              : fechaVencimiento)
-        : null;
-    final estadoAmortizacion = pagadoRealmente
-        ? EstadoAmortizacion.pagado
-        : EstadoAmortizacion.pendiente;
 
-    await db
-        .into(db.amortizaciones)
-        .insert(
-          AmortizacionesCompanion.insert(
-            idPrestamo: idPrestamo,
-            idCuota: i,
-            fechaVencimiento: fechaVencimiento,
-            fechaPagado: Value(fechaPagado),
-            montoInicial: cuota,
-            montoPagado: montoPagado,
-            montoACapital: cuotaCapital,
-            montoInteres: interes,
-            diasMora: Value(diasMora),
-            montoMora: montoMora,
-            montoExcedente: excedente,
-            estadoAmortizacion: estadoAmortizacion,
-          ),
-        );
+    if (i <= totalPagos) {
+      final esAtrasado = i > pagosAlDia;
+      final diasMora = esAtrasado ? 15 * (i - pagosAlDia) : 0;
+      final montoMora = conMora ? cuota * rMora * diasMora : 0.0;
+
+      final pagoExtra = (pagoExtraCuota != null && i == pagoExtraCuota)
+          ? (montoExtra ?? 0)
+          : 0.0;
+      final pagadoRealmente = !esAtrasado || !marcarAtrasadosComoPendiente;
+      final montoPagado = pagadoRealmente ? (cuota + pagoExtra) : 0.0;
+      final excedente = pagadoRealmente ? (montoPagado - cuota) : 0.0;
+
+      final fechaPagado = pagadoRealmente
+          ? (esAtrasado
+                ? fechaVencimiento.add(Duration(days: diasMora))
+                : fechaVencimiento)
+          : null;
+      final estadoAmortizacion = pagadoRealmente
+          ? EstadoAmortizacion.pagado
+          : EstadoAmortizacion.pendiente;
+
+      await db.into(db.amortizaciones).insert(
+        AmortizacionesCompanion.insert(
+          idPrestamo: idPrestamo,
+          idCuota: i,
+          fechaVencimiento: fechaVencimiento,
+          fechaPagado: Value(fechaPagado),
+          montoInicial: saldoRestante,
+          montoPagado: montoPagado,
+          montoACapital: cuotaCapital,
+          montoInteres: interes,
+          diasMora: Value(diasMora),
+          montoMora: montoMora,
+          montoExcedente: excedente,
+          estadoAmortizacion: estadoAmortizacion,
+        ),
+      );
+    } else {
+      await db.into(db.amortizaciones).insert(
+        AmortizacionesCompanion.insert(
+          idPrestamo: idPrestamo,
+          idCuota: i,
+          fechaVencimiento: fechaVencimiento,
+          montoInicial: saldoRestante,
+          montoPagado: 0,
+          montoACapital: cuotaCapital,
+          montoInteres: interes,
+          montoMora: 0.0,
+          montoExcedente: 0,
+          estadoAmortizacion: EstadoAmortizacion.pendiente,
+        ),
+      );
+    }
 
     if (tipo == TipoInteres.simple) {
       saldoRestante -= monto / totalCuotas;

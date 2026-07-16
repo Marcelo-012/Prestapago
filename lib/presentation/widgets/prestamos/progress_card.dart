@@ -4,12 +4,14 @@ import 'package:prestapagos/config/helpers/human_formats.dart';
 
 class ProgressCard extends StatelessWidget {
   final double montoPrestamo;
+  final double capitalPagado;
   final int cuotasPagadas;
   final int cuotasTotales;
 
   const ProgressCard({
     super.key,
     required this.montoPrestamo,
+    required this.capitalPagado,
     required this.cuotasPagadas,
     required this.cuotasTotales,
   });
@@ -47,6 +49,14 @@ class ProgressCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${HumanFormats.monuted(capitalPagado)} pagados de ${HumanFormats.monuted(montoPrestamo)}',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+              ),
             ),
             const SizedBox(height: 8),
             ClipRRect(

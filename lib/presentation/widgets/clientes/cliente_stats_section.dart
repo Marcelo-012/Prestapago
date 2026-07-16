@@ -17,15 +17,15 @@ class ClienteStatsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8),
       child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
+        spacing: 3,
+        runSpacing: 5,
         children: [
           _buildCard('Total', totalPrestamos.toString(), Colors.blueGrey),
           _buildCard('Activos', totalPrestamosActivos.toString(), Colors.blue),
           _buildCard(
-            'Finalizados',
+            'Liquidados',
             totalPrestamosFinalizados.toString(),
             Colors.green,
           ),
@@ -35,15 +35,17 @@ class ClienteStatsSection extends StatelessWidget {
   }
 
   Widget _buildCard(String titulo, String valor, Color? color) {
-    return CardItem(
-      alignment: CrossAxisAlignment.center,
-      title: titulo,
-      subtitle: valor,
-      colortext: color,
-      fontSizeTitle: 12,
-      fontSizeSubtitle: 18,
-      width: 100,
-      height: 80,
+    return SizedBox(
+      width: 110,
+      height: 100,
+      child: CardItem(
+        alignment: CrossAxisAlignment.center,
+        title: titulo,
+        subtitle: valor,
+        colortext: color,
+        fontSizeTitle: 14,
+        fontSizeSubtitle: 20,
+      ),
     );
   }
 }

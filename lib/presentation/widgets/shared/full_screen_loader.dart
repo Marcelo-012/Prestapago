@@ -6,14 +6,12 @@ class FullScreenLoader extends StatelessWidget {
   const FullScreenLoader({super.key, this.messages = _defaultMessages});
 
   static const _defaultMessages = [
-    'Cargando recursos...',
-    'Preparando todo para ti...',
-    'Esto no tomará mucho tiempo...',
+    'Conectando con tus servicios...',
+    'Preparando tus datos...',
+    'Esto tomará solo un momento...',
     'Estamos casi listos...',
-    'Gracias por tu paciencia...',
-    'Casi hemos terminado...',
-    'Checa tu internet mientras tanto...',
-    'Esto esta tardando un poco más de lo esperado :(',
+    'Un paso más...',
+    '¡Todo listo!',
   ];
 
   Stream<String> getLoadingMessages() {

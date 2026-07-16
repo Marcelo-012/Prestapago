@@ -1,0 +1,40 @@
+import 'package:prestapagos/config/helpers/human_formats.dart';
+import 'package:prestapagos/domain/domain.dart';
+import 'package:prestapagos/domain/repositories/reportes/reporte_intereses_mensuales_repository.dart';
+import 'package:prestapagos/infrastructure/database/database.dart';
+
+class ReporteInteresesMensualesRepositoryImpl
+    extends ReporteInteresesMensualesRepository {
+  final AppDatabase _db;
+
+  ReporteInteresesMensualesRepositoryImpl({required this._db});
+
+  @override
+  Future<ReporteInteresesMensuales> getReporteInteresesMensuales() async {
+    final rows = await _db.customSelect('''
+      WITH RECURSIVE meses(mes) AS (
+        SELECT strftime('%Y-%m', 'now', '-6 months')
+        UNION ALL
+        SELECT strftime('%Y-%m', mes || '-01', '+1 month')
+        FROM meses
+        WHERE mes < strftime('%Y-%m', 'now')
+      )
+      SELECT m.mes,
+        COALESCE(SUM(a.monto_interes), 0) as total
+      FROM meses m
+      LEFT JOIN amortizaciones a
+        ON a.estado_amortizacion = 'pagado'
+        AND a.fecha_pagado IS NOT NULL
+        AND strftime('%Y-%m', a.fecha_pagado, 'unixepoch') = m.mes
+      GROUP BY m.mes
+      ORDER BY m.mes ASC
+    ''').get();
+
+    final meses = rows
+        .map((r) => HumanFormats.shortNameMonth(r.read<String>('mes')))
+        .toList();
+    final montos = rows.map((r) => r.read<double>('total')).toList();
+
+    return ReporteInteresesMensuales(meses: meses, montos: montos);
+  }
+}

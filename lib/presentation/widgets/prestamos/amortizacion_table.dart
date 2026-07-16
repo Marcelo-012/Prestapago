@@ -26,10 +26,15 @@ class _AmortizacionTableState extends State<AmortizacionTable> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextButton.icon(
-          onPressed: () => setState(() => _showFull = !_showFull),
-          icon: Icon(_showFull ? Icons.expand_less : Icons.expand_more),
-          label: Text(_showFull ? 'Ocultar detalles' : 'Desplegar tabla completa'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Tabla completa'),
+            Switch(
+              value: _showFull,
+              onChanged: (v) => setState(() => _showFull = v),
+            ),
+          ],
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -130,7 +135,7 @@ class _AmortizacionTableState extends State<AmortizacionTable> {
         SizedBox(
           height: 28,
           child: TextButton(
-            onPressed: null,
+            onPressed: () => widget.onViewPayment(a),
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               textStyle: const TextStyle(fontSize: 11),

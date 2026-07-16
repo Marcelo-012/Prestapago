@@ -52,13 +52,13 @@ class PagoRepositoryImpl implements PagoRepository {
       final saldoPreCargado = prox.montoExcedente;
       final diasMora = prox.diasMora;
       final montoMora = AmortizationCalculator.calcularMontoMora(
-        montoInicial: prox.montoInicial,
+        montoInicial: prox.montoCapital + prox.montoInteres,
         tasaMoratoria: prestamo.tasaInteresMoratoria,
         periodicidad: config.periodidadIntereses,
         diasMora: diasMora,
       );
 
-      final totalDebido = prox.montoInicial + (esSimple ? montoMora : 0);
+      final totalDebido = (prox.montoCapital + prox.montoInteres) + (esSimple ? montoMora : 0);
       double excedente = montoPagado + saldoPreCargado - totalDebido;
 
       double abonoACapital = 0;
@@ -91,12 +91,15 @@ class PagoRepositoryImpl implements PagoRepository {
               .toList()
             ..sort((a, b) => a.idCuota.compareTo(b.idCuota));
 
-      if (diasMora > 0 &&
+      final hayMoraPendiente = pendientes.any((a) => a.montoMora > 0);
+      final moraTotal = montoMora + pendientes.fold(0.0, (sum, a) => sum + a.montoMora);
+
+      if ((diasMora > 0 || hayMoraPendiente) &&
           config.tipoInteres == 'compuesto' &&
           pendientes.isNotEmpty) {
         final recalculadas = AmortizationCalculator.recalcularPorMora(
           pendientes: pendientes,
-          montoMora: montoMora,
+          montoMora: moraTotal,
           tasaInteres: prestamo.tasaInteres,
           periodicidadIntereses: config.periodidadIntereses,
           cuotaMensual: prestamo.montoCuota,
@@ -109,6 +112,7 @@ class PagoRepositoryImpl implements PagoRepository {
               montoInicial: Value(r.montoInicial),
               montoACapital: Value(r.montoCapital),
               montoInteres: Value(r.montoInteres),
+              montoMora: const Value(0),
             ),
           );
         }
@@ -135,13 +139,13 @@ class PagoRepositoryImpl implements PagoRepository {
 
           final sigMora = sig.diasMora > 0
               ? AmortizationCalculator.calcularMontoMora(
-                  montoInicial: sig.montoInicial,
+                  montoInicial: sig.montoACapital + sig.montoInteres,
                   tasaMoratoria: prestamo.tasaInteresMoratoria,
                   periodicidad: config.periodidadIntereses,
                   diasMora: sig.diasMora,
                 )
               : 0.0;
-          final sigTotal = sig.montoInicial + (esSimple ? sigMora : 0);
+          final sigTotal = (sig.montoACapital + sig.montoInteres) + (esSimple ? sigMora : 0);
 
           if (excedente < sigTotal) {
             await (_db.update(

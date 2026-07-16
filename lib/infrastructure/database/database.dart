@@ -6,13 +6,6 @@ import 'package:prestapagos/domain/domain.dart';
 
 part 'database.g.dart';
 
-// class TodoItems extends Table {
-//   IntColumn get id => integer().autoIncrement()();
-//   TextColumn get title => text().withLength(min: 6, max: 32)();
-//   TextColumn get content => text().named('body')();
-//   DateTimeColumn get createdAt => dateTime().nullable()();
-// }
-
 class Deudores extends Table {
   IntColumn get id => integer().named('id_deudor').autoIncrement()();
   TextColumn get nombre => text().withLength(max: 120)();
@@ -110,7 +103,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   DriftDatabaseOptions get options =>
@@ -137,6 +130,19 @@ class AppDatabase extends _$AppDatabase {
             "UPDATE amortizaciones SET fecha_vencimiento = CAST(strftime('%s', fecha_vencimiento) AS INTEGER), fecha_pagado = CAST(strftime('%s', fecha_pagado) AS INTEGER), fecha_actualizacion = CAST(strftime('%s', fecha_actualizacion) AS INTEGER)",
           );
         }
+        if (from <= 2) {
+          await customStatement("""
+            UPDATE amortizaciones SET
+              monto_inicial = (
+                SELECT p.monto - COALESCE(SUM(prev.monto_capital), 0)
+                FROM prestamos p
+                LEFT JOIN amortizaciones prev
+                  ON prev.id_prestamo = p.id_prestamo
+                  AND prev.id_cuota < amortizaciones.id_cuota
+                WHERE p.id_prestamo = amortizaciones.id_prestamo
+              )
+          """);
+        }
       },
     );
   }
@@ -145,11 +151,8 @@ class AppDatabase extends _$AppDatabase {
     return driftDatabase(
       name: 'prestapago_db',
       native: const DriftNativeOptions(
-        // By default, `driftDatabase` from `package:drift_flutter` stores the
-        // database files in `getApplicationDocumentsDirectory()`.
         databaseDirectory: getApplicationSupportDirectory,
       ),
-      // If you need web support, see https://drift.simonbinder.eu/platforms/web/
     );
   }
 }

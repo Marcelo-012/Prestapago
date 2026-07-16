@@ -18,7 +18,7 @@ class AmortizationCalculator {
 
     final tasaMensual = _toMonthlyRate(tasaInteres, periodicidadIntereses);
     double saldo =
-        pendientes.fold(0.0, (sum, a) => sum + a.montoCapital) + montoMora;
+        pendientes.fold(0.0, (sum, a) => sum + a.montoCapital + a.montoMora) + montoMora;
 
     final result = <Amortizacion>[];
     for (final a in pendientes) {
@@ -35,7 +35,7 @@ class AmortizationCalculator {
           idCuota: a.idCuota,
           fechaVencimiento: a.fechaVencimiento,
           fechaPagado: a.fechaPagado,
-          montoInicial: cuotaMensual,
+          montoInicial: saldo,
           montoPagado: a.montoPagado,
           montoCapital: capitalMes,
           montoInteres: interesMes,
@@ -105,7 +105,7 @@ class AmortizationCalculator {
           idCuota: a.idCuota,
           fechaVencimiento: a.fechaVencimiento,
           fechaPagado: a.fechaPagado,
-          montoInicial: cuotaMensual,
+          montoInicial: saldoActual,
           montoPagado: a.montoPagado,
           montoCapital: capitalMes,
           montoInteres: interesMes,
@@ -202,7 +202,7 @@ class AmortizationCalculator {
           idCuota: idCuota,
           fechaVencimiento: fechaVencimiento,
           fechaPagado: null,
-          montoInicial: cuota,
+          montoInicial: saldo,
           montoPagado: 0,
           montoCapital: capitalMes,
           montoInteres: interesMes,
@@ -247,7 +247,7 @@ class AmortizationCalculator {
     final esSimple = config.tipoInteres == 'simple';
 
     final montoMora = calcularMontoMora(
-      montoInicial: prox.montoInicial,
+      montoInicial: prox.montoCapital + prox.montoInteres,
       tasaMoratoria: prestamo.tasaInteresMoratoria,
       periodicidad: config.periodidadIntereses,
       diasMora: prox.diasMora,
@@ -257,13 +257,13 @@ class AmortizationCalculator {
 
     final totalRestante = amortizaciones
         .where((a) => a.estadoAmortizacion == 'pendiente' || a.estadoAmortizacion == 'atrasado')
-        .fold<double>(0, (sum, a) => sum + a.montoInicial);
+        .fold<double>(0, (sum, a) => sum + a.montoCapital + a.montoInteres);
 
-    final bruto = prox.montoInicial + (esSimple ? montoMora : 0);
+    final bruto = (prox.montoCapital + prox.montoInteres) + (esSimple ? montoMora : 0);
     final totalMinimo = bruto - saldoPreCargado;
 
     return (
-      montoCuota: prox.montoInicial,
+      montoCuota: prox.montoCapital + prox.montoInteres,
       montoMora: montoMora,
       diasMora: prox.diasMora,
       saldoAFavor: saldoPreCargado > 0 ? (saldoPreCargado * 100).round() / 100 : 0,

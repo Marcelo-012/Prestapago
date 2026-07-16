@@ -118,17 +118,22 @@ class ClientesDetalles extends StatelessWidget {
                     '${score.toStringAsFixed(0)}/100',
                     style: poppins.copyWith(
                       fontSize: 12,
+
                       fontWeight: FontWeight.bold,
                       color: _getColorCalificacion(score),
                     ),
+                    maxLines: 2,
+                    maxFontSize: 12,
                   ),
                   const SizedBox(width: 4),
-                  AutoSizeText(
-                    _getCalificacion(score),
-                    style: poppins.copyWith(
-                      fontSize: 12,
-                      color: _getColorCalificacion(score),
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: AutoSizeText(
+                      _getCalificacion(score),
+                      style: poppins.copyWith(
+                        fontSize: 12,
+                        color: _getColorCalificacion(score),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],

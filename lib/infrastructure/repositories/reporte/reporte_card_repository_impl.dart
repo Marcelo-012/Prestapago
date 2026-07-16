@@ -22,7 +22,7 @@ class ReporteCardRepositoryImpl implements ReporteCardRepository {
 
     await _db.customStatement("""
       UPDATE amortizaciones SET monto_mora = ROUND(
-        monto_inicial * (SELECT tasa_interes_moratoria FROM prestamos
+        (monto_capital + monto_interes) * (SELECT tasa_interes_moratoria FROM prestamos
          WHERE id_prestamo = amortizaciones.id_prestamo) / 100.0 /
         CASE WHEN (SELECT periodidad_intereses FROM configuracion_prestamos
          WHERE id_prestamo = amortizaciones.id_prestamo) = 'mensual' THEN 30 ELSE 360 END

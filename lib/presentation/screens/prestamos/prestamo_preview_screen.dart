@@ -114,7 +114,7 @@ class PrestamoPreviewScreen extends ConsumerWidget {
       return DataRow(cells: [
         DataCell(Text('${a.idCuota}')),
         DataCell(Text('${a.fechaVencimiento.day}/${a.fechaVencimiento.month}/${a.fechaVencimiento.year}')),
-        DataCell(Text(HumanFormats.monuted(a.montoInicial))),
+        DataCell(Text(HumanFormats.monuted(a.montoCapital + a.montoInteres))),
         DataCell(Text(HumanFormats.monuted(a.montoCapital))),
         DataCell(Text(HumanFormats.monuted(a.montoInteres))),
         DataCell(Text(HumanFormats.monuted(saldo))),

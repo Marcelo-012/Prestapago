@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
+import 'package:prestapagos/presentation/screens/pagos/detalle_pago_screen.dart';
 import 'package:prestapagos/presentation/screens/pagos/pagar_screen.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
@@ -40,6 +41,9 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
           final cuotasPagadas = detalle.amortizaciones
               .where((a) => a.estadoAmortizacion == 'pagado')
               .length;
+          final capitalPagado = detalle.amortizaciones
+              .where((a) => a.estadoAmortizacion == 'pagado')
+              .fold<double>(0, (sum, a) => sum + a.montoCapital);
 
           return CustomScrollView(
             slivers: [
@@ -64,6 +68,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
                       const SizedBox(height: 16),
                       ProgressCard(
                         montoPrestamo: detalle.prestamo.monto,
+                        capitalPagado: capitalPagado,
                         cuotasPagadas: cuotasPagadas,
                         cuotasTotales: cuotasTotales,
                       ),
@@ -89,7 +94,17 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
                       AmortizacionTable(
                         amortizaciones: detalle.amortizaciones,
                         montoCuota: detalle.prestamo.montoCuota,
-                        onViewPayment: (_) {},
+                        onViewPayment: (a) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DetallePagoScreen(
+                                detalle: detalle,
+                                amortizacion: a,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

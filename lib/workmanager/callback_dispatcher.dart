@@ -12,6 +12,8 @@ import 'package:prestapagos/infrastructure/datasources/backup/secure_storage_dat
 import 'package:prestapagos/infrastructure/datasources/google_auth_datasource.dart';
 import 'package:prestapagos/infrastructure/datasources/google_drive_datasource.dart';
 import 'package:prestapagos/infrastructure/repositories/backup/backup_repository_impl.dart';
+import 'package:prestapagos/domain/domain.dart';
+import 'package:prestapagos/shared/domain/services/amortization_calculator.dart';
 
 const _autoBackupTaskName = 'autoBackup';
 const _dailyTaskName = 'dailyAmortizationUpdate';
@@ -31,13 +33,13 @@ void callbackDispatcher() {
           UPDATE amortizaciones SET
             estado_amortizacion = 'atrasado',
             dias_mora = CAST(julianday('now') - julianday(fecha_vencimiento, 'unixepoch') AS INTEGER)
-          WHERE estado_amortizacion = 'pendiente'
+          WHERE estado_amortizacion IN ('pendiente', 'atrasado')
             AND date(fecha_vencimiento, 'unixepoch') < date('now')
         """);
 
         db.execute("""
           UPDATE amortizaciones SET monto_mora = ROUND(
-            monto_inicial * (SELECT tasa_interes_moratoria FROM prestamos
+            (monto_capital + monto_interes) * (SELECT tasa_interes_moratoria FROM prestamos
              WHERE id_prestamo = amortizaciones.id_prestamo) / 100.0 /
             CASE WHEN (SELECT periodidad_intereses FROM configuracion_prestamos
              WHERE id_prestamo = amortizaciones.id_prestamo) = 'mensual' THEN 30 ELSE 360 END
@@ -45,8 +47,86 @@ void callbackDispatcher() {
           WHERE estado_amortizacion = 'atrasado'
             AND (SELECT tipo_interes FROM configuracion_prestamos
              WHERE id_prestamo = amortizaciones.id_prestamo) = 'compuesto'
-            AND monto_mora = 0
         """);
+
+        final prestamosConMora = db.select("""
+          SELECT DISTINCT a.id_prestamo
+          FROM amortizaciones a
+          JOIN configuracion_prestamos c ON c.id_prestamo = a.id_prestamo
+          WHERE a.estado_amortizacion IN ('atrasado', 'pendiente')
+            AND c.tipo_interes = 'compuesto'
+            AND a.monto_mora > 0
+        """);
+
+        for (final row in prestamosConMora) {
+          final idPrestamo = row['id_prestamo'] as int;
+
+          final pRows = db.select("""
+            SELECT p.tasa_interes, p.monto_cuota, c.periodidad_intereses
+            FROM prestamos p
+            JOIN configuracion_prestamos c ON c.id_prestamo = p.id_prestamo
+            WHERE p.id_prestamo = ?
+          """, [idPrestamo]);
+
+          if (pRows.isEmpty) continue;
+          final pRow = pRows.first;
+
+          final tasaInteres = (pRow['tasa_interes'] as num).toDouble();
+          final cuotaMensual = (pRow['monto_cuota'] as num).toDouble();
+          final periodicidad = pRow['periodidad_intereses'] as String;
+
+          final amortRows = db.select("""
+            SELECT id_amortizacion, id_prestamo, id_cuota, fecha_vencimiento,
+                   fecha_pagado, monto_inicial, monto_pagado, monto_capital,
+                   monto_interes, dias_mora, monto_mora, monto_excedente,
+                   estado_amortizacion
+            FROM amortizaciones
+            WHERE id_prestamo = ?
+              AND estado_amortizacion IN ('atrasado', 'pendiente')
+            ORDER BY id_cuota ASC
+          """, [idPrestamo]);
+
+          final pendientes = amortRows.map((r) {
+            final fp = r['fecha_pagado'];
+            return Amortizacion(
+              idAmortizacion: r['id_amortizacion'] as int,
+              idPrestamo: r['id_prestamo'] as int,
+              idCuota: r['id_cuota'] as int,
+              fechaVencimiento: DateTime.fromMillisecondsSinceEpoch(
+                (r['fecha_vencimiento'] as int) * 1000,
+              ),
+              fechaPagado: fp is int
+                  ? DateTime.fromMillisecondsSinceEpoch(fp * 1000)
+                  : null,
+              montoInicial: (r['monto_inicial'] as num).toDouble(),
+              montoPagado: (r['monto_pagado'] as num).toDouble(),
+              montoCapital: (r['monto_capital'] as num).toDouble(),
+              montoInteres: (r['monto_interes'] as num).toDouble(),
+              diasMora: r['dias_mora'] as int,
+              montoMora: (r['monto_mora'] as num).toDouble(),
+              montoExcedente: (r['monto_excedente'] as num).toDouble(),
+              estadoAmortizacion: r['estado_amortizacion'] as String,
+              fechaActualizacion: DateTime.now(),
+            );
+          }).toList();
+
+          if (pendientes.isEmpty) continue;
+
+          final recalculadas = AmortizationCalculator.recalcularPorMora(
+            pendientes: pendientes,
+            montoMora: 0,
+            tasaInteres: tasaInteres,
+            periodicidadIntereses: periodicidad,
+            cuotaMensual: cuotaMensual,
+          );
+
+          for (final r in recalculadas) {
+            db.execute(
+              "UPDATE amortizaciones SET monto_inicial = ?, monto_capital = ?, monto_interes = ?, monto_mora = 0 WHERE id_amortizacion = ?",
+              [r.montoInicial, r.montoCapital, r.montoInteres, r.idAmortizacion],
+            );
+          }
+        }
 
         db.execute("""
           UPDATE configuracion_prestamos SET estado_prestamo = 'atrasado'

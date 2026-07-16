@@ -1,35 +1,36 @@
-import 'package:prestapagos/config/helpers/chart_helpers.dart';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class GraphicItem extends StatelessWidget {
+class BarChartItem extends StatelessWidget {
   final String nombreGrafica;
   final List<String> ejeX;
   final List<double> ejeY;
   final List<String> contenido;
+  final Color barColor;
+  final double aspectRatio;
 
-  const GraphicItem({
+  const BarChartItem({
     super.key,
     required this.nombreGrafica,
     required this.ejeX,
     required this.ejeY,
     required this.contenido,
+    this.barColor = Colors.blue,
+    this.aspectRatio = 1.5,
   }) : assert(
          ejeX.length == ejeY.length && ejeY.length == contenido.length,
          'ejeX, ejeY y contenido deben tener la misma longitud',
        );
 
-  List<FlSpot> get _spots =>
-      List.generate(ejeY.length, (i) => FlSpot(i.toDouble(), ejeY[i]));
-
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final ejes = ChartHelpers.calcularEjeY(ejeY, forzarMinCero: false);
+    final maxY = ejeY.isEmpty
+        ? 1.0
+        : ejeY.reduce((a, b) => a > b ? a : b) * 1.2;
 
     return AspectRatio(
-      aspectRatio: 1.5,
+      aspectRatio: aspectRatio,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -46,12 +47,10 @@ class GraphicItem extends StatelessWidget {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(right: 16, left: 6),
-              child: LineChart(
-                LineChartData(
-                  minX: 0,
-                  maxX: (ejeY.length - 1).toDouble(),
-                  minY: ejes.minY,
-                  maxY: ejes.maxY,
+              child: BarChart(
+                BarChartData(
+                  minY: 0,
+                  maxY: maxY,
                   gridData: const FlGridData(show: false),
                   borderData: FlBorderData(
                     show: true,
@@ -76,7 +75,6 @@ class GraphicItem extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 44,
-                        interval: ejes.interval, // ← Aquí se usa
                         getTitlesWidget: (value, meta) => Text(
                           value.toInt().toString(),
                           style: const TextStyle(
@@ -90,7 +88,7 @@ class GraphicItem extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 32,
-                        interval: (ejeX.length / 10).ceil().clamp(1, 999).toDouble(),
+                        interval: 1,
                         getTitlesWidget: (value, meta) {
                           final index = value.toInt();
                           if (index < 0 || index >= ejeX.length) {
@@ -105,7 +103,7 @@ class GraphicItem extends StatelessWidget {
                                   ? label
                                   : '${label.substring(0, 5)}.',
                               style: const TextStyle(
-                                fontSize: 11,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -114,42 +112,42 @@ class GraphicItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                  lineTouchData: LineTouchData(
-                    handleBuiltInTouches: true,
-                    touchTooltipData: LineTouchTooltipData(
-                      getTooltipColor: (touchedSpot) =>
+                  barTouchData: BarTouchData(
+                    enabled: true,
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (group) =>
                           colors.primary.withValues(alpha: 0.85),
-                      getTooltipItems: (touchedSpots) {
-                        return touchedSpots.map((spot) {
-                          final index = spot.x.toInt();
-                          final texto = (index >= 0 && index < contenido.length)
-                              ? contenido[index]
-                              : spot.y.toString();
-                          return LineTooltipItem(
-                            texto,
-                            const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        }).toList();
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        final index = group.x.toInt();
+                        final texto = (index >= 0 && index < contenido.length)
+                            ? contenido[index]
+                            : rod.toY.toStringAsFixed(2);
+                        return BarTooltipItem(
+                          texto,
+                          const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
                       },
                     ),
                   ),
-                  lineBarsData: [
-                    LineChartBarData(
-                      isCurved: true,
-                      color: colors.primary,
-                      barWidth: 4,
-                      isStrokeCapRound: true,
-                      dotData: const FlDotData(show: true),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: colors.primary.withValues(alpha: 0.15),
-                      ),
-                      spots: _spots,
-                    ),
-                  ],
+                  barGroups: List.generate(ejeY.length, (i) {
+                    return BarChartGroupData(
+                      x: i,
+                      barRods: [
+                        BarChartRodData(
+                          toY: ejeY[i],
+                          color: barColor,
+                          width: 16,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(4),
+                            topRight: Radius.circular(4),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
                 duration: const Duration(milliseconds: 250),
               ),

@@ -1,9 +1,16 @@
 export 'reportes/reporte_card.dart';
 export 'reportes/reporte_loan_graphic.dart';
 export 'reportes/reporte_payments_graphic.dart';
+export 'reportes/reporte_estado_prestamos.dart';
+export 'reportes/reporte_composicion_pagos.dart';
+export 'reportes/reporte_intereses_mensuales.dart';
+export 'reportes/reporte_morosidad.dart';
+export 'reportes/reporte_saldo_pendiente.dart';
 export 'clientes/cliente_resumen.dart';
 export 'clientes/cliente_detalle.dart';
 export 'prestamos/create_amortizacion_dto.dart';
 export 'prestamos/create_prestamo_dto.dart';
 export 'prestamos/prestamo_resumen.dart';
 export 'prestamos/prestamo_detalle.dart';
+export 'home/ultimo_pago.dart';
+export 'home/proximo_vencimiento.dart';
