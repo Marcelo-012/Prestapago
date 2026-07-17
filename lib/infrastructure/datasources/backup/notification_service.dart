@@ -1,5 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:prestapagos/config/constants/notification_constants.dart';
+import 'package:prestapagos/config/constants/constants.dart';
 
 class NotificationService {
   NotificationService._();

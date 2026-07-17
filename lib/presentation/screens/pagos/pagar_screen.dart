@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:prestapagos/config/helpers/human_formats.dart';
+import 'package:prestapagos/config/helpers/helpers.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/presentation/providers/pagos/pago_form_provider.dart';
-import 'package:prestapagos/presentation/providers/pagos/pago_submit_provider.dart';
-import 'package:prestapagos/presentation/providers/pagos/preview_pago_provider.dart';
-import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
-import 'package:prestapagos/presentation/screens/pagos/receipt_screen.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
+import 'package:prestapagos/presentation/screens/pagos/pagos.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class PagarScreen extends ConsumerStatefulWidget {

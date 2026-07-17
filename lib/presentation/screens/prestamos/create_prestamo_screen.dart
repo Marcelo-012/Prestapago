@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/presentation/providers/prestamos/create_prestamo_form_provider.dart';
-import 'package:prestapagos/presentation/widgets/prestamos/create_prestamo_step1.dart';
-import 'package:prestapagos/presentation/widgets/prestamos/create_prestamo_step2.dart';
-import 'package:prestapagos/presentation/widgets/prestamos/create_prestamo_step3.dart';
-import 'package:prestapagos/presentation/widgets/prestamos/create_prestamo_step4.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
+import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class CreatePrestamoScreen extends ConsumerStatefulWidget {
   static const name = 'create-prestamo';

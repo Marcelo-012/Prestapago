@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:prestapagos/domain/entities/backup/backup_status.dart';
+import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/config/config_providers.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 

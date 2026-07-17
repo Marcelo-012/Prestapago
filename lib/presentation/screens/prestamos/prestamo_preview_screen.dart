@@ -3,10 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:prestapagos/config/helpers/human_formats.dart';
-import 'package:prestapagos/domain/entities/dtos/prestamos/create_amortizacion_dto.dart';
-import 'package:prestapagos/presentation/providers/prestamos/create_prestamo_form_provider.dart';
-import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
+import 'package:prestapagos/config/helpers/helpers.dart';
+import 'package:prestapagos/domain/domain.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class PrestamoPreviewScreen extends ConsumerWidget {

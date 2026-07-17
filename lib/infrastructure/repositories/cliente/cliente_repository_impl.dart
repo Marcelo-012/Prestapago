@@ -1,6 +1,5 @@
 import 'package:drift/drift.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/domain/repositories/clientes/cliente_repository.dart';
 import 'package:prestapagos/infrastructure/database/database.dart'
     hide Prestamo;
 

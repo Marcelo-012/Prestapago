@@ -1,8 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prestapagos/config/errors/error_mapper.dart';
+import 'package:prestapagos/config/errors/errors.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
-import 'package:prestapagos/presentation/providers/prestamos/create_prestamo_form_provider.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
 
 class EditPrestamoState {
   final bool isSubmitting;

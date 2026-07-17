@@ -1,5 +1,4 @@
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/domain/repositories/reportes/reporte_morosidad_repository.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
 
 class ReporteMorosidadRepositoryImpl extends ReporteMorosidadRepository {

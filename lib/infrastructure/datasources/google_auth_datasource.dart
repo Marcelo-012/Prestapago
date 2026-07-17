@@ -1,10 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:logger/logger.dart';
-import 'package:prestapagos/config/constants/backup_constants.dart';
-import 'package:prestapagos/config/errors/backup_exceptions.dart';
-import 'package:prestapagos/infrastructure/datasources/backup/local_backup_datasource.dart';
-import 'package:prestapagos/infrastructure/datasources/backup/secure_storage_datasource.dart';
+import 'package:prestapagos/config/constants/constants.dart';
+import 'package:prestapagos/config/errors/errors.dart';
+import 'package:prestapagos/infrastructure/datasources/datasources.dart';
 
 class GoogleAuthDatasource {
   final SecureStorageDatasource secureStorage;

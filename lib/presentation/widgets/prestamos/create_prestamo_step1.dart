@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/presentation/providers/clientes/clientes_provider.dart';
-import 'package:prestapagos/presentation/providers/prestamos/create_prestamo_form_provider.dart';
-import 'package:prestapagos/presentation/widgets/clientes/clientes_detalles.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
+import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class CreatePrestamoStep1 extends ConsumerWidget {
   final VoidCallback onNext;

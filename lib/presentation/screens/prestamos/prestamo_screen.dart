@@ -3,9 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
-import 'package:prestapagos/presentation/screens/pagos/pagar_screen.dart';
-import 'package:prestapagos/presentation/screens/pagos/receipt_screen.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
+import 'package:prestapagos/presentation/screens/pagos/pagos.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class PrestamoScreen extends ConsumerStatefulWidget {

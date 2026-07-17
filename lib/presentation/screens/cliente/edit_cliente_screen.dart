@@ -3,9 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/presentation/providers/clientes/clientes_provider.dart';
-import 'package:prestapagos/presentation/providers/clientes/edit_cliente_form_provider.dart';
-import 'package:prestapagos/presentation/providers/clientes/edit_cliente_provider.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class EditClienteScreen extends ConsumerStatefulWidget {

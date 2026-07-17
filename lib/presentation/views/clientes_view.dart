@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prestapagos/presentation/providers/clientes/clientes_provider.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class ClientesView extends ConsumerStatefulWidget {

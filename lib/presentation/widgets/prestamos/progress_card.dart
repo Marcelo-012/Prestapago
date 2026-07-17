@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:prestapagos/config/helpers/human_formats.dart';
+import 'package:prestapagos/config/helpers/helpers.dart';
 
 class ProgressCard extends StatelessWidget {
   final double montoPrestamo;

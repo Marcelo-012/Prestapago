@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:prestapagos/config/helpers/human_formats.dart';
+import 'package:prestapagos/config/helpers/helpers.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
 
 class ReceiptScreen extends ConsumerWidget {
   static const name = 'receipt';

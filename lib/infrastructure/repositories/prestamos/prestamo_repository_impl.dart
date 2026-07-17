@@ -1,8 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/domain/repositories/prestamos/prestamos_repository.dart';
 import 'package:prestapagos/infrastructure/database/database.dart' as drift;
-import 'package:prestapagos/infrastructure/services/estado_prestamo_service.dart';
+import 'package:prestapagos/infrastructure/services/services.dart';
 
 class PrestamoRepositoryImpl implements PrestamoRepository {
   final drift.AppDatabase _db;

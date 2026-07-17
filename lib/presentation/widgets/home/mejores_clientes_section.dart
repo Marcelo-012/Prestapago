@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/presentation/widgets/clientes/clientes_list_item.dart';
+import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class MejoresClientesSection extends StatelessWidget {
   final List<ClienteResumen> clientes;

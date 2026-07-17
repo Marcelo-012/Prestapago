@@ -1,9 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prestapagos/config/errors/error_mapper.dart';
+import 'package:prestapagos/config/errors/errors.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/domain/repositories/clientes/cliente_repository.dart';
-import 'package:prestapagos/infrastructure/repositories/cliente/cliente_repository_impl.dart';
-import 'package:prestapagos/presentation/providers/database/app_database_provider.dart';
+import 'package:prestapagos/infrastructure/repositories/repositories.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
 
 final clienteRepositoryProvider = Provider<ClienteRepository>((ref) {
   final db = ref.watch(appDatabaseProvider);

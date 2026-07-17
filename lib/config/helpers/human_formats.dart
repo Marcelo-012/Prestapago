@@ -48,4 +48,8 @@ class HumanFormats {
   static String dateTime(DateTime date) {
     return DateFormat('dd/MM/yyyy HH:mm', 'es_MX').format(date);
   }
+
+  static String time(DateTime date) {
+    return DateFormat('hh:mm a', 'es_MX').format(date);
+  }
 }

@@ -1,5 +1,5 @@
-import 'package:prestapagos/config/errors/error_mapper.dart';
-import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
+import 'package:prestapagos/config/errors/errors.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DeletePrestamoState {

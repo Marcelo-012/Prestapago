@@ -1,4 +1,4 @@
-import 'package:prestapagos/config/helpers/chart_helpers.dart';
+import 'package:prestapagos/config/helpers/helpers.dart';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'package:prestapagos/config/helpers/human_formats.dart';
-import 'package:prestapagos/presentation/widgets/shared/card_item.dart';
+import 'package:prestapagos/presentation/widgets/shared/shared.dart';
 
 class ClienteStatsSection extends StatelessWidget {
   final int totalPrestamos;

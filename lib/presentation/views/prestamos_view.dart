@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prestapagos/presentation/providers/prestamos/prestamo_provider.dart';
-import 'package:prestapagos/presentation/widgets/prestamos/filtros_prestamos.dart';
-import 'package:prestapagos/presentation/widgets/prestamos/prestamo_list_item.dart';
-
+import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class PrestamosView extends ConsumerStatefulWidget {

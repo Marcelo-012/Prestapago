@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:prestapagos/presentation/providers/clientes/create_cliente_form_provider.dart';
-import 'package:prestapagos/shared/widget/custom_text_form_field.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
+import 'package:prestapagos/shared/shared.dart';
 
 class ClienteFormBody extends StatelessWidget {
   final CreateClienteFormState formState;

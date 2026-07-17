@@ -1,5 +1,4 @@
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/domain/repositories/home_repository.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
 
 class HomeRepositoryImpl extends HomeRepository {

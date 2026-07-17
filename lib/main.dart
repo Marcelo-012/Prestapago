@@ -8,20 +8,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'package:prestapagos/config/constants/backup_constants.dart';
-import 'package:prestapagos/config/router/app_router.dart';
-import 'package:prestapagos/config/theme/app_theme.dart';
-import 'package:prestapagos/infrastructure/database/database.dart';
-import 'package:prestapagos/infrastructure/database/seed_data.dart';
-import 'package:prestapagos/infrastructure/datasources/backup/local_backup_datasource.dart';
-import 'package:prestapagos/infrastructure/datasources/backup/notification_service.dart';
-import 'package:prestapagos/infrastructure/datasources/backup/secure_storage_datasource.dart';
-import 'package:prestapagos/infrastructure/datasources/google_auth_datasource.dart';
-import 'package:prestapagos/infrastructure/datasources/google_drive_datasource.dart';
-import 'package:prestapagos/infrastructure/repositories/backup/backup_repository_impl.dart';
-import 'package:prestapagos/presentation/providers/config/config_providers.dart';
-import 'package:prestapagos/presentation/providers/database/app_database_provider.dart';
-import 'package:prestapagos/workmanager/callback_dispatcher.dart';
+import 'package:prestapagos/config/constants/constants.dart';
+import 'package:prestapagos/config/router/router.dart';
+import 'package:prestapagos/config/theme/theme.dart';
+import 'package:prestapagos/infrastructure/database/database_index.dart';
+import 'package:prestapagos/infrastructure/datasources/datasources.dart';
+import 'package:prestapagos/infrastructure/repositories/repositories.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
+import 'package:prestapagos/workmanager/workmanager.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();

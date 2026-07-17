@@ -1,10 +1,8 @@
 import 'package:drift/drift.dart';
-import 'package:prestapagos/shared/domain/services/amortization_calculator.dart';
+import 'package:prestapagos/shared/shared.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/domain/repositories/pagos/pago_repository.dart';
-import 'package:prestapagos/domain/repositories/prestamos/prestamos_repository.dart';
 import 'package:prestapagos/infrastructure/database/database.dart' as drift;
-import 'package:prestapagos/infrastructure/services/estado_prestamo_service.dart';
+import 'package:prestapagos/infrastructure/services/services.dart';
 
 class PagoRepositoryImpl implements PagoRepository {
   final drift.AppDatabase _db;

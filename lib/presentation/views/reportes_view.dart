@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:prestapagos/config/helpers/helpers.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/presentation/providers/reportes/reporte_card_provider.dart';
-import 'package:prestapagos/config/helpers/human_formats.dart';
-import 'package:prestapagos/presentation/providers/reportes/reporte_loan_graphic_provider.dart';
-import 'package:prestapagos/presentation/providers/reportes/reporte_payments_graphic_provider.dart';
-import 'package:prestapagos/presentation/providers/reportes/reporte_estado_prestamos_provider.dart';
-import 'package:prestapagos/presentation/providers/reportes/reporte_composicion_pagos_provider.dart';
-import 'package:prestapagos/presentation/providers/reportes/reporte_intereses_mensuales_provider.dart';
-import 'package:prestapagos/presentation/providers/reportes/reporte_morosidad_provider.dart';
-import 'package:prestapagos/presentation/providers/reportes/reporte_saldo_pendiente_provider.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
 
 import '../widgets/widgets.dart';
 

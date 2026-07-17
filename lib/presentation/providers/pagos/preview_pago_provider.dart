@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prestapagos/shared/domain/services/amortization_calculator.dart';
+import 'package:prestapagos/shared/shared.dart';
 import 'package:prestapagos/domain/domain.dart';
 
 final previewPagoProvider = Provider.family<

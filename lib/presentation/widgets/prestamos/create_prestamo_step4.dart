@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:prestapagos/config/helpers/human_formats.dart';
-import 'package:prestapagos/presentation/providers/prestamos/create_prestamo_form_provider.dart';
+import 'package:prestapagos/config/helpers/helpers.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
 class CreatePrestamoStep4 extends ConsumerWidget {

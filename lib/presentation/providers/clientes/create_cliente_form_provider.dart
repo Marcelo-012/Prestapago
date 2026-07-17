@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prestapagos/shared/infrastructure/inputs/inputs.dart';
+import 'package:prestapagos/shared/shared.dart';
 
 class CreaClienteFormNotifier extends Notifier<CreateClienteFormState> {
   @override

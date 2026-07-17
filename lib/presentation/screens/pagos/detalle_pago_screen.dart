@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'package:prestapagos/config/helpers/human_formats.dart';
+import 'package:prestapagos/config/helpers/helpers.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 
@@ -77,8 +76,7 @@ class DetallePagoScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         InfoRow(
                           label: 'Hora de pago',
-                          value: DateFormat('hh:mm a', 'es_MX')
-                              .format(amortizacion.fechaPagado!),
+                          value: HumanFormats.time(amortizacion.fechaPagado!),
                           icon: Icons.access_time,
                           color: colors.primary,
                         ),
@@ -196,8 +194,7 @@ class DetallePagoScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         InfoRow(
                           label: 'Hora de cancelación',
-                          value: DateFormat('hh:mm a', 'es_MX')
-                              .format(amortizacion.fechaActualizacion),
+                          value: HumanFormats.time(amortizacion.fechaActualizacion),
                           icon: Icons.access_time,
                           color: Colors.red,
                         ),

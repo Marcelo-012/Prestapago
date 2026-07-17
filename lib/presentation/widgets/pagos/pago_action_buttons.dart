@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:prestapagos/presentation/providers/pagos/pago_submit_provider.dart';
-import 'package:prestapagos/presentation/widgets/pagos/pago_text_field.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
+import 'package:prestapagos/presentation/widgets/pagos/pagos.dart';
 
 class PagoActionButtons extends StatelessWidget {
   final PagoSubmitStatus submitStatus;

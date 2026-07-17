@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prestapagos/config/helpers/human_formats.dart';
+import 'package:prestapagos/config/helpers/helpers.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 

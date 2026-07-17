@@ -1,8 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prestapagos/domain/entities/entities.dart';
-import 'package:prestapagos/presentation/providers/clientes/create_cliente_form_provider.dart';
-
-import '../../../shared/infrastructure/inputs/inputs.dart';
+import 'package:prestapagos/domain/domain.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
+import 'package:prestapagos/shared/shared.dart';
 
 class EditClienteFormNotifer extends Notifier<CreateClienteFormState> {
   @override

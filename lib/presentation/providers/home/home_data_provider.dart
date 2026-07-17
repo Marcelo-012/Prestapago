@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/infrastructure/repositories/home/home_repository_impl.dart';
-import 'package:prestapagos/presentation/providers/database/app_database_provider.dart';
+import 'package:prestapagos/infrastructure/repositories/repositories.dart';
+import 'package:prestapagos/presentation/providers/providers.dart';
 
 class HomeData {
   final List<UltimoPago> ultimosPagos;
