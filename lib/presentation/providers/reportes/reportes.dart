@@ -1,0 +1,8 @@
+export 'reporte_card_provider.dart';
+export 'reporte_composicion_pagos_provider.dart';
+export 'reporte_estado_prestamos_provider.dart';
+export 'reporte_intereses_mensuales_provider.dart';
+export 'reporte_loan_graphic_provider.dart';
+export 'reporte_morosidad_provider.dart';
+export 'reporte_payments_graphic_provider.dart';
+export 'reporte_saldo_pendiente_provider.dart';
