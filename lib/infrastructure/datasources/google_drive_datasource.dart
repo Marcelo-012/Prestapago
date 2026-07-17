@@ -6,6 +6,20 @@ import 'package:logger/logger.dart';
 import 'package:prestapagos/config/constants/constants.dart';
 import 'package:prestapagos/config/errors/errors.dart';
 
+class BackupDriveInfo {
+  final bool hasBackup;
+  final DateTime? lastBackupDate;
+  final String? lastBackupName;
+  final String? size;
+
+  const BackupDriveInfo({
+    required this.hasBackup,
+    this.lastBackupDate,
+    this.lastBackupName,
+    this.size,
+  });
+}
+
 class GoogleDriveDatasource {
   late drive.DriveApi _driveApi;
   final _logger = Logger(
@@ -163,6 +177,34 @@ class GoogleDriveDatasource {
     } catch (e) {
       _logger.e('Error validando integridad física: $e');
       return false;
+    }
+  }
+
+  Future<BackupDriveInfo> checkExistingBackups() async {
+    try {
+      final files = await _driveApi.files.list(
+        q:
+            "name contains '${BackupConstants.backupFilePrefix}' and trashed = false",
+        spaces: 'appDataFolder',
+        pageSize: 1,
+        orderBy: 'modifiedTime desc',
+        $fields: 'files(id, name, modifiedTime, size)',
+      );
+
+      if (files.files == null || files.files!.isEmpty) {
+        return const BackupDriveInfo(hasBackup: false);
+      }
+
+      final remoteFile = files.files!.first;
+      return BackupDriveInfo(
+        hasBackup: true,
+        lastBackupDate: remoteFile.modifiedTime,
+        lastBackupName: remoteFile.name,
+        size: remoteFile.size,
+      );
+    } catch (e) {
+      _logger.e('Error revisando respaldos existentes: $e');
+      return const BackupDriveInfo(hasBackup: false);
     }
   }
 

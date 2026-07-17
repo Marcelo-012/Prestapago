@@ -87,6 +87,20 @@ class BackupNotifier extends Notifier<BackupState> {
     );
   }
 
+  Future<BackupDriveInfo> checkExistingBackups() async {
+    final secureStorage = ref.read(secureStorageDatasourceProvider);
+    final token = secureStorage.getAccessTokenFromMemory();
+    if (token == null) return const BackupDriveInfo(hasBackup: false);
+
+    try {
+      final drive = GoogleDriveDatasource();
+      await drive.initialize(token);
+      return drive.checkExistingBackups();
+    } catch (e) {
+      return const BackupDriveInfo(hasBackup: false);
+    }
+  }
+
   Future<void> performBackup() async {
     final repository = ref.read(backupRepositoryProvider);
 

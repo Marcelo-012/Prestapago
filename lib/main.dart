@@ -77,6 +77,7 @@ void main() async {
       overrides: [
         sharedPrefsProvider.overrideWithValue(prefs),
         localBackupDatasourceProvider.overrideWithValue(localBackup),
+        secureStorageDatasourceProvider.overrideWithValue(secureStorage),
         googleAuthDatasourceProvider.overrideWithValue(authDatasource),
         appDatabaseProvider.overrideWithValue(database),
         backupRepositoryProvider.overrideWithValue(backupRepository),
@@ -93,10 +94,10 @@ class MainApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeProvider);
     final appTheme = AppTheme();
+    final router = ref.watch(routerProvider);
 
-    //FlutterNativeSplash.remove();
     return MaterialApp.router(
-      routerConfig: appRouter,
+      routerConfig: router,
       debugShowCheckedModeBanner: false,
       theme: appTheme.getLightTheme(scheme: themeState.flexScheme),
       darkTheme: appTheme.getDarkTheme(scheme: themeState.flexScheme),

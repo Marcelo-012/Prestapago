@@ -62,3 +62,7 @@ final googleAuthDatasourceProvider = Provider<GoogleAuthDatasource>((ref) {
 final localBackupDatasourceProvider = Provider<LocalBackupDatasource>((ref) {
   throw UnimplementedError('LocalBackupDatasource must be initialized');
 });
+
+final secureStorageDatasourceProvider = Provider<SecureStorageDatasource>((ref) {
+  throw UnimplementedError('SecureStorageDatasource must be initialized');
+});
