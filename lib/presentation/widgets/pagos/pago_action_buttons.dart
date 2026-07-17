@@ -53,6 +53,9 @@ class PagoActionButtons extends StatelessWidget {
                     if (monto <= 0) {
                       Fluttertoast.showToast(
                         msg: 'Ingresa un monto para abonar',
+                        gravity: ToastGravity.TOP,
+                        backgroundColor: Colors.orange,
+                        textColor: Colors.white,
                       );
                       return;
                     }

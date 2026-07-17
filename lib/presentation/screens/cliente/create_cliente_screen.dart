@@ -42,6 +42,8 @@ class CreateClienteScreen extends ConsumerWidget {
         );
         ref.read(createClienteFormProvider.notifier).reset();
         ref.read(clientePaginationProvider.notifier).refresh();
+        ref.invalidate(prestamoPaginationProvider);
+        ref.read(prestamoPaginationProvider.notifier).refresh();
         context.pop();
       }
       if (next.errorMessage != null && prev?.errorMessage != next.errorMessage && context.mounted) {

@@ -25,7 +25,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         Fluttertoast.showToast(
           msg: next.currentMessage,
           toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
+          gravity: ToastGravity.TOP,
           backgroundColor: Colors.green,
           textColor: Colors.white,
         );
@@ -33,7 +33,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         Fluttertoast.showToast(
           msg: next.currentMessage,
           toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
+          gravity: ToastGravity.TOP,
           backgroundColor: Colors.red,
           textColor: Colors.white,
         );

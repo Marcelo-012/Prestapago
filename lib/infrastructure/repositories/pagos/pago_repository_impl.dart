@@ -202,6 +202,32 @@ class PagoRepositoryImpl implements PagoRepository {
       }
 
       await _estadoPrestamoService.recalcularEstadoPrestamo();
+
+      final configActual = await (_db.select(_db.configuracionPrestamos)
+        ..where((t) => t.idPrestamo.equals(idPrestamo))).getSingle();
+      if (configActual.estadoPrestamo == EstadoPrestamo.finalizado) {
+        await _calcularYGuardarScore(idPrestamo);
+      }
     });
+  }
+
+  Future<void> _calcularYGuardarScore(int idPrestamo) async {
+    final prestamo = await (_db.select(_db.prestamos)
+      ..where((t) => t.id.equals(idPrestamo))).getSingle();
+
+    final cuotas = await (_db.select(_db.amortizaciones)
+      ..where((t) => t.idPrestamo.equals(idPrestamo))).get();
+
+    final total = cuotas.length;
+    final sinMora = cuotas.where((a) => a.diasMora == 0).length;
+    final score = total > 0 ? (sinMora / total * 100).round() : 0;
+
+    await _db.into(_db.scores).insertOnConflictUpdate(
+      drift.ScoresCompanion(
+        idPrestamo: Value(idPrestamo),
+        idDeudor: Value(prestamo.idDeudor),
+        score: Value(score.toDouble()),
+      ),
+    );
   }
 }

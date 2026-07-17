@@ -18,6 +18,16 @@ class ClienteScreen extends ConsumerStatefulWidget {
 
 class _ClienteScreenState extends ConsumerState<ClienteScreen> {
   int get _id => int.parse(widget.clienteId);
+  bool _showContent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => ref.invalidate(clienteDetalleProvider(_id)));
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (mounted) setState(() => _showContent = true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,34 +36,41 @@ class _ClienteScreenState extends ConsumerState<ClienteScreen> {
 
     return Scaffold(
       body: detalleAsync.when(
-        loading: () => const LoadingWidgetCustom(mensaje: 'Cargando perfil...'),
+        loading: () => const FullScreenLoader(),
         error: (e, _) => Center(child: Text('Error: $e')),
-        data: (detalle) => CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios),
-                onPressed: () => context.pop(),
-              ),
-              floating: true,
-              flexibleSpace: const FlexibleSpaceBar(
-                title: CustomAppbar(title: 'Perfil Cliente'),
-                titlePadding: EdgeInsets.only(left: 30.0),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: ClientesProfile(
-                detalle: detalle,
-                onEdit: () => _editarCliente(context, detalle.cliente.idDeudor),
-                onDelete: () => _eliminarCliente(context, detalle.cliente.idDeudor),
-                onReactivate: detalle.cliente.estado == 'inactivo'
-                    ? () => _reactivarCliente(context, detalle.cliente)
-                    : null,
-              ),
-            ),
-          ],
-        ),
+        data: (detalle) {
+          if (!_showContent) return const FullScreenLoader();
+          return _buildUI(detalle);
+        },
       ),
+    );
+  }
+
+  Widget _buildUI(ClienteDetalle detalle) {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () => context.pop(),
+          ),
+          floating: true,
+          flexibleSpace: const FlexibleSpaceBar(
+            title: CustomAppbar(title: 'Perfil Cliente'),
+            titlePadding: EdgeInsets.only(left: 30.0),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: ClientesProfile(
+            detalle: detalle,
+            onEdit: () => _editarCliente(context, detalle.cliente.idDeudor),
+            onDelete: () => _eliminarCliente(context, detalle.cliente.idDeudor),
+            onReactivate: detalle.cliente.estado == 'inactivo'
+                ? () => _reactivarCliente(context, detalle.cliente)
+                : null,
+          ),
+        ),
+      ],
     );
   }
 

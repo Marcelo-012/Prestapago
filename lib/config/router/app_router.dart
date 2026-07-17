@@ -96,11 +96,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
     redirect: (context, state) {
-      if (!termsAccepted && state.matchedLocation != '/terms') {
-        return '/terms';
+      if (!termsAccepted) {
+        if (state.matchedLocation != '/terms') return '/terms';
+        return null;
       }
-      if (shouldShowLogin && state.matchedLocation != '/login') {
-        return '/login';
+      if (shouldShowLogin) {
+        if (state.matchedLocation != '/login') return '/login';
+        return null;
       }
       if (state.matchedLocation == '/terms' || state.matchedLocation == '/login') {
         return '/home/0';

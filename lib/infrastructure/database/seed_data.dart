@@ -144,17 +144,15 @@ Future<void> seedDatabase(AppDatabase db) async {
       );
     }
 
-    // ── SCORES ──
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 1, score: 75));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 2, score: 82));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 3, score: 68));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 4, score: 90));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 5, score: 72));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 9, score: 88));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 11, score: 70));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 12, score: 85));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 13, score: 78));
-    batch.insert(db.scores, ScoresCompanion.insert(idDeudor: 14, score: 83));
+    // ── SCORES (prestamos finalizados del seed) ──
+    batch.insert(db.scores, ScoresCompanion.insert(idPrestamo: Value(1), idDeudor: 1, score: 100));
+    batch.insert(db.scores, ScoresCompanion.insert(idPrestamo: Value(4), idDeudor: 2, score: 100));
+    batch.insert(db.scores, ScoresCompanion.insert(idPrestamo: Value(10), idDeudor: 4, score: 100));
+    batch.insert(db.scores, ScoresCompanion.insert(idPrestamo: Value(13), idDeudor: 5, score: 100));
+    batch.insert(db.scores, ScoresCompanion.insert(idPrestamo: Value(22), idDeudor: 8, score: 100));
+    batch.insert(db.scores, ScoresCompanion.insert(idPrestamo: Value(25), idDeudor: 9, score: 100));
+    batch.insert(db.scores, ScoresCompanion.insert(idPrestamo: Value(26), idDeudor: 9, score: 100));
+    batch.insert(db.scores, ScoresCompanion.insert(idPrestamo: Value(30), idDeudor: 10, score: 100));
   });
 
   // ── AMORTIZACIONES ──

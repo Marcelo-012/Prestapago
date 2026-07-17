@@ -74,6 +74,8 @@ class DeleteClienteNotifier extends Notifier<DeleteClienteState> {
     ref.invalidate(clienteDetalleProvider(idDeudor));
     ref.invalidate(clientePaginationProvider);
     ref.read(clientePaginationProvider.notifier).refresh();
+    ref.invalidate(prestamoPaginationProvider);
+    ref.read(prestamoPaginationProvider.notifier).refresh();
   }
 }
 

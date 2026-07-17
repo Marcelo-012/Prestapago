@@ -132,13 +132,13 @@ class PrestamoPreviewScreen extends ConsumerWidget {
       final dto = state.toDTO(amortizaciones: amortizaciones);
       final idPrestamo = await ref.read(prestamoRepositoryProvider).createPrestamo(dto);
       if (!context.mounted) return;
-      Fluttertoast.showToast(msg: 'Préstamo creado exitosamente', gravity: ToastGravity.TOP);
+      Fluttertoast.showToast(msg: 'Préstamo creado exitosamente', gravity: ToastGravity.TOP, backgroundColor: Colors.green, textColor: Colors.white);
       ref.read(createPrestamoFormProvider.notifier).reset();
       ref.invalidate(prestamoPaginationProvider);
       context.go('/home/1/prestamo/$idPrestamo');
     } catch (e) {
       if (!context.mounted) return;
-      Fluttertoast.showToast(msg: 'Error al crear el préstamo', gravity: ToastGravity.TOP);
+      Fluttertoast.showToast(msg: 'Error al crear el préstamo', gravity: ToastGravity.TOP, backgroundColor: Colors.red, textColor: Colors.white);
     }
   }
 }

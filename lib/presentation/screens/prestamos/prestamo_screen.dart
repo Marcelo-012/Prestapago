@@ -18,6 +18,15 @@ class PrestamoScreen extends ConsumerStatefulWidget {
 
 class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
   int get _id => int.parse(widget.prestamoId);
+  bool _showContent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (mounted) setState(() => _showContent = true);
+    });
+  }
 
   void _goToPagar(PrestamoDetalle detalle) {
     Navigator.push(
@@ -32,93 +41,97 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
 
     return Scaffold(
       body: detalleAsync.when(
-        loading: () =>
-            const LoadingWidgetCustom(mensaje: 'Cargando detalle...'),
+        loading: () => const FullScreenLoader(),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (detalle) {
-          final cuotasTotales = detalle.amortizaciones.length;
-          final completadas = <String>['pagado', 'cancelado'];
-          final cuotasPagadas = detalle.amortizaciones
-              .where((a) => completadas.contains(a.estadoAmortizacion))
-              .length;
-          final capitalPagado = detalle.amortizaciones
-              .where((a) => completadas.contains(a.estadoAmortizacion))
-              .fold<double>(0, (sum, a) => sum + a.montoCapital);
-          final hayPendientes = detalle.amortizaciones.any(
-            (a) =>
-                a.estadoAmortizacion == 'pendiente' ||
-                a.estadoAmortizacion == 'atrasado',
-          );
-
-          return CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () => context.pop(),
-                ),
-                floating: true,
-                flexibleSpace: const FlexibleSpaceBar(
-                  title: CustomAppbar(title: 'Detalle préstamo'),
-                  titlePadding: EdgeInsets.only(left: 30.0),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      PrestamoInfoCard(detalle: detalle),
-                      const SizedBox(height: 16),
-                      ProgressCard(
-                        montoPrestamo: detalle.prestamo.monto,
-                        capitalPagado: capitalPagado,
-                        cuotasPagadas: cuotasPagadas,
-                        cuotasTotales: cuotasTotales,
-                      ),
-                      const SizedBox(height: 16),
-                      if (hayPendientes)
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: () => _goToPagar(detalle),
-                            icon: const Icon(Icons.payment),
-                            label: const Text('Ir a pagar'),
-                          ),
-                        ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Amortizaciones',
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      AmortizacionTable(
-                        amortizaciones: detalle.amortizaciones,
-                        montoCuota: detalle.prestamo.montoCuota,
-                        onViewPayment: (a) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ReceiptScreen(
-                                idPrestamo: detalle.idPrestamo,
-                                idCuota: a.idCuota,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          );
+          if (!_showContent) return const FullScreenLoader();
+          return _buildUI(detalle);
         },
       ),
+    );
+  }
+
+  Widget _buildUI(PrestamoDetalle detalle) {
+    final cuotasTotales = detalle.amortizaciones.length;
+    final completadas = <String>['pagado', 'cancelado'];
+    final cuotasPagadas = detalle.amortizaciones
+        .where((a) => completadas.contains(a.estadoAmortizacion))
+        .length;
+    final capitalPagado = detalle.amortizaciones
+        .where((a) => completadas.contains(a.estadoAmortizacion))
+        .fold<double>(0, (sum, a) => sum + a.montoCapital);
+    final hayPendientes = detalle.amortizaciones.any(
+      (a) =>
+          a.estadoAmortizacion == 'pendiente' ||
+          a.estadoAmortizacion == 'atrasado',
+    );
+
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () => context.pop(),
+          ),
+          floating: true,
+          flexibleSpace: const FlexibleSpaceBar(
+            title: CustomAppbar(title: 'Detalle préstamo'),
+            titlePadding: EdgeInsets.only(left: 30.0),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PrestamoInfoCard(detalle: detalle),
+                const SizedBox(height: 16),
+                ProgressCard(
+                  montoPrestamo: detalle.prestamo.monto,
+                  capitalPagado: capitalPagado,
+                  cuotasPagadas: cuotasPagadas,
+                  cuotasTotales: cuotasTotales,
+                ),
+                const SizedBox(height: 16),
+                if (hayPendientes)
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: () => _goToPagar(detalle),
+                      icon: const Icon(Icons.payment),
+                      label: const Text('Ir a pagar'),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                Text(
+                  'Amortizaciones',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                AmortizacionTable(
+                  amortizaciones: detalle.amortizaciones,
+                  montoCuota: detalle.prestamo.montoCuota,
+                  onViewPayment: (a) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ReceiptScreen(
+                          idPrestamo: detalle.idPrestamo,
+                          idCuota: a.idCuota,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

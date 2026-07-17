@@ -70,10 +70,15 @@ class HomeRepositoryImpl extends HomeRepository {
       SELECT d.id_deudor, d.nombre, d.telefono,
         COALESCE(d.email, '') as email, d.direccion,
         d.numero_identificacion, d.edad, d.estado,
-        COALESCE(AVG(s.score), 0) AS score
+        COALESCE((
+          SELECT ROUND(AVG(sq.score)) FROM (
+            SELECT s.score FROM scores s
+            INNER JOIN prestamos p ON s.id_prestamo = p.id_prestamo
+            WHERE p.id_deudor = d.id_deudor
+            ORDER BY p.fecha_creacion DESC LIMIT 5
+          ) sq
+        ), 0) AS score
       FROM deudores d
-      LEFT JOIN scores s ON s.id_deudor = d.id_deudor
-      GROUP BY d.id_deudor
       ORDER BY score DESC
       LIMIT 5
     ''').get();

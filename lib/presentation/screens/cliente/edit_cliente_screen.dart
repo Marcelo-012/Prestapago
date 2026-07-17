@@ -73,6 +73,7 @@ class _EditClienteScreenState extends ConsumerState<EditClienteScreen> {
     );
     if (guardar && context.mounted) {
       _syncControllersToProvider();
+      ref.read(editClienteProvider.notifier).reset();
       ref.read(editClienteProvider.notifier).submit(clienteId, fechaCreacion);
     }
   }
@@ -117,6 +118,8 @@ class _EditClienteScreenState extends ConsumerState<EditClienteScreen> {
             ref.invalidate(clienteProvider(id));
             ref.invalidate(clienteDetalleProvider(id));
             ref.read(clientePaginationProvider.notifier).refresh();
+            ref.invalidate(prestamoPaginationProvider);
+            ref.read(prestamoPaginationProvider.notifier).refresh();
             ref.read(editClienteFormProvider.notifier).reset();
             context.pop();
           }

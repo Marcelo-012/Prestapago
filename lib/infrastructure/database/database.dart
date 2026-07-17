@@ -25,13 +25,18 @@ class Deudores extends Table {
 }
 
 class Scores extends Table {
-  IntColumn get id => integer().named('id_score').autoIncrement()();
+  IntColumn get idPrestamo => integer()
+      .named('id_prestamo')
+      .customConstraint('NOT NULL REFERENCES prestamos(id_prestamo)')();
   IntColumn get idDeudor => integer()
       .named('id_deudor')
       .customConstraint('NOT NULL REFERENCES deudores(id_deudor)')();
   RealColumn get score => real()();
   DateTimeColumn get fechaCreacion =>
       dateTime().named('fecha_creacion').clientDefault(() => DateTime.now())();
+
+  @override
+  Set<Column> get primaryKey => {idPrestamo};
 }
 
 class Prestamos extends Table {
@@ -103,7 +108,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   DriftDatabaseOptions get options =>
@@ -141,6 +146,34 @@ class AppDatabase extends _$AppDatabase {
                   AND prev.id_cuota < amortizaciones.id_cuota
                 WHERE p.id_prestamo = amortizaciones.id_prestamo
               )
+          """);
+        }
+        if (from <= 3) {
+          await customStatement("DROP TABLE IF EXISTS scores");
+          await customStatement("""
+            CREATE TABLE scores (
+              id_prestamo INTEGER NOT NULL PRIMARY KEY REFERENCES prestamos(id_prestamo),
+              id_deudor INTEGER NOT NULL REFERENCES deudores(id_deudor),
+              score REAL NOT NULL DEFAULT 0,
+              fecha_creacion INTEGER NOT NULL DEFAULT (CAST(strftime('%s', 'now') AS INTEGER))
+            )
+          """);
+          await customStatement("""
+            INSERT INTO scores (id_prestamo, id_deudor, score, fecha_creacion)
+            SELECT
+              cp.id_prestamo,
+              p.id_deudor,
+              ROUND(
+                CAST(SUM(CASE WHEN a.dias_mora = 0 THEN 1 ELSE 0 END) AS REAL)
+                / CAST(COUNT(*) AS REAL)
+                * 100
+              ) AS score,
+              CAST(strftime('%s', 'now') AS INTEGER)
+            FROM configuracion_prestamos cp
+            INNER JOIN prestamos p ON cp.id_prestamo = p.id_prestamo
+            INNER JOIN amortizaciones a ON a.id_prestamo = p.id_prestamo
+            WHERE cp.estado_prestamo = 'finalizado'
+            GROUP BY cp.id_prestamo
           """);
         }
       },

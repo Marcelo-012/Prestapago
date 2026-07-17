@@ -22,6 +22,11 @@ void callbackDispatcher() {
     if (task == _dailyTaskName) {
       try {
         await dotenv.load();
+
+        const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+        const initSettings = InitializationSettings(android: androidSettings);
+        await _notifications.initialize(initSettings);
+
         final dir = await getApplicationSupportDirectory();
         final db = sqlite3.open('${dir.path}/${BackupConstants.localDatabaseFilename}');
 
@@ -173,6 +178,33 @@ void callbackDispatcher() {
                 AND a.estado_amortizacion = 'atrasado'
             )
         """);
+
+        final atrasados = db.select("""
+          SELECT COUNT(DISTINCT id_prestamo) AS total
+          FROM amortizaciones WHERE estado_amortizacion = 'atrasado'
+        """);
+        final totalAtrasados = atrasados.first['total'] as int;
+        final totalCapitalizados = prestamosConMora.length;
+
+        final body = totalAtrasados > 0
+            ? '$totalAtrasados préstamo(s) con atraso y se capitalizó mora en $totalCapitalizados préstamo(s).'
+            : 'Sin préstamos con atraso.';
+
+        await _notifications.show(
+          NotificationConstants.dailyUpdateNotificationId,
+          'Actualización diaria',
+          body,
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              NotificationConstants.channelDailyId,
+              NotificationConstants.channelDailyName,
+              channelDescription: NotificationConstants.channelDailyDescription,
+              importance: Importance.defaultImportance,
+              priority: Priority.defaultPriority,
+              icon: '@mipmap/ic_launcher',
+            ),
+          ),
+        );
 
         db.close();
         return true;

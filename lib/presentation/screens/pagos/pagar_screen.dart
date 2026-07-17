@@ -80,6 +80,10 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
       ref.invalidate(prestamoDetalleProvider(widget.detalle.idPrestamo));
       ref.invalidate(prestamoPaginationProvider);
       ref.read(prestamoPaginationProvider.notifier).refresh();
+      final idDeudor = widget.detalle.prestamo.idDeudor;
+      ref.invalidate(clienteDetalleProvider(idDeudor));
+      ref.invalidate(clientePaginationProvider);
+      ref.read(clientePaginationProvider.notifier).refresh();
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
@@ -93,6 +97,9 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
     } else if (submitState.status == PagoSubmitStatus.error) {
       Fluttertoast.showToast(
         msg: submitState.error ?? 'Error al registrar el pago',
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     }
   }

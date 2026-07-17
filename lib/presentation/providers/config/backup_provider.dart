@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workmanager/workmanager.dart';
 import 'package:prestapagos/config/errors/errors.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/infrastructure/datasources/datasources.dart';
@@ -189,24 +190,45 @@ class BackupNotifier extends Notifier<BackupState> {
 
   Future<void> setAutoBackup(bool enabled) async {
     final localBackup = ref.read(localBackupDatasourceProvider);
-    final frequency = enabled ? BackupFrequency.daily : BackupFrequency.manual;
-    await localBackup.setBackupFrequency(
-      frequency == BackupFrequency.daily ? 'daily' : 'Manual',
-    );
-    state = state.copyWith(isAutoBackupEnabled: enabled, frequency: frequency);
+
+    if (enabled) {
+      await localBackup.setBackupFrequency('daily');
+      state = state.copyWith(isAutoBackupEnabled: true, frequency: BackupFrequency.daily);
+      await _scheduleAutoBackup(const Duration(hours: 24));
+    } else {
+      await localBackup.setBackupFrequency('Manual');
+      state = state.copyWith(isAutoBackupEnabled: false, frequency: BackupFrequency.manual);
+      await Workmanager().cancelByUniqueName('autoBackup');
+    }
   }
 
   Future<void> setFrequency(BackupFrequency frequency) async {
     final localBackup = ref.read(localBackupDatasourceProvider);
-    final freqStr = switch (frequency) {
-      BackupFrequency.daily => 'daily',
-      BackupFrequency.weekly => 'weekly',
-      BackupFrequency.manual => 'Manual',
-    };
-    await localBackup.setBackupFrequency(freqStr);
-    state = state.copyWith(
+    await Workmanager().cancelByUniqueName('autoBackup');
+
+    if (frequency == BackupFrequency.manual) {
+      await localBackup.setBackupFrequency('Manual');
+      state = state.copyWith(frequency: frequency, isAutoBackupEnabled: false);
+    } else {
+      final freqStr = frequency == BackupFrequency.daily ? 'daily' : 'weekly';
+      await localBackup.setBackupFrequency(freqStr);
+      final workFreq = frequency == BackupFrequency.daily
+          ? const Duration(hours: 24)
+          : const Duration(days: 7);
+      await _scheduleAutoBackup(workFreq);
+      state = state.copyWith(frequency: frequency, isAutoBackupEnabled: true);
+    }
+  }
+
+  Future<void> _scheduleAutoBackup(Duration frequency) async {
+    final now = DateTime.now();
+    final twoThirtyAm = DateTime(now.year, now.month, now.day + 1, 2, 30);
+    await Workmanager().registerPeriodicTask(
+      'autoBackup',
+      'autoBackup',
       frequency: frequency,
-      isAutoBackupEnabled: frequency != BackupFrequency.manual,
+      initialDelay: twoThirtyAm.difference(now),
+      existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
     );
   }
 }

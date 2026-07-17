@@ -9,7 +9,10 @@ class ClienteRepositoryImpl implements ClienteRepository {
   ClienteRepositoryImpl(this._db);
 
   String _scoreSubquery(String alias) =>
-      '(SELECT AVG(s.score) FROM scores s WHERE s.id_deudor = $alias.id_deudor)';
+      'COALESCE((SELECT ROUND(AVG(sq.score)) FROM (SELECT s.score FROM scores s '
+      'INNER JOIN prestamos p ON s.id_prestamo = p.id_prestamo '
+      'WHERE p.id_deudor = $alias.id_deudor '
+      'ORDER BY p.fecha_creacion DESC LIMIT 5) sq), 0)';
 
   @override
   Future<PagedResult<ClienteResumen>> getPaged({
@@ -116,7 +119,14 @@ class ClienteRepositoryImpl implements ClienteRepository {
           .customSelect(
             '''
       SELECT
-        COALESCE((SELECT AVG(s.score) FROM scores s WHERE s.id_deudor = ?), 0) AS score_promedio,
+        COALESCE((
+          SELECT ROUND(AVG(sq.score)) FROM (
+            SELECT s.score FROM scores s
+            INNER JOIN prestamos p ON s.id_prestamo = p.id_prestamo
+            WHERE p.id_deudor = ?
+            ORDER BY p.fecha_creacion DESC LIMIT 5
+          ) sq
+        ), 0) AS score_promedio,
         (SELECT COUNT(*) FROM prestamos p WHERE p.id_deudor = ?) AS total_prestamos,
         (SELECT COUNT(*) FROM configuracion_prestamos cp
          INNER JOIN prestamos p ON cp.id_prestamo = p.id_prestamo

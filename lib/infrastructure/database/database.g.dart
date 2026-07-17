@@ -649,311 +649,6 @@ class DeudoresCompanion extends UpdateCompanion<Deudore> {
   }
 }
 
-class $ScoresTable extends Scores with TableInfo<$ScoresTable, Score> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $ScoresTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id_score',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _idDeudorMeta = const VerificationMeta(
-    'idDeudor',
-  );
-  @override
-  late final GeneratedColumn<int> idDeudor = GeneratedColumn<int>(
-    'id_deudor',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL REFERENCES deudores(id_deudor)',
-  );
-  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
-  @override
-  late final GeneratedColumn<double> score = GeneratedColumn<double>(
-    'score',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _fechaCreacionMeta = const VerificationMeta(
-    'fechaCreacion',
-  );
-  @override
-  late final GeneratedColumn<DateTime> fechaCreacion =
-      GeneratedColumn<DateTime>(
-        'fecha_creacion',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-        clientDefault: () => DateTime.now(),
-      );
-  @override
-  List<GeneratedColumn> get $columns => [id, idDeudor, score, fechaCreacion];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'scores';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<Score> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id_score')) {
-      context.handle(
-        _idMeta,
-        id.isAcceptableOrUnknown(data['id_score']!, _idMeta),
-      );
-    }
-    if (data.containsKey('id_deudor')) {
-      context.handle(
-        _idDeudorMeta,
-        idDeudor.isAcceptableOrUnknown(data['id_deudor']!, _idDeudorMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_idDeudorMeta);
-    }
-    if (data.containsKey('score')) {
-      context.handle(
-        _scoreMeta,
-        score.isAcceptableOrUnknown(data['score']!, _scoreMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_scoreMeta);
-    }
-    if (data.containsKey('fecha_creacion')) {
-      context.handle(
-        _fechaCreacionMeta,
-        fechaCreacion.isAcceptableOrUnknown(
-          data['fecha_creacion']!,
-          _fechaCreacionMeta,
-        ),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Score map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Score(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id_score'],
-      )!,
-      idDeudor: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id_deudor'],
-      )!,
-      score: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}score'],
-      )!,
-      fechaCreacion: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}fecha_creacion'],
-      )!,
-    );
-  }
-
-  @override
-  $ScoresTable createAlias(String alias) {
-    return $ScoresTable(attachedDatabase, alias);
-  }
-}
-
-class Score extends DataClass implements Insertable<Score> {
-  final int id;
-  final int idDeudor;
-  final double score;
-  final DateTime fechaCreacion;
-  const Score({
-    required this.id,
-    required this.idDeudor,
-    required this.score,
-    required this.fechaCreacion,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id_score'] = Variable<int>(id);
-    map['id_deudor'] = Variable<int>(idDeudor);
-    map['score'] = Variable<double>(score);
-    map['fecha_creacion'] = Variable<DateTime>(fechaCreacion);
-    return map;
-  }
-
-  ScoresCompanion toCompanion(bool nullToAbsent) {
-    return ScoresCompanion(
-      id: Value(id),
-      idDeudor: Value(idDeudor),
-      score: Value(score),
-      fechaCreacion: Value(fechaCreacion),
-    );
-  }
-
-  factory Score.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Score(
-      id: serializer.fromJson<int>(json['id']),
-      idDeudor: serializer.fromJson<int>(json['idDeudor']),
-      score: serializer.fromJson<double>(json['score']),
-      fechaCreacion: serializer.fromJson<DateTime>(json['fechaCreacion']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'idDeudor': serializer.toJson<int>(idDeudor),
-      'score': serializer.toJson<double>(score),
-      'fechaCreacion': serializer.toJson<DateTime>(fechaCreacion),
-    };
-  }
-
-  Score copyWith({
-    int? id,
-    int? idDeudor,
-    double? score,
-    DateTime? fechaCreacion,
-  }) => Score(
-    id: id ?? this.id,
-    idDeudor: idDeudor ?? this.idDeudor,
-    score: score ?? this.score,
-    fechaCreacion: fechaCreacion ?? this.fechaCreacion,
-  );
-  Score copyWithCompanion(ScoresCompanion data) {
-    return Score(
-      id: data.id.present ? data.id.value : this.id,
-      idDeudor: data.idDeudor.present ? data.idDeudor.value : this.idDeudor,
-      score: data.score.present ? data.score.value : this.score,
-      fechaCreacion: data.fechaCreacion.present
-          ? data.fechaCreacion.value
-          : this.fechaCreacion,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('Score(')
-          ..write('id: $id, ')
-          ..write('idDeudor: $idDeudor, ')
-          ..write('score: $score, ')
-          ..write('fechaCreacion: $fechaCreacion')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(id, idDeudor, score, fechaCreacion);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Score &&
-          other.id == this.id &&
-          other.idDeudor == this.idDeudor &&
-          other.score == this.score &&
-          other.fechaCreacion == this.fechaCreacion);
-}
-
-class ScoresCompanion extends UpdateCompanion<Score> {
-  final Value<int> id;
-  final Value<int> idDeudor;
-  final Value<double> score;
-  final Value<DateTime> fechaCreacion;
-  const ScoresCompanion({
-    this.id = const Value.absent(),
-    this.idDeudor = const Value.absent(),
-    this.score = const Value.absent(),
-    this.fechaCreacion = const Value.absent(),
-  });
-  ScoresCompanion.insert({
-    this.id = const Value.absent(),
-    required int idDeudor,
-    required double score,
-    this.fechaCreacion = const Value.absent(),
-  }) : idDeudor = Value(idDeudor),
-       score = Value(score);
-  static Insertable<Score> custom({
-    Expression<int>? id,
-    Expression<int>? idDeudor,
-    Expression<double>? score,
-    Expression<DateTime>? fechaCreacion,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id_score': id,
-      if (idDeudor != null) 'id_deudor': idDeudor,
-      if (score != null) 'score': score,
-      if (fechaCreacion != null) 'fecha_creacion': fechaCreacion,
-    });
-  }
-
-  ScoresCompanion copyWith({
-    Value<int>? id,
-    Value<int>? idDeudor,
-    Value<double>? score,
-    Value<DateTime>? fechaCreacion,
-  }) {
-    return ScoresCompanion(
-      id: id ?? this.id,
-      idDeudor: idDeudor ?? this.idDeudor,
-      score: score ?? this.score,
-      fechaCreacion: fechaCreacion ?? this.fechaCreacion,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id_score'] = Variable<int>(id.value);
-    }
-    if (idDeudor.present) {
-      map['id_deudor'] = Variable<int>(idDeudor.value);
-    }
-    if (score.present) {
-      map['score'] = Variable<double>(score.value);
-    }
-    if (fechaCreacion.present) {
-      map['fecha_creacion'] = Variable<DateTime>(fechaCreacion.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ScoresCompanion(')
-          ..write('id: $id, ')
-          ..write('idDeudor: $idDeudor, ')
-          ..write('score: $score, ')
-          ..write('fechaCreacion: $fechaCreacion')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $PrestamosTable extends Prestamos
     with TableInfo<$PrestamosTable, Prestamo> {
   @override
@@ -1470,6 +1165,317 @@ class PrestamosCompanion extends UpdateCompanion<Prestamo> {
           ..write('monto: $monto, ')
           ..write('plazoMeses: $plazoMeses, ')
           ..write('montoCuota: $montoCuota, ')
+          ..write('fechaCreacion: $fechaCreacion')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ScoresTable extends Scores with TableInfo<$ScoresTable, Score> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ScoresTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idPrestamoMeta = const VerificationMeta(
+    'idPrestamo',
+  );
+  @override
+  late final GeneratedColumn<int> idPrestamo = GeneratedColumn<int>(
+    'id_prestamo',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL REFERENCES prestamos(id_prestamo)',
+  );
+  static const VerificationMeta _idDeudorMeta = const VerificationMeta(
+    'idDeudor',
+  );
+  @override
+  late final GeneratedColumn<int> idDeudor = GeneratedColumn<int>(
+    'id_deudor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL REFERENCES deudores(id_deudor)',
+  );
+  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
+  @override
+  late final GeneratedColumn<double> score = GeneratedColumn<double>(
+    'score',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fechaCreacionMeta = const VerificationMeta(
+    'fechaCreacion',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fechaCreacion =
+      GeneratedColumn<DateTime>(
+        'fecha_creacion',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+        clientDefault: () => DateTime.now(),
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    idPrestamo,
+    idDeudor,
+    score,
+    fechaCreacion,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'scores';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Score> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id_prestamo')) {
+      context.handle(
+        _idPrestamoMeta,
+        idPrestamo.isAcceptableOrUnknown(data['id_prestamo']!, _idPrestamoMeta),
+      );
+    }
+    if (data.containsKey('id_deudor')) {
+      context.handle(
+        _idDeudorMeta,
+        idDeudor.isAcceptableOrUnknown(data['id_deudor']!, _idDeudorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_idDeudorMeta);
+    }
+    if (data.containsKey('score')) {
+      context.handle(
+        _scoreMeta,
+        score.isAcceptableOrUnknown(data['score']!, _scoreMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_scoreMeta);
+    }
+    if (data.containsKey('fecha_creacion')) {
+      context.handle(
+        _fechaCreacionMeta,
+        fechaCreacion.isAcceptableOrUnknown(
+          data['fecha_creacion']!,
+          _fechaCreacionMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {idPrestamo};
+  @override
+  Score map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Score(
+      idPrestamo: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id_prestamo'],
+      )!,
+      idDeudor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id_deudor'],
+      )!,
+      score: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}score'],
+      )!,
+      fechaCreacion: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fecha_creacion'],
+      )!,
+    );
+  }
+
+  @override
+  $ScoresTable createAlias(String alias) {
+    return $ScoresTable(attachedDatabase, alias);
+  }
+}
+
+class Score extends DataClass implements Insertable<Score> {
+  final int idPrestamo;
+  final int idDeudor;
+  final double score;
+  final DateTime fechaCreacion;
+  const Score({
+    required this.idPrestamo,
+    required this.idDeudor,
+    required this.score,
+    required this.fechaCreacion,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id_prestamo'] = Variable<int>(idPrestamo);
+    map['id_deudor'] = Variable<int>(idDeudor);
+    map['score'] = Variable<double>(score);
+    map['fecha_creacion'] = Variable<DateTime>(fechaCreacion);
+    return map;
+  }
+
+  ScoresCompanion toCompanion(bool nullToAbsent) {
+    return ScoresCompanion(
+      idPrestamo: Value(idPrestamo),
+      idDeudor: Value(idDeudor),
+      score: Value(score),
+      fechaCreacion: Value(fechaCreacion),
+    );
+  }
+
+  factory Score.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Score(
+      idPrestamo: serializer.fromJson<int>(json['idPrestamo']),
+      idDeudor: serializer.fromJson<int>(json['idDeudor']),
+      score: serializer.fromJson<double>(json['score']),
+      fechaCreacion: serializer.fromJson<DateTime>(json['fechaCreacion']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'idPrestamo': serializer.toJson<int>(idPrestamo),
+      'idDeudor': serializer.toJson<int>(idDeudor),
+      'score': serializer.toJson<double>(score),
+      'fechaCreacion': serializer.toJson<DateTime>(fechaCreacion),
+    };
+  }
+
+  Score copyWith({
+    int? idPrestamo,
+    int? idDeudor,
+    double? score,
+    DateTime? fechaCreacion,
+  }) => Score(
+    idPrestamo: idPrestamo ?? this.idPrestamo,
+    idDeudor: idDeudor ?? this.idDeudor,
+    score: score ?? this.score,
+    fechaCreacion: fechaCreacion ?? this.fechaCreacion,
+  );
+  Score copyWithCompanion(ScoresCompanion data) {
+    return Score(
+      idPrestamo: data.idPrestamo.present
+          ? data.idPrestamo.value
+          : this.idPrestamo,
+      idDeudor: data.idDeudor.present ? data.idDeudor.value : this.idDeudor,
+      score: data.score.present ? data.score.value : this.score,
+      fechaCreacion: data.fechaCreacion.present
+          ? data.fechaCreacion.value
+          : this.fechaCreacion,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Score(')
+          ..write('idPrestamo: $idPrestamo, ')
+          ..write('idDeudor: $idDeudor, ')
+          ..write('score: $score, ')
+          ..write('fechaCreacion: $fechaCreacion')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(idPrestamo, idDeudor, score, fechaCreacion);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Score &&
+          other.idPrestamo == this.idPrestamo &&
+          other.idDeudor == this.idDeudor &&
+          other.score == this.score &&
+          other.fechaCreacion == this.fechaCreacion);
+}
+
+class ScoresCompanion extends UpdateCompanion<Score> {
+  final Value<int> idPrestamo;
+  final Value<int> idDeudor;
+  final Value<double> score;
+  final Value<DateTime> fechaCreacion;
+  const ScoresCompanion({
+    this.idPrestamo = const Value.absent(),
+    this.idDeudor = const Value.absent(),
+    this.score = const Value.absent(),
+    this.fechaCreacion = const Value.absent(),
+  });
+  ScoresCompanion.insert({
+    this.idPrestamo = const Value.absent(),
+    required int idDeudor,
+    required double score,
+    this.fechaCreacion = const Value.absent(),
+  }) : idDeudor = Value(idDeudor),
+       score = Value(score);
+  static Insertable<Score> custom({
+    Expression<int>? idPrestamo,
+    Expression<int>? idDeudor,
+    Expression<double>? score,
+    Expression<DateTime>? fechaCreacion,
+  }) {
+    return RawValuesInsertable({
+      if (idPrestamo != null) 'id_prestamo': idPrestamo,
+      if (idDeudor != null) 'id_deudor': idDeudor,
+      if (score != null) 'score': score,
+      if (fechaCreacion != null) 'fecha_creacion': fechaCreacion,
+    });
+  }
+
+  ScoresCompanion copyWith({
+    Value<int>? idPrestamo,
+    Value<int>? idDeudor,
+    Value<double>? score,
+    Value<DateTime>? fechaCreacion,
+  }) {
+    return ScoresCompanion(
+      idPrestamo: idPrestamo ?? this.idPrestamo,
+      idDeudor: idDeudor ?? this.idDeudor,
+      score: score ?? this.score,
+      fechaCreacion: fechaCreacion ?? this.fechaCreacion,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (idPrestamo.present) {
+      map['id_prestamo'] = Variable<int>(idPrestamo.value);
+    }
+    if (idDeudor.present) {
+      map['id_deudor'] = Variable<int>(idDeudor.value);
+    }
+    if (score.present) {
+      map['score'] = Variable<double>(score.value);
+    }
+    if (fechaCreacion.present) {
+      map['fecha_creacion'] = Variable<DateTime>(fechaCreacion.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ScoresCompanion(')
+          ..write('idPrestamo: $idPrestamo, ')
+          ..write('idDeudor: $idDeudor, ')
+          ..write('score: $score, ')
           ..write('fechaCreacion: $fechaCreacion')
           ..write(')'))
         .toString();
@@ -2985,8 +2991,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $DeudoresTable deudores = $DeudoresTable(this);
-  late final $ScoresTable scores = $ScoresTable(this);
   late final $PrestamosTable prestamos = $PrestamosTable(this);
+  late final $ScoresTable scores = $ScoresTable(this);
   late final $ConfiguracionPrestamosTable configuracionPrestamos =
       $ConfiguracionPrestamosTable(this);
   late final $AmortizacionesTable amortizaciones = $AmortizacionesTable(this);
@@ -2996,8 +3002,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     deudores,
-    scores,
     prestamos,
+    scores,
     configuracionPrestamos,
     amortizaciones,
   ];
@@ -3034,6 +3040,24 @@ final class $$DeudoresTableReferences
     extends BaseReferences<_$AppDatabase, $DeudoresTable, Deudore> {
   $$DeudoresTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
+  static MultiTypedResultKey<$PrestamosTable, List<Prestamo>>
+  _prestamosRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.prestamos,
+    aliasName: 'deudores__id_deudor__prestamos__id_deudor',
+  );
+
+  $$PrestamosTableProcessedTableManager get prestamosRefs {
+    final manager = $$PrestamosTableTableManager(
+      $_db,
+      $_db.prestamos,
+    ).filter((f) => f.idDeudor.id.sqlEquals($_itemColumn<int>('id_deudor')!));
+
+    final cache = $_typedResult.readTableOrNull(_prestamosRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$ScoresTable, List<Score>> _scoresRefsTable(
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
@@ -3048,24 +3072,6 @@ final class $$DeudoresTableReferences
     ).filter((f) => f.idDeudor.id.sqlEquals($_itemColumn<int>('id_deudor')!));
 
     final cache = $_typedResult.readTableOrNull(_scoresRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$PrestamosTable, List<Prestamo>>
-  _prestamosRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.prestamos,
-    aliasName: 'deudores__id_deudor__prestamos__id_deudor',
-  );
-
-  $$PrestamosTableProcessedTableManager get prestamosRefs {
-    final manager = $$PrestamosTableTableManager(
-      $_db,
-      $_db.prestamos,
-    ).filter((f) => f.idDeudor.id.sqlEquals($_itemColumn<int>('id_deudor')!));
-
-    final cache = $_typedResult.readTableOrNull(_prestamosRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -3132,31 +3138,6 @@ class $$DeudoresTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  Expression<bool> scoresRefs(
-    Expression<bool> Function($$ScoresTableFilterComposer f) f,
-  ) {
-    final $$ScoresTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.scores,
-      getReferencedColumn: (t) => t.idDeudor,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ScoresTableFilterComposer(
-            $db: $db,
-            $table: $db.scores,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
   Expression<bool> prestamosRefs(
     Expression<bool> Function($$PrestamosTableFilterComposer f) f,
   ) {
@@ -3173,6 +3154,31 @@ class $$DeudoresTableFilterComposer
           }) => $$PrestamosTableFilterComposer(
             $db: $db,
             $table: $db.prestamos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> scoresRefs(
+    Expression<bool> Function($$ScoresTableFilterComposer f) f,
+  ) {
+    final $$ScoresTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.idDeudor,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableFilterComposer(
+            $db: $db,
+            $table: $db.scores,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3290,31 +3296,6 @@ class $$DeudoresTableAnnotationComposer
     builder: (column) => column,
   );
 
-  Expression<T> scoresRefs<T extends Object>(
-    Expression<T> Function($$ScoresTableAnnotationComposer a) f,
-  ) {
-    final $$ScoresTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.scores,
-      getReferencedColumn: (t) => t.idDeudor,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ScoresTableAnnotationComposer(
-            $db: $db,
-            $table: $db.scores,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
   Expression<T> prestamosRefs<T extends Object>(
     Expression<T> Function($$PrestamosTableAnnotationComposer a) f,
   ) {
@@ -3339,6 +3320,31 @@ class $$DeudoresTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> scoresRefs<T extends Object>(
+    Expression<T> Function($$ScoresTableAnnotationComposer a) f,
+  ) {
+    final $$ScoresTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.idDeudor,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableAnnotationComposer(
+            $db: $db,
+            $table: $db.scores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$DeudoresTableTableManager
@@ -3354,7 +3360,7 @@ class $$DeudoresTableTableManager
           $$DeudoresTableUpdateCompanionBuilder,
           (Deudore, $$DeudoresTableReferences),
           Deudore,
-          PrefetchHooks Function({bool scoresRefs, bool prestamosRefs})
+          PrefetchHooks Function({bool prestamosRefs, bool scoresRefs})
         > {
   $$DeudoresTableTableManager(_$AppDatabase db, $DeudoresTable table)
     : super(
@@ -3423,27 +3429,16 @@ class $$DeudoresTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({scoresRefs = false, prestamosRefs = false}) {
+          prefetchHooksCallback: ({prestamosRefs = false, scoresRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (scoresRefs) db.scores,
                 if (prestamosRefs) db.prestamos,
+                if (scoresRefs) db.scores,
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
-                  if (scoresRefs)
-                    await $_getPrefetchedData<Deudore, $DeudoresTable, Score>(
-                      currentTable: table,
-                      referencedTable: $$DeudoresTableReferences
-                          ._scoresRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$DeudoresTableReferences(db, table, p0).scoresRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.idDeudor == item.id),
-                      typedResults: items,
-                    ),
                   if (prestamosRefs)
                     await $_getPrefetchedData<
                       Deudore,
@@ -3458,6 +3453,17 @@ class $$DeudoresTableTableManager
                         table,
                         p0,
                       ).prestamosRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.idDeudor == item.id),
+                      typedResults: items,
+                    ),
+                  if (scoresRefs)
+                    await $_getPrefetchedData<Deudore, $DeudoresTable, Score>(
+                      currentTable: table,
+                      referencedTable: $$DeudoresTableReferences
+                          ._scoresRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$DeudoresTableReferences(db, table, p0).scoresRefs,
                       referencedItemsForCurrentItem: (item, referencedItems) =>
                           referencedItems.where((e) => e.idDeudor == item.id),
                       typedResults: items,
@@ -3482,299 +3488,7 @@ typedef $$DeudoresTableProcessedTableManager =
       $$DeudoresTableUpdateCompanionBuilder,
       (Deudore, $$DeudoresTableReferences),
       Deudore,
-      PrefetchHooks Function({bool scoresRefs, bool prestamosRefs})
-    >;
-typedef $$ScoresTableCreateCompanionBuilder =
-    ScoresCompanion Function({
-      Value<int> id,
-      required int idDeudor,
-      required double score,
-      Value<DateTime> fechaCreacion,
-    });
-typedef $$ScoresTableUpdateCompanionBuilder =
-    ScoresCompanion Function({
-      Value<int> id,
-      Value<int> idDeudor,
-      Value<double> score,
-      Value<DateTime> fechaCreacion,
-    });
-
-final class $$ScoresTableReferences
-    extends BaseReferences<_$AppDatabase, $ScoresTable, Score> {
-  $$ScoresTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $DeudoresTable _idDeudorTable(_$AppDatabase db) =>
-      db.deudores.createAlias('scores__id_deudor__deudores__id_deudor');
-
-  $$DeudoresTableProcessedTableManager get idDeudor {
-    final $_column = $_itemColumn<int>('id_deudor')!;
-
-    final manager = $$DeudoresTableTableManager(
-      $_db,
-      $_db.deudores,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_idDeudorTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$ScoresTableFilterComposer
-    extends Composer<_$AppDatabase, $ScoresTable> {
-  $$ScoresTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get score => $composableBuilder(
-    column: $table.score,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$DeudoresTableFilterComposer get idDeudor {
-    final $$DeudoresTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.idDeudor,
-      referencedTable: $db.deudores,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DeudoresTableFilterComposer(
-            $db: $db,
-            $table: $db.deudores,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$ScoresTableOrderingComposer
-    extends Composer<_$AppDatabase, $ScoresTable> {
-  $$ScoresTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get score => $composableBuilder(
-    column: $table.score,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$DeudoresTableOrderingComposer get idDeudor {
-    final $$DeudoresTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.idDeudor,
-      referencedTable: $db.deudores,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DeudoresTableOrderingComposer(
-            $db: $db,
-            $table: $db.deudores,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$ScoresTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ScoresTable> {
-  $$ScoresTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<double> get score =>
-      $composableBuilder(column: $table.score, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
-    builder: (column) => column,
-  );
-
-  $$DeudoresTableAnnotationComposer get idDeudor {
-    final $$DeudoresTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.idDeudor,
-      referencedTable: $db.deudores,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DeudoresTableAnnotationComposer(
-            $db: $db,
-            $table: $db.deudores,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$ScoresTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $ScoresTable,
-          Score,
-          $$ScoresTableFilterComposer,
-          $$ScoresTableOrderingComposer,
-          $$ScoresTableAnnotationComposer,
-          $$ScoresTableCreateCompanionBuilder,
-          $$ScoresTableUpdateCompanionBuilder,
-          (Score, $$ScoresTableReferences),
-          Score,
-          PrefetchHooks Function({bool idDeudor})
-        > {
-  $$ScoresTableTableManager(_$AppDatabase db, $ScoresTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$ScoresTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ScoresTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ScoresTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<int> idDeudor = const Value.absent(),
-                Value<double> score = const Value.absent(),
-                Value<DateTime> fechaCreacion = const Value.absent(),
-              }) => ScoresCompanion(
-                id: id,
-                idDeudor: idDeudor,
-                score: score,
-                fechaCreacion: fechaCreacion,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required int idDeudor,
-                required double score,
-                Value<DateTime> fechaCreacion = const Value.absent(),
-              }) => ScoresCompanion.insert(
-                id: id,
-                idDeudor: idDeudor,
-                score: score,
-                fechaCreacion: fechaCreacion,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) =>
-                    (e.readTable(table), $$ScoresTableReferences(db, table, e)),
-              )
-              .toList(),
-          prefetchHooksCallback: ({idDeudor = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (idDeudor) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.idDeudor,
-                                referencedTable: $$ScoresTableReferences
-                                    ._idDeudorTable(db),
-                                referencedColumn: $$ScoresTableReferences
-                                    ._idDeudorTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$ScoresTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $ScoresTable,
-      Score,
-      $$ScoresTableFilterComposer,
-      $$ScoresTableOrderingComposer,
-      $$ScoresTableAnnotationComposer,
-      $$ScoresTableCreateCompanionBuilder,
-      $$ScoresTableUpdateCompanionBuilder,
-      (Score, $$ScoresTableReferences),
-      Score,
-      PrefetchHooks Function({bool idDeudor})
+      PrefetchHooks Function({bool prestamosRefs, bool scoresRefs})
     >;
 typedef $$PrestamosTableCreateCompanionBuilder =
     PrestamosCompanion Function({
@@ -3817,6 +3531,24 @@ final class $$PrestamosTableReferences
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$ScoresTable, List<Score>> _scoresRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.scores,
+    aliasName: 'prestamos__id_prestamo__scores__id_prestamo',
+  );
+
+  $$ScoresTableProcessedTableManager get scoresRefs {
+    final manager = $$ScoresTableTableManager($_db, $_db.scores).filter(
+      (f) => f.idPrestamo.id.sqlEquals($_itemColumn<int>('id_prestamo')!),
+    );
+
+    final cache = $_typedResult.readTableOrNull(_scoresRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
     );
   }
 
@@ -3933,6 +3665,31 @@ class $$PrestamosTableFilterComposer
           ),
     );
     return composer;
+  }
+
+  Expression<bool> scoresRefs(
+    Expression<bool> Function($$ScoresTableFilterComposer f) f,
+  ) {
+    final $$ScoresTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.idPrestamo,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableFilterComposer(
+            $db: $db,
+            $table: $db.scores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
   }
 
   Expression<bool> configuracionPrestamosRefs(
@@ -4118,6 +3875,31 @@ class $$PrestamosTableAnnotationComposer
     return composer;
   }
 
+  Expression<T> scoresRefs<T extends Object>(
+    Expression<T> Function($$ScoresTableAnnotationComposer a) f,
+  ) {
+    final $$ScoresTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.idPrestamo,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableAnnotationComposer(
+            $db: $db,
+            $table: $db.scores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> configuracionPrestamosRefs<T extends Object>(
     Expression<T> Function($$ConfiguracionPrestamosTableAnnotationComposer a) f,
   ) {
@@ -4185,6 +3967,7 @@ class $$PrestamosTableTableManager
           Prestamo,
           PrefetchHooks Function({
             bool idDeudor,
+            bool scoresRefs,
             bool configuracionPrestamosRefs,
             bool amortizacionesRefs,
           })
@@ -4251,12 +4034,14 @@ class $$PrestamosTableTableManager
           prefetchHooksCallback:
               ({
                 idDeudor = false,
+                scoresRefs = false,
                 configuracionPrestamosRefs = false,
                 amortizacionesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
+                    if (scoresRefs) db.scores,
                     if (configuracionPrestamosRefs) db.configuracionPrestamos,
                     if (amortizacionesRefs) db.amortizaciones,
                   ],
@@ -4294,6 +4079,27 @@ class $$PrestamosTableTableManager
                       },
                   getPrefetchedDataCallback: (items) async {
                     return [
+                      if (scoresRefs)
+                        await $_getPrefetchedData<
+                          Prestamo,
+                          $PrestamosTable,
+                          Score
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PrestamosTableReferences
+                              ._scoresRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PrestamosTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).scoresRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.idPrestamo == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (configuracionPrestamosRefs)
                         await $_getPrefetchedData<
                           Prestamo,
@@ -4358,9 +4164,388 @@ typedef $$PrestamosTableProcessedTableManager =
       Prestamo,
       PrefetchHooks Function({
         bool idDeudor,
+        bool scoresRefs,
         bool configuracionPrestamosRefs,
         bool amortizacionesRefs,
       })
+    >;
+typedef $$ScoresTableCreateCompanionBuilder =
+    ScoresCompanion Function({
+      Value<int> idPrestamo,
+      required int idDeudor,
+      required double score,
+      Value<DateTime> fechaCreacion,
+    });
+typedef $$ScoresTableUpdateCompanionBuilder =
+    ScoresCompanion Function({
+      Value<int> idPrestamo,
+      Value<int> idDeudor,
+      Value<double> score,
+      Value<DateTime> fechaCreacion,
+    });
+
+final class $$ScoresTableReferences
+    extends BaseReferences<_$AppDatabase, $ScoresTable, Score> {
+  $$ScoresTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $PrestamosTable _idPrestamoTable(_$AppDatabase db) =>
+      db.prestamos.createAlias('scores__id_prestamo__prestamos__id_prestamo');
+
+  $$PrestamosTableProcessedTableManager get idPrestamo {
+    final $_column = $_itemColumn<int>('id_prestamo')!;
+
+    final manager = $$PrestamosTableTableManager(
+      $_db,
+      $_db.prestamos,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_idPrestamoTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $DeudoresTable _idDeudorTable(_$AppDatabase db) =>
+      db.deudores.createAlias('scores__id_deudor__deudores__id_deudor');
+
+  $$DeudoresTableProcessedTableManager get idDeudor {
+    final $_column = $_itemColumn<int>('id_deudor')!;
+
+    final manager = $$DeudoresTableTableManager(
+      $_db,
+      $_db.deudores,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_idDeudorTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ScoresTableFilterComposer
+    extends Composer<_$AppDatabase, $ScoresTable> {
+  $$ScoresTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<double> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fechaCreacion => $composableBuilder(
+    column: $table.fechaCreacion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PrestamosTableFilterComposer get idPrestamo {
+    final $$PrestamosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.idPrestamo,
+      referencedTable: $db.prestamos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PrestamosTableFilterComposer(
+            $db: $db,
+            $table: $db.prestamos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DeudoresTableFilterComposer get idDeudor {
+    final $$DeudoresTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.idDeudor,
+      referencedTable: $db.deudores,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DeudoresTableFilterComposer(
+            $db: $db,
+            $table: $db.deudores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ScoresTableOrderingComposer
+    extends Composer<_$AppDatabase, $ScoresTable> {
+  $$ScoresTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<double> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fechaCreacion => $composableBuilder(
+    column: $table.fechaCreacion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PrestamosTableOrderingComposer get idPrestamo {
+    final $$PrestamosTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.idPrestamo,
+      referencedTable: $db.prestamos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PrestamosTableOrderingComposer(
+            $db: $db,
+            $table: $db.prestamos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DeudoresTableOrderingComposer get idDeudor {
+    final $$DeudoresTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.idDeudor,
+      referencedTable: $db.deudores,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DeudoresTableOrderingComposer(
+            $db: $db,
+            $table: $db.deudores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ScoresTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ScoresTable> {
+  $$ScoresTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<double> get score =>
+      $composableBuilder(column: $table.score, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fechaCreacion => $composableBuilder(
+    column: $table.fechaCreacion,
+    builder: (column) => column,
+  );
+
+  $$PrestamosTableAnnotationComposer get idPrestamo {
+    final $$PrestamosTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.idPrestamo,
+      referencedTable: $db.prestamos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PrestamosTableAnnotationComposer(
+            $db: $db,
+            $table: $db.prestamos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DeudoresTableAnnotationComposer get idDeudor {
+    final $$DeudoresTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.idDeudor,
+      referencedTable: $db.deudores,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DeudoresTableAnnotationComposer(
+            $db: $db,
+            $table: $db.deudores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ScoresTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ScoresTable,
+          Score,
+          $$ScoresTableFilterComposer,
+          $$ScoresTableOrderingComposer,
+          $$ScoresTableAnnotationComposer,
+          $$ScoresTableCreateCompanionBuilder,
+          $$ScoresTableUpdateCompanionBuilder,
+          (Score, $$ScoresTableReferences),
+          Score,
+          PrefetchHooks Function({bool idPrestamo, bool idDeudor})
+        > {
+  $$ScoresTableTableManager(_$AppDatabase db, $ScoresTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ScoresTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ScoresTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ScoresTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> idPrestamo = const Value.absent(),
+                Value<int> idDeudor = const Value.absent(),
+                Value<double> score = const Value.absent(),
+                Value<DateTime> fechaCreacion = const Value.absent(),
+              }) => ScoresCompanion(
+                idPrestamo: idPrestamo,
+                idDeudor: idDeudor,
+                score: score,
+                fechaCreacion: fechaCreacion,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> idPrestamo = const Value.absent(),
+                required int idDeudor,
+                required double score,
+                Value<DateTime> fechaCreacion = const Value.absent(),
+              }) => ScoresCompanion.insert(
+                idPrestamo: idPrestamo,
+                idDeudor: idDeudor,
+                score: score,
+                fechaCreacion: fechaCreacion,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) =>
+                    (e.readTable(table), $$ScoresTableReferences(db, table, e)),
+              )
+              .toList(),
+          prefetchHooksCallback: ({idPrestamo = false, idDeudor = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (idPrestamo) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.idPrestamo,
+                                referencedTable: $$ScoresTableReferences
+                                    ._idPrestamoTable(db),
+                                referencedColumn: $$ScoresTableReferences
+                                    ._idPrestamoTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (idDeudor) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.idDeudor,
+                                referencedTable: $$ScoresTableReferences
+                                    ._idDeudorTable(db),
+                                referencedColumn: $$ScoresTableReferences
+                                    ._idDeudorTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ScoresTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ScoresTable,
+      Score,
+      $$ScoresTableFilterComposer,
+      $$ScoresTableOrderingComposer,
+      $$ScoresTableAnnotationComposer,
+      $$ScoresTableCreateCompanionBuilder,
+      $$ScoresTableUpdateCompanionBuilder,
+      (Score, $$ScoresTableReferences),
+      Score,
+      PrefetchHooks Function({bool idPrestamo, bool idDeudor})
     >;
 typedef $$ConfiguracionPrestamosTableCreateCompanionBuilder =
     ConfiguracionPrestamosCompanion Function({
@@ -5318,10 +5503,10 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$DeudoresTableTableManager get deudores =>
       $$DeudoresTableTableManager(_db, _db.deudores);
-  $$ScoresTableTableManager get scores =>
-      $$ScoresTableTableManager(_db, _db.scores);
   $$PrestamosTableTableManager get prestamos =>
       $$PrestamosTableTableManager(_db, _db.prestamos);
+  $$ScoresTableTableManager get scores =>
+      $$ScoresTableTableManager(_db, _db.scores);
   $$ConfiguracionPrestamosTableTableManager get configuracionPrestamos =>
       $$ConfiguracionPrestamosTableTableManager(
         _db,

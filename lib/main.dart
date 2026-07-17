@@ -71,6 +71,21 @@ void main() async {
     initialDelay: oneAm.difference(now),
     existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
   );
+
+  final backupFreq = localBackup.getBackupFrequency();
+  if (backupFreq != 'Manual') {
+    final twoThirtyAm = DateTime(now.year, now.month, now.day + 1, 2, 30);
+    final freq = backupFreq == 'weekly'
+        ? const Duration(days: 7)
+        : const Duration(hours: 24);
+    await Workmanager().registerPeriodicTask(
+      'autoBackup',
+      'autoBackup',
+      frequency: freq,
+      initialDelay: twoThirtyAm.difference(now),
+      existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
+    );
+  }
   FlutterNativeSplash.remove();
   runApp(
     ProviderScope(

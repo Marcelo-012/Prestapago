@@ -175,6 +175,8 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
           p.monto_cuota,
           p.fecha_creacion,
           d.nombre AS nombre_deudor,
+          d.numero_identificacion,
+          d.telefono,
           COALESCE((SELECT SUM(a.monto_capital) FROM amortizaciones a
            WHERE a.id_prestamo = p.id_prestamo AND a.estado_amortizacion = 'pagado'), 0) AS total_pagado
         FROM prestamos p
@@ -297,6 +299,8 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
 
     return PrestamoDetalle(
       nombreDeudor: prestamoRow.read<String>('nombre_deudor'),
+      numeroIdentificacion: prestamoRow.read<String>('numero_identificacion'),
+      telefono: prestamoRow.read<String>('telefono'),
       configuracionPrestamo: configuracion,
       amortizaciones: amortizaciones,
       prestamo: prestamo,
