@@ -7,7 +7,9 @@ import 'package:url_launcher/url_launcher.dart';
 class TermsScreen extends ConsumerStatefulWidget {
   static const name = 'terms';
 
-  const TermsScreen({super.key});
+  final bool readOnly;
+
+  const TermsScreen({super.key, this.readOnly = false});
 
   @override
   ConsumerState<TermsScreen> createState() => _TermsScreenState();
@@ -20,7 +22,9 @@ class _TermsScreenState extends ConsumerState<TermsScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
+    if (!widget.readOnly) {
+      _scrollController.addListener(_onScroll);
+    }
   }
 
   void _onScroll() {
@@ -34,7 +38,9 @@ class _TermsScreenState extends ConsumerState<TermsScreen> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
+    if (!widget.readOnly) {
+      _scrollController.removeListener(_onScroll);
+    }
     _scrollController.dispose();
     super.dispose();
   }
@@ -44,6 +50,11 @@ class _TermsScreenState extends ConsumerState<TermsScreen> {
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
+      appBar: widget.readOnly
+          ? AppBar(
+              title: const Text('Aviso de Privacidad'),
+            )
+          : null,
       body: SafeArea(
         child: Column(
           children: [
@@ -54,7 +65,8 @@ class _TermsScreenState extends ConsumerState<TermsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 16),
+                    if (widget.readOnly) const SizedBox(height: 8),
+                    if (!widget.readOnly) const SizedBox(height: 16),
                     Icon(
                       Icons.shield_outlined,
                       size: 48,
@@ -219,22 +231,24 @@ class _TermsScreenState extends ConsumerState<TermsScreen> {
                 ),
               ),
             ),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: colors.surface,
-                border: Border(
-                  top: BorderSide(color: colors.outlineVariant),
+            if (!widget.readOnly)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  border: Border(
+                    top: BorderSide(color: colors.outlineVariant),
+                  ),
+                ),
+                child: FilledButton(
+                  onPressed: _canAccept
+                      ? () => ref.read(acceptTermsProvider).call()
+                      : null,
+                  child: Text(
+                      _canAccept ? 'Aceptar' : 'Desliza hasta abajo para aceptar'),
                 ),
               ),
-              child: FilledButton(
-                onPressed: _canAccept
-                    ? () => ref.read(acceptTermsProvider).call()
-                    : null,
-                child: Text(_canAccept ? 'Aceptar' : 'Desliza hasta abajo para aceptar'),
-              ),
-            ),
           ],
         ),
       ),

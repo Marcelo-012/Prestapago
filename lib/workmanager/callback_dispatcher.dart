@@ -183,16 +183,22 @@ void callbackDispatcher() {
       );
 
       return true;
-    } catch (_) {
+    } catch (e) {
       try {
         final prefs = await SharedPreferences.getInstance();
         final localBackup = LocalBackupDatasource(prefs);
         await localBackup.setBackupStatus('Falló');
 
+        final isQuota = e.toString().contains('STORAGE_QUOTA_EXCEEDED');
+        final title = isQuota ? 'Almacenamiento lleno' : 'Respaldo fallido';
+        final body = isQuota
+            ? 'El respaldo automático no pudo completarse porque tu Google Drive está lleno. Libera espacio e intenta de nuevo.'
+            : 'El respaldo automático no pudo completarse. Revisa tu conexión e intenta de nuevo.';
+
         await _notifications.show(
           NotificationConstants.failureNotificationId,
-          'Respaldo fallido',
-          'El respaldo automático no pudo completarse. Revisa tu conexión e intenta de nuevo.',
+          title,
+          body,
           const NotificationDetails(
             android: AndroidNotificationDetails(
               NotificationConstants.channelId,

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -17,13 +19,35 @@ import 'package:prestapagos/infrastructure/repositories/repositories.dart';
 import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:prestapagos/workmanager/workmanager.dart';
 
+Duration _delayUntil(int hour, int minute) {
+  final now = DateTime.now();
+  final target = DateTime(now.year, now.month, now.day, hour, minute);
+  return target.isAfter(now)
+      ? target.difference(now)
+      : target.add(const Duration(hours: 24)).difference(now);
+}
+
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  await dotenv.load();
-  await initializeDateFormatting('es_MX', null);
-  await NotificationService.initialize();
+  try {
+    await dotenv.load();
+  } catch (e) {
+    debugPrint('dotenv: $e');
+  }
+
+  try {
+    await initializeDateFormatting('es_MX', null);
+  } catch (e) {
+    debugPrint('DateFormatting: $e');
+  }
+
+  try {
+    await NotificationService.initialize();
+  } catch (e) {
+    debugPrint('NotificationService: $e');
+  }
 
   final prefs = await SharedPreferences.getInstance();
   final localBackup = LocalBackupDatasource(prefs);
@@ -60,21 +84,22 @@ void main() async {
     database: database,
   );
 
-  await Workmanager().initialize(callbackDispatcher);
+  try {
+    await Workmanager().initialize(callbackDispatcher);
+  } catch (e) {
+    debugPrint('Workmanager init: $e');
+  }
 
-  final now = DateTime.now();
-  final oneAm = DateTime(now.year, now.month, now.day + 1, 1);
   await Workmanager().registerPeriodicTask(
     'dailyAmortizationUpdate',
     'dailyAmortizationUpdate',
     frequency: const Duration(hours: 24),
-    initialDelay: oneAm.difference(now),
+    initialDelay: _delayUntil(1, 0),
     existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
   );
 
   final backupFreq = localBackup.getBackupFrequency();
   if (backupFreq != 'Manual') {
-    final twoThirtyAm = DateTime(now.year, now.month, now.day + 1, 2, 30);
     final freq = backupFreq == 'weekly'
         ? const Duration(days: 7)
         : const Duration(hours: 24);
@@ -82,24 +107,38 @@ void main() async {
       'autoBackup',
       'autoBackup',
       frequency: freq,
-      initialDelay: twoThirtyAm.difference(now),
+      initialDelay: _delayUntil(2, 30),
       existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
     );
   }
-  FlutterNativeSplash.remove();
-  runApp(
-    ProviderScope(
-      overrides: [
-        sharedPrefsProvider.overrideWithValue(prefs),
-        localBackupDatasourceProvider.overrideWithValue(localBackup),
-        secureStorageDatasourceProvider.overrideWithValue(secureStorage),
-        googleAuthDatasourceProvider.overrideWithValue(authDatasource),
-        appDatabaseProvider.overrideWithValue(database),
-        backupRepositoryProvider.overrideWithValue(backupRepository),
-      ],
-      child: const MainApp(),
-    ),
+
+  runZonedGuarded(
+    () {
+      FlutterError.onError = (details) {
+        FlutterError.presentError(details);
+      };
+      runApp(
+        ProviderScope(
+          overrides: [
+            sharedPrefsProvider.overrideWithValue(prefs),
+            localBackupDatasourceProvider.overrideWithValue(localBackup),
+            secureStorageDatasourceProvider.overrideWithValue(secureStorage),
+            googleAuthDatasourceProvider.overrideWithValue(authDatasource),
+            appDatabaseProvider.overrideWithValue(database),
+            backupRepositoryProvider.overrideWithValue(backupRepository),
+          ],
+          child: const MainApp(),
+        ),
+      );
+    },
+    (error, stackTrace) {
+      debugPrint('Error no manejado: $error\n$stackTrace');
+    },
   );
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    FlutterNativeSplash.remove();
+  });
 }
 
 class MainApp extends ConsumerWidget {

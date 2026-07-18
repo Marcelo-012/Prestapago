@@ -94,6 +94,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: BackupScreen.name,
         builder: (context, state) => const BackupScreen(),
       ),
+      GoRoute(
+        path: '/ajustes/aviso-privacidad',
+        builder: (context, state) => const TermsScreen(readOnly: true),
+      ),
     ],
     redirect: (context, state) {
       if (!termsAccepted) {

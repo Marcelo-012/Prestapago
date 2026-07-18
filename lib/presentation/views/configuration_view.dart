@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ConfigurationView extends ConsumerStatefulWidget {
   const ConfigurationView({super.key});
@@ -97,7 +98,7 @@ class _ConfigurationViewState extends ConsumerState<ConfigurationView> {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/ajustes/respaldo'),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               _sectionHeader('ACERCA DE', theme),
               ListTile(
                 title: const Text('PrestaPagos'),
@@ -107,6 +108,27 @@ class _ConfigurationViewState extends ConsumerState<ConfigurationView> {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
+              ),
+              const SizedBox(height: 24),
+              _sectionHeader('SOPORTE', theme),
+              ListTile(
+                leading: const Icon(Icons.mail_outline),
+                title: const Text('dev.merm.support@gmail.com'),
+                subtitle: const Text('Dudas, aclaraciones y soporte'),
+                onTap: () {
+                  final uri = Uri(
+                    scheme: 'mailto',
+                    path: 'dev.merm.support@gmail.com',
+                  );
+                  launchUrl(uri);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text('Aviso de privacidad y términos'),
+                subtitle: const Text('Consulta nuestra política de privacidad'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/ajustes/aviso-privacidad'),
               ),
               const SizedBox(height: 16),
               ]),

@@ -51,6 +51,15 @@ class DiskSpaceException extends BackupException {
       );
 }
 
+class StorageQuotaExceededException extends BackupException {
+  StorageQuotaExceededException()
+    : super(
+        message: 'Almacenamiento de Google Drive lleno. '
+            'Libera espacio o adquiere más almacenamiento.',
+        code: 'STORAGE_QUOTA_EXCEEDED',
+      );
+}
+
 class UnknownBackupException extends BackupException {
   UnknownBackupException(dynamic error, StackTrace stackTrace)
     : super(

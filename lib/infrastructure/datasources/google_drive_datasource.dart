@@ -105,6 +105,9 @@ class GoogleDriveDatasource {
     } catch (e, stack) {
       _logger.e('Error subiendo respaldo a Drive: $e', stackTrace: stack);
       if (e is BackupException) rethrow;
+      if (e.toString().contains('storageQuotaExceeded')) {
+        throw StorageQuotaExceededException();
+      }
       throw BackupException(
         message: 'Error durante la subida: ${e.toString()}',
         code: 'UPLOAD_FAILED',

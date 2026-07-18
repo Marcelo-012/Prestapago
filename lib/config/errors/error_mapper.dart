@@ -43,6 +43,10 @@ String mapErrorToMessage(Object? error) {
     return 'Ocurrió un problema al leer o guardar el archivo. Verifica el espacio disponible.';
   }
 
+  if (error is StorageQuotaExceededException) {
+    return error.message;
+  }
+
   if (error is BackupException) {
     return switch (error.code) {
       'NO_INTERNET' => 'No hay conexión a internet. Por favor, revisa tu red e intenta de nuevo.',
