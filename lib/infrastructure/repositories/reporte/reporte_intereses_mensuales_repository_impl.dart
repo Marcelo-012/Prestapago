@@ -1,6 +1,7 @@
 import 'package:prestapagos/config/helpers/helpers.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
+import 'package:prestapagos/infrastructure/repositories/reporte/reporte_queries.dart';
 
 class ReporteInteresesMensualesRepositoryImpl
     extends ReporteInteresesMensualesRepository {
@@ -11,13 +12,7 @@ class ReporteInteresesMensualesRepositoryImpl
   @override
   Future<ReporteInteresesMensuales> getReporteInteresesMensuales() async {
     final rows = await _db.customSelect('''
-      WITH RECURSIVE meses(mes) AS (
-        SELECT strftime('%Y-%m', 'now', '-6 months')
-        UNION ALL
-        SELECT strftime('%Y-%m', mes || '-01', '+1 month')
-        FROM meses
-        WHERE mes < strftime('%Y-%m', 'now')
-      )
+      $cteUltimos6Meses
       SELECT m.mes,
         COALESCE(SUM(a.monto_interes), 0) as total
       FROM meses m
