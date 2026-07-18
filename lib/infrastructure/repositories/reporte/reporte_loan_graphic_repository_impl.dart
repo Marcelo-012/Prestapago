@@ -1,6 +1,7 @@
 import 'package:prestapagos/config/helpers/helpers.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
+import 'package:prestapagos/infrastructure/repositories/reporte/reporte_queries.dart';
 
 class ReporteLoanGraphicRepositoryImpl extends ReporteLoanGraphicRepository {
   final AppDatabase _db;
@@ -10,13 +11,16 @@ class ReporteLoanGraphicRepositoryImpl extends ReporteLoanGraphicRepository {
   @override
   Future<ReporteLoanGraphic> getReporteLoanGraphic() async {
     final prestamosPorMesRows = await _db.customSelect('''
-    SELECT 
-      strftime('%Y-%m', fecha_creacion, 'unixepoch') AS mes,
-      COALESCE(SUM(monto), 0) AS totalMonto
-    FROM prestamos
-    WHERE fecha_creacion IS NOT NULL
-    GROUP BY strftime('%Y-%m', fecha_creacion, 'unixepoch')
-    ORDER BY mes ASC
+      $cteUltimos6Meses
+      SELECT m.mes,
+        COALESCE((
+          SELECT SUM(p.monto) FROM prestamos p
+          INNER JOIN configuracion_prestamos cp ON cp.id_prestamo = p.id_prestamo
+          WHERE strftime('%Y-%m', p.fecha_creacion, 'unixepoch') <= m.mes
+            AND cp.estado_prestamo NOT IN ('cancelado', 'incobrable')
+        ), 0) AS totalMonto
+      FROM meses m
+      ORDER BY m.mes ASC
     ''').get();
 
     final montoMes = prestamosPorMesRows

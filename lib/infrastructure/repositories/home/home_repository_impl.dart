@@ -68,8 +68,7 @@ class HomeRepositoryImpl extends HomeRepository {
   Future<List<ClienteResumen>> getMejoresClientes() async {
     final rows = await _db.customSelect('''
       SELECT d.id_deudor, d.nombre, d.telefono,
-        COALESCE(d.email, '') as email, d.direccion,
-        d.numero_identificacion, d.edad, d.estado,
+        d.estado,
         COALESCE((
           SELECT ROUND(AVG(sq.score)) FROM (
             SELECT s.score FROM scores s
@@ -79,6 +78,7 @@ class HomeRepositoryImpl extends HomeRepository {
           ) sq
         ), 0) AS score
       FROM deudores d
+      WHERE d.estado = 'activo'
       ORDER BY score DESC
       LIMIT 5
     ''').get();

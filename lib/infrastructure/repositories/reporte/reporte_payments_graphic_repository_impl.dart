@@ -11,14 +11,21 @@ class ReportePaymentsGraphicRepositoryImpl
   @override
   Future<ReportePaymentsGraphic> getReportePaymentsGraphic() async {
     final pagosPorDia = await _db.customSelect('''
-  SELECT 
-    strftime('%w', fecha_pagado, 'unixepoch') AS numeroDia,
-    COALESCE(SUM(monto_pagado), 0) AS totalMonto
-  FROM amortizaciones
-  WHERE fecha_pagado IS NOT NULL
-  GROUP BY strftime('%w', fecha_pagado, 'unixepoch')
-  ORDER BY numeroDia ASC
-  ''').get();
+      SELECT
+        d.numeroDia,
+        COALESCE(SUM(a.monto_pagado), 0) AS totalMonto
+      FROM (
+        SELECT '0' AS numeroDia UNION ALL SELECT '1' UNION ALL
+        SELECT '2' UNION ALL SELECT '3' UNION ALL
+        SELECT '4' UNION ALL SELECT '5' UNION ALL
+        SELECT '6'
+      ) d
+      LEFT JOIN amortizaciones a
+        ON strftime('%w', a.fecha_pagado, 'unixepoch') = d.numeroDia
+        AND a.fecha_pagado IS NOT NULL
+      GROUP BY d.numeroDia
+      ORDER BY d.numeroDia ASC
+    ''').get();
 
     final montoPago = pagosPorDia
         .map((row) => row.read<double>('totalMonto'))
