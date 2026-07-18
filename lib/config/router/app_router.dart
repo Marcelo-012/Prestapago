@@ -5,20 +5,19 @@ import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:prestapagos/presentation/screens/screens.dart';
 
+class GoRouterRefreshNotifier extends ChangeNotifier {
+  GoRouterRefreshNotifier(Ref ref) {
+    ref.listen(authSkippedProvider, (_, _) => notifyListeners());
+    ref.listen(accountProvider, (_, _) => notifyListeners());
+    ref.listen(termsAcceptedProvider, (_, _) => notifyListeners());
+  }
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
-  final authSkipped = ref.watch(authSkippedProvider);
-  final accountState = ref.watch(accountProvider);
-  final termsAccepted = ref.watch(termsAcceptedProvider);
+  final refreshNotifier = GoRouterRefreshNotifier(ref);
+  ref.onDispose(refreshNotifier.dispose);
 
-  final shouldShowLogin = !authSkipped && !accountState.isLinked;
-
-  final refreshNotifier = ValueNotifier(0);
-
-  ref.listen(authSkippedProvider, (_, __) => refreshNotifier.value++);
-  ref.listen(accountProvider, (_, __) => refreshNotifier.value++);
-  ref.listen(termsAcceptedProvider, (_, __) => refreshNotifier.value++);
-
-  final goRouter = GoRouter(
+  return GoRouter(
     initialLocation: '/home/0',
     refreshListenable: refreshNotifier,
     routes: [
@@ -36,7 +35,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/home/:page',
         name: HomeScreen.name,
         builder: (context, state) {
-          final pageIndex = int.parse(state.pathParameters['page'] ?? '0');
+          final pageIndex = int.tryParse(state.pathParameters['page'] ?? '') ?? 0;
           return HomeScreen(pageIndex: pageIndex);
         },
         routes: [
@@ -100,6 +99,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
     redirect: (context, state) {
+      final authSkipped = ref.read(authSkippedProvider);
+      final accountState = ref.read(accountProvider);
+      final termsAccepted = ref.read(termsAcceptedProvider);
+
+      final shouldShowLogin = !authSkipped && !accountState.isLinked;
+
       if (!termsAccepted) {
         if (state.matchedLocation != '/terms') return '/terms';
         return null;
@@ -114,6 +119,4 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
   );
-
-  return goRouter;
 });

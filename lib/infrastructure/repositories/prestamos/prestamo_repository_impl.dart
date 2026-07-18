@@ -241,8 +241,8 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
 
   @override
   Future<PrestamoDetalle> getDetalle(int idPrestamo) async {
-    await _estadoPrestamoService.actualizarMorosidad();
-    await _estadoPrestamoService.recalcularEstadoPrestamo();
+    await _estadoPrestamoService.actualizarMorosidad(idPrestamo: idPrestamo);
+    await _estadoPrestamoService.recalcularEstadoPrestamo(idPrestamo: idPrestamo);
 
     final results = await Future.wait([
       _db

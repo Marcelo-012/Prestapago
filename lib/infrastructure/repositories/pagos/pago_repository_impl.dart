@@ -178,7 +178,7 @@ class PagoRepositoryImpl implements PagoRepository {
         }
       }
 
-      await _estadoPrestamoService.recalcularEstadoPrestamo();
+      await _estadoPrestamoService.recalcularEstadoPrestamo(idPrestamo: idPrestamo);
 
       final configActual = await (_db.select(
         _db.configuracionPrestamos,

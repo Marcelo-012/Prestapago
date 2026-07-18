@@ -14,7 +14,7 @@ class BackupRepositoryImpl implements BackupRepository {
   final File _databaseFile;
   final AppDatabase? _database;
 
-  final _logger = Logger(level: kReleaseMode ? Level.warning : Level.trace);
+  final _logger = Logger(level: kReleaseMode ? Level.off : Level.trace);
 
   BackupRepositoryImpl({
     required this._authDatasource,
@@ -79,8 +79,8 @@ class BackupRepositoryImpl implements BackupRepository {
       );
 
       _logger.i('✅ Flujo asíncrono de respaldo finalizado con éxito');
-    } on BackupException catch (e) {
-      _logger.e('Fallo controlado en operación de copia: ${e.message}');
+    } on BackupException catch (e, stack) {
+      _logger.e('Fallo controlado en operación de copia: ${e.message}', error: e, stackTrace: stack);
       yield BackupStatus(
         status: BackupStatusEnum.failed,
         message: e.message,
@@ -105,6 +105,12 @@ class BackupRepositoryImpl implements BackupRepository {
       );
 
       if (!await _checkInternetConnection()) throw NoInternetException();
+
+      final backupPath = '${_databaseFile.parent.path}/respaldo_previo_temp.db';
+      final backupFile = File(backupPath);
+      if (await backupFile.exists()) {
+        await backupFile.delete();
+      }
 
       yield BackupStatus(
         status: BackupStatusEnum.authenticating,
@@ -152,9 +158,6 @@ class BackupRepositoryImpl implements BackupRepository {
         await _database.close();
       }
 
-      final backupPath = '${_databaseFile.parent.path}/respaldo_previo_temp.db';
-      final backupFile = File(backupPath);
-
       if (await _databaseFile.exists()) {
         await _databaseFile.rename(backupPath);
       }
@@ -179,8 +182,8 @@ class BackupRepositoryImpl implements BackupRepository {
         progress: 1.0,
       );
       _logger.i('✅ Reemplazo atómico de base de datos finalizado con éxito');
-    } on BackupException catch (e) {
-      _logger.e('Fallo controlado en restauración de datos: ${e.message}');
+    } on BackupException catch (e, stack) {
+      _logger.e('Fallo controlado en restauración de datos: ${e.message}', error: e, stackTrace: stack);
       yield BackupStatus(
         status: BackupStatusEnum.failed,
         message: e.message,
