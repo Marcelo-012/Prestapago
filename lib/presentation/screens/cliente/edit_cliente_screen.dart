@@ -65,6 +65,7 @@ class _EditClienteScreenState extends ConsumerState<EditClienteScreen> {
   Future<void> _confirmarCambio({
     required int clienteId,
     required DateTime fechaCreacion,
+    required String estado,
   }) async {
     final guardar = await confirmarAccion(
       context,
@@ -74,7 +75,7 @@ class _EditClienteScreenState extends ConsumerState<EditClienteScreen> {
     if (guardar && context.mounted) {
       _syncControllersToProvider();
       ref.read(editClienteProvider.notifier).reset();
-      ref.read(editClienteProvider.notifier).submit(clienteId, fechaCreacion);
+      ref.read(editClienteProvider.notifier).submit(clienteId, fechaCreacion, estado);
     }
   }
 
@@ -190,6 +191,7 @@ class _EditClienteScreenState extends ConsumerState<EditClienteScreen> {
                       onSubmit: () => _confirmarCambio(
                         clienteId: cliente.idDeudor,
                         fechaCreacion: cliente.fechaCreacion,
+                        estado: cliente.estado,
                       ),
                       onCancel: () => _confirmarSalida(context, ref),
                       isSubmitting: submitState.isSubmitting,

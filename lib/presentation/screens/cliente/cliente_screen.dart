@@ -81,6 +81,7 @@ class _ClienteScreenState extends ConsumerState<ClienteScreen> {
   Future<void> _eliminarCliente(BuildContext context, int idDeudor) async {
     final repository = ref.read(clienteRepositoryProvider);
     final totalPrestamos = await repository.countRelatedRecords(idDeudor);
+    final activeLoans = await repository.hasActiveLoans(idDeudor);
 
     if (!context.mounted) return;
 
@@ -114,6 +115,16 @@ class _ClienteScreenState extends ConsumerState<ClienteScreen> {
         );
       }
       context.pop();
+    } else if (activeLoans) {
+      await confirmarAccion(
+        context,
+        titulo: 'Cliente con préstamos activos',
+        mensaje:
+            'El cliente tiene $totalPrestamos préstamo${totalPrestamos == 1 ? '' : 's'} registrado${totalPrestamos == 1 ? '' : 's'} '
+            'con préstamos activos.\n\n'
+            'No se puede desactivar hasta que todos sus préstamos estén finalizados o cancelados.',
+        textoConfirmar: 'Entendido',
+      );
     } else {
       final desactivar = await confirmarAccion(
         context,

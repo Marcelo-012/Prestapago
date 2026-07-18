@@ -42,6 +42,15 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
   @override
   Future<int> createPrestamo(CreatePrestamoDTO dto) async {
     return _db.transaction(() async {
+      final deudor = await (_db.select(_db.deudores)
+        ..where((t) => t.id.equals(dto.idDeudor))).getSingleOrNull();
+      if (deudor == null) {
+        throw Exception('El cliente no existe');
+      }
+      if (deudor.estado == EstadoCliente.inactivo) {
+        throw Exception('No se puede crear un préstamo para un cliente inactivo');
+      }
+
       final idPrestamo = await _db
           .into(_db.prestamos)
           .insert(

@@ -12,6 +12,7 @@ abstract class ClienteRepository {
   Future<void> updateCliente(Cliente cliente);
   Future<void> deleteCliente(int idDeudor);
   Future<int> countRelatedRecords(int idDeudor);
+  Future<bool> hasActiveLoans(int idDeudor);
   Future<void> deactivateCliente(int idDeudor);
   Future<void> reactivateCliente(int idDeudor);
 }

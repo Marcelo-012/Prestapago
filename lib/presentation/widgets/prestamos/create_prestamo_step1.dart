@@ -102,6 +102,7 @@ class _ClienteSearchListState extends ConsumerState<_ClienteSearchList> {
                   itemCount: paginationState.items.length,
                   itemBuilder: (context, index) {
                     final client = paginationState.items[index];
+                    final isInactive = client.estado == 'inactivo';
                     return ListTile(
                       leading: CircleAvatar(
                         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -114,7 +115,10 @@ class _ClienteSearchListState extends ConsumerState<_ClienteSearchList> {
                       ),
                       title: Text(client.nombre),
                       subtitle: Text(client.telefono),
-                      onTap: () => widget.onSelected(client),
+                      trailing: isInactive
+                          ? const Icon(Icons.block, color: Colors.grey)
+                          : null,
+                      onTap: isInactive ? null : () => widget.onSelected(client),
                     );
                   },
                 ),

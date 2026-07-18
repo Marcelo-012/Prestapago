@@ -21,7 +21,7 @@ class EditClienteNotifier extends Notifier<EditClienteState> {
     isSuccess: false,
   );
 
-  Future<void> submit(int clienteId, DateTime fechaCreacion) async {
+  Future<void> submit(int clienteId, DateTime fechaCreacion, String estado) async {
     ref.read(editClienteFormProvider.notifier).touchAll();
     final formState = ref.read(editClienteFormProvider);
 
@@ -43,7 +43,7 @@ class EditClienteNotifier extends Notifier<EditClienteState> {
               direccion: formState.address.value,
               dni: formState.dni.value,
               edad: int.tryParse(formState.age.value) ?? 0,
-              estado: EstadoCliente.activo.name,
+              estado: estado,
               fechaCreacion: fechaCreacion,
               fechaActualizacion: DateTime.now(),
             ),

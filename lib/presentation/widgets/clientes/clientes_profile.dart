@@ -258,6 +258,7 @@ class ClientesProfile extends StatelessWidget {
           prestamos: detalle.prestamos,
           idDeudor: detalle.cliente.idDeudor,
           nombreDeudor: detalle.cliente.nombre,
+          estadoCliente: detalle.cliente.estado,
         ),
         const SizedBox(height: 24),
       ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/config/helpers/helpers.dart';
@@ -8,13 +9,37 @@ class ClientePrestamosList extends StatelessWidget {
   final List<PrestamoResumen> prestamos;
   final int idDeudor;
   final String nombreDeudor;
+  final String estadoCliente;
 
   const ClientePrestamosList({
     super.key,
     required this.prestamos,
     required this.idDeudor,
     required this.nombreDeudor,
+    required this.estadoCliente,
   });
+
+  void _onNuevoPrestamo(BuildContext context) {
+    if (estadoCliente == 'inactivo') {
+      Fluttertoast.showToast(
+        msg: 'No se puede crear un préstamo para un cliente inactivo',
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      return;
+    }
+    context.push(
+      '/create-prestamo',
+      extra: ClienteResumen(
+        idDeudor: idDeudor,
+        nombre: nombreDeudor,
+        telefono: '',
+        estado: '',
+        score: 0,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,24 +56,12 @@ class ClientePrestamosList extends StatelessWidget {
               const SizedBox(height: 16),
               FilledButton.icon(
                 label: const Text('Nuevo préstamo'),
-                onPressed: () {
-                  context.push(
-                    '/create-prestamo',
-                    extra: ClienteResumen(
-                      idDeudor: idDeudor,
-                      nombre: nombreDeudor,
-                      telefono: '',
-                      estado: '',
-                      score: 0,
-                    ),
-                  );
-                },
+                onPressed: () => _onNuevoPrestamo(context),
                 icon: const Icon(Icons.add_card_outlined),
               ),
             ],
           ),
-        ),
-      );
+        ));
     }
 
     return Column(
@@ -67,19 +80,8 @@ class ClientePrestamosList extends StatelessWidget {
                 ),
               ),
               FilledButton.icon(
-                label: Text('Nuevo préstamo'),
-                onPressed: () {
-                  context.push(
-                    '/create-prestamo',
-                    extra: ClienteResumen(
-                      idDeudor: idDeudor,
-                      nombre: nombreDeudor,
-                      telefono: '',
-                      estado: '',
-                      score: 0,
-                    ),
-                  );
-                },
+                label: const Text('Nuevo préstamo'),
+                onPressed: () => _onNuevoPrestamo(context),
                 icon: const Icon(Icons.add_card_outlined),
               ),
             ],

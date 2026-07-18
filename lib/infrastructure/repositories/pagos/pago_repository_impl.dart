@@ -40,6 +40,12 @@ class PagoRepositoryImpl implements PagoRepository {
       final config = completo.configuracionPrestamo;
       final prestamo = completo.prestamo;
 
+      final deudor = await (_db.select(_db.deudores)
+        ..where((t) => t.id.equals(prestamo.idDeudor))).getSingleOrNull();
+      if (deudor != null && deudor.estado == EstadoCliente.inactivo) {
+        throw Exception('No se puede registrar un pago para un cliente inactivo');
+      }
+
       final prox = completo.amortizaciones.firstWhere(
         (a) =>
             a.estadoAmortizacion == 'atrasado' ||

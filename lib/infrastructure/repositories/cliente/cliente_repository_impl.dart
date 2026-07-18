@@ -229,6 +229,21 @@ class ClienteRepositoryImpl implements ClienteRepository {
     return rows.read<int>('total');
   }
 
+  @override
+  Future<bool> hasActiveLoans(int idDeudor) async {
+    final rows = await _db.customSelect(
+      '''
+      SELECT 1 FROM prestamos p
+      JOIN configuracion_prestamos cp ON cp.id_prestamo = p.id_prestamo
+      WHERE p.id_deudor = ?
+        AND cp.estado_prestamo NOT IN ('finalizado', 'cancelado')
+      LIMIT 1
+    ''',
+      variables: [Variable<int>(idDeudor)],
+    ).get();
+    return rows.isNotEmpty;
+  }
+
   Future<void> _actualizarEstado(int idDeudor, EstadoCliente estado) async {
     await (_db.update(_db.deudores)..where((t) => t.id.equals(idDeudor))).write(
       DeudoresCompanion(
