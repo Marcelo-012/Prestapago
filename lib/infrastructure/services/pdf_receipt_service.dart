@@ -321,4 +321,131 @@ class PdfReceiptService {
       default: return c;
     }
   }
+
+  Future<File> generateLoanDetailPdf({
+    required PrestamoDetalle detalle,
+    required int cuotasPagadas,
+    required int cuotasTotales,
+    required double capitalPagado,
+  }) async {
+    final pdf = pw.Document();
+    final hoy = DateTime.now();
+    final esSimple = detalle.configuracionPrestamo.tipoInteres == 'simple';
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.letter,
+        margin: const pw.EdgeInsets.all(40),
+        build: (pw.Context context) {
+          return [
+            pw.Center(
+              child: pw.Text(
+                'Detalle de Préstamo',
+                style: pw.TextStyle(
+                  fontSize: 22,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.grey700,
+                ),
+              ),
+            ),
+            pw.SizedBox(height: 4),
+            pw.Center(
+              child: pw.Text(
+                HumanFormats.date(hoy),
+                style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey500),
+              ),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Header(text: 'Cliente', level: 1),
+            _infoRow('Nombre', detalle.nombreDeudor),
+            _infoRow('Identificación', detalle.numeroIdentificacion),
+            _infoRow('Teléfono', detalle.telefono),
+            pw.SizedBox(height: 16),
+            pw.Header(text: 'Información del Préstamo', level: 1),
+            _infoRow('Monto', HumanFormats.monuted(detalle.prestamo.monto)),
+            _infoRow('Plazo', '${detalle.prestamo.plazo} meses'),
+            _infoRow('Cuota mensual', HumanFormats.monuted(detalle.prestamo.montoCuota)),
+            _infoRow('Tasa interés', '${detalle.prestamo.tasaInteres}%'),
+            _infoRow('Tasa moratoria', '${detalle.prestamo.tasaInteresMoratoria}%'),
+            _infoRow('Tipo interés', esSimple ? 'Simple' : 'Compuesto'),
+            _infoRow('Periodicidad', detalle.configuracionPrestamo.periodidadIntereses),
+            _infoRow('Estado', detalle.estadoPagos),
+            pw.SizedBox(height: 16),
+            pw.Header(text: 'Progreso', level: 1),
+            _infoRow('Cuotas pagadas', '$cuotasPagadas / $cuotasTotales'),
+            _infoRow('Capital pagado', HumanFormats.monuted(capitalPagado)),
+            _infoRow('Capital pendiente', HumanFormats.monuted(
+              detalle.prestamo.monto - capitalPagado,
+            )),
+            pw.SizedBox(height: 16),
+            pw.Header(text: 'Amortizaciones', level: 1),
+            _buildAmortizacionTable(
+              detalle.amortizaciones,
+              esSimple,
+              tasaMoratoria: detalle.prestamo.tasaInteresMoratoria,
+              periodicidad: detalle.configuracionPrestamo.periodidadIntereses,
+            ),
+          ];
+        },
+      ),
+    );
+
+    final dir = await getTemporaryDirectory();
+    final nombreCliente = detalle.nombreDeudor
+        .replaceAllMapped(RegExp(r'[áéíóúüñ]'), (m) => _sanitizeChar(m.group(0)!))
+        .replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_');
+    final file = File(
+      '${dir.path}/detalle_prestamo_${detalle.idPrestamo}_$nombreCliente.pdf',
+    );
+    await file.writeAsBytes(await pdf.save());
+    return file;
+  }
+
+  pw.Widget _buildAmortizacionTable(
+    List<Amortizacion> amortizaciones,
+    bool esSimple, {
+    required double tasaMoratoria,
+    required String periodicidad,
+  }) {
+    final tasaDiaria = periodicidad == 'anual'
+        ? tasaMoratoria / 100 / 360
+        : tasaMoratoria / 100 / 30;
+
+    final headers = <String>[
+      '#', 'Vencimiento', 'Fecha pago', 'Monto inicial', 'Cuota',
+      'Capital', 'Interés', 'Monto pagado', 'Excedente', 'Días mora',
+    ];
+    if (esSimple) headers.add('Mora');
+    headers.add('Estado');
+
+    final rows = amortizaciones.map((a) {
+      final montoMoraCalculado = esSimple && a.diasMora > 0
+          ? (a.montoCapital + a.montoInteres) * tasaDiaria * a.diasMora
+          : 0.0;
+
+      final cells = <String>[
+        a.idCuota.toString(),
+        HumanFormats.date(a.fechaVencimiento),
+        a.fechaPagado != null ? HumanFormats.date(a.fechaPagado!) : '-',
+        HumanFormats.monuted(a.montoInicial),
+        HumanFormats.monuted(a.montoCapital + a.montoInteres),
+        HumanFormats.monuted(a.montoCapital),
+        HumanFormats.monuted(a.montoInteres),
+        HumanFormats.monuted(a.montoPagado),
+        HumanFormats.monuted(a.montoExcedente),
+        a.diasMora.toString(),
+      ];
+      if (esSimple) cells.add(HumanFormats.monuted(montoMoraCalculado));
+      cells.add(a.estadoAmortizacion);
+      return cells;
+    }).toList();
+
+    return pw.TableHelper.fromTextArray(
+      headerStyle: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold),
+      cellStyle: pw.TextStyle(fontSize: 7),
+      headerDecoration: const pw.BoxDecoration(color: PdfColors.grey200),
+      headers: headers,
+      data: rows,
+    );
+  }
 }

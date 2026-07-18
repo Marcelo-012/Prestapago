@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/domain/domain.dart';
+import 'package:prestapagos/infrastructure/services/pdf_receipt_service.dart';
 import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:prestapagos/presentation/screens/pagos/pagos.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PrestamoScreen extends ConsumerStatefulWidget {
   static const name = 'prestamo-profile';
@@ -32,6 +34,32 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => PagarScreen(detalle: detalle)),
+    );
+  }
+
+  Future<void> _generarPdf(PrestamoDetalle detalle) async {
+    final completadas = <String>['pagado', 'cancelado'];
+    final cuotasPagadas = detalle.amortizaciones
+        .where((a) => completadas.contains(a.estadoAmortizacion))
+        .length;
+    final capitalPagado = detalle.amortizaciones
+        .where((a) => completadas.contains(a.estadoAmortizacion))
+        .fold<double>(0, (sum, a) => sum + a.montoCapital);
+
+    final service = PdfReceiptService();
+    final file = await service.generateLoanDetailPdf(
+      detalle: detalle,
+      cuotasPagadas: cuotasPagadas,
+      cuotasTotales: detalle.amortizaciones.length,
+      capitalPagado: capitalPagado,
+    );
+
+    if (!mounted) return;
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path)],
+        text: 'Detalle de préstamo - ${detalle.nombreDeudor}',
+      ),
     );
   }
 
@@ -78,6 +106,13 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
             title: CustomAppbar(title: 'Detalle préstamo'),
             titlePadding: EdgeInsets.only(left: 30.0),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.picture_as_pdf),
+              tooltip: 'Generar PDF',
+              onPressed: () => _generarPdf(detalle),
+            ),
+          ],
         ),
         SliverToBoxAdapter(
           child: Padding(
@@ -126,6 +161,15 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
                       ),
                     );
                   },
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _generarPdf(detalle),
+                    icon: const Icon(Icons.picture_as_pdf),
+                    label: const Text('Descargar PDF'),
+                  ),
                 ),
               ],
             ),
