@@ -49,14 +49,16 @@ String mapErrorToMessage(Object? error) {
 
   if (error is BackupException) {
     return switch (error.code) {
-      'NO_INTERNET' => 'No hay conexión a internet. Por favor, revisa tu red e intenta de nuevo.',
-      'AUTH_FAILED' => 'Problema de autenticación. Verifica tus permisos o vuelve a iniciar sesión.',
+      'NO_INTERNET' =>
+        'No hay conexión a internet. Por favor, revisa tu red e intenta de nuevo.',
+      'AUTH_FAILED' =>
+        'Problema de autenticación. Verifica tus permisos o vuelve a iniciar sesión.',
       'LOW_BATTERY' => 'Batería baja. Conecta el cargador antes de continuar.',
       'CANCELLED' => 'Operación cancelada por el usuario.',
-      'CORRUPTED' || 'NO_SPACE' || 'FILE_NOT_FOUND'
-          => 'Ocurrió un problema al leer o guardar el archivo. Verifica el espacio disponible.',
-      'UPLOAD_FAILED' || 'DOWNLOAD_FAILED'
-          => 'El servicio no está disponible en este momento. Inténtalo más tarde.',
+      'CORRUPTED' || 'NO_SPACE' || 'FILE_NOT_FOUND' =>
+        'Ocurrió un problema al leer o guardar el archivo. Verifica el espacio disponible.',
+      'UPLOAD_FAILED' || 'DOWNLOAD_FAILED' =>
+        'El servicio no está disponible en este momento. Inténtalo más tarde.',
       'NO_BACKUPS_FOUND' => 'No hay respaldos disponibles para restaurar.',
       _ => 'Ocurrió un error inesperado. Por favor, intenta de nuevo.',
     };

@@ -83,12 +83,16 @@ class HomeRepositoryImpl extends HomeRepository {
       LIMIT 5
     ''').get();
 
-    return rows.map((r) => ClienteResumen(
-      idDeudor: r.read<int>('id_deudor'),
-      nombre: r.read<String>('nombre'),
-      telefono: r.read<String>('telefono'),
-      estado: r.read<String>('estado'),
-      score: r.read<double>('score'),
-    )).toList();
+    return rows
+        .map(
+          (r) => ClienteResumen(
+            idDeudor: r.read<int>('id_deudor'),
+            nombre: r.read<String>('nombre'),
+            telefono: r.read<String>('telefono'),
+            estado: r.read<String>('estado'),
+            score: r.read<double>('score'),
+          ),
+        )
+        .toList();
   }
 }

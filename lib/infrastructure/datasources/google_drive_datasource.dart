@@ -3,17 +3,20 @@ import 'package:flutter/foundation.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:prestapagos/config/constants/constants.dart';
 import 'package:prestapagos/config/errors/errors.dart';
 
 class BackupDriveInfo {
   final bool hasBackup;
+  final bool error; // true = no se pudo verificar (red, permisos, etc.)
   final DateTime? lastBackupDate;
   final String? lastBackupName;
   final String? size;
 
   const BackupDriveInfo({
     required this.hasBackup,
+    this.error = false,
     this.lastBackupDate,
     this.lastBackupName,
     this.size,
@@ -22,8 +25,10 @@ class BackupDriveInfo {
 
 class GoogleDriveDatasource {
   late drive.DriveApi _driveApi;
+
+  // En release no se escribe nada a la consola/log del sistema.
   final _logger = Logger(
-    level: kReleaseMode ? Level.warning : Level.trace,
+    level: kReleaseMode ? Level.off : Level.trace,
   );
 
   GoogleDriveDatasource();
@@ -33,8 +38,8 @@ class GoogleDriveDatasource {
       final httpClient = _createHttpClient(accessToken);
       _driveApi = drive.DriveApi(httpClient);
       _logger.i('GoogleDriveDatasource inicializado');
-    } catch (e) {
-      _logger.e('Error inicializando GoogleDriveDatasource: $e');
+    } catch (e, stack) {
+      _logger.e('Error inicializando GoogleDriveDatasource: $e', stackTrace: stack);
       rethrow;
     }
   }
@@ -59,6 +64,7 @@ class GoogleDriveDatasource {
     File databaseFile, {
     void Function(double)? onProgress,
   }) async {
+    File? tempFile;
     try {
       _logger.i('Iniciando subida de respaldo...');
 
@@ -70,18 +76,21 @@ class GoogleDriveDatasource {
       }
 
       final fileSize = await databaseFile.length();
-      _logger.i('Tamaño del archivo: ${(fileSize / 1024 / 1024).toStringAsFixed(2)} MB');
+      _logger.i(
+        'Tamaño del archivo: ${(fileSize / 1024 / 1024).toStringAsFixed(2)} MB',
+      );
 
-      final tempFile = File('${databaseFile.parent.path}/temp_backup_${DateTime.now().millisecondsSinceEpoch}.db');
+      // Carpeta temporal aislada del directorio de la BD real,
+      // evita colisiones con backups/restores concurrentes.
+      final tempDir = await getTemporaryDirectory();
+      tempFile = File(
+        '${tempDir.path}/temp_backup_${DateTime.now().millisecondsSinceEpoch}.db',
+      );
       await databaseFile.copy(tempFile.path);
       _logger.i('Copia temporal creada en: ${tempFile.path}');
 
       try {
-        final media = drive.Media(
-          tempFile.openRead(),
-          fileSize,
-        );
-
+        final media = drive.Media(tempFile.openRead(), fileSize);
         final driveFile = drive.File()
           ..name = _generateBackupFilename()
           ..mimeType = 'application/octet-stream'
@@ -104,10 +113,19 @@ class GoogleDriveDatasource {
       }
     } catch (e, stack) {
       _logger.e('Error subiendo respaldo a Drive: $e', stackTrace: stack);
+
+      // Limpieza defensiva por si el finally interno no alcanzó a correr
+      if (tempFile != null && await tempFile.exists()) {
+        await tempFile.delete();
+      }
+
       if (e is BackupException) rethrow;
-      if (e.toString().contains('storageQuotaExceeded')) {
+
+      if (e is drive.DetailedApiRequestError &&
+          e.errors.any((err) => err.reason == 'storageQuotaExceeded')) {
         throw StorageQuotaExceededException();
       }
+
       throw BackupException(
         message: 'Error durante la subida: ${e.toString()}',
         code: 'UPLOAD_FAILED',
@@ -116,7 +134,11 @@ class GoogleDriveDatasource {
     }
   }
 
-  Future<File> downloadLatestBackup(Directory destinationDir, {void Function(double)? onProgress}) async {
+  Future<File> downloadLatestBackup(
+    Directory destinationDir, {
+    void Function(double)? onProgress,
+  }) async {
+    File? tempFile;
     try {
       _logger.i('Buscando respaldo en Google Drive...');
 
@@ -136,9 +158,14 @@ class GoogleDriveDatasource {
       }
 
       final remoteFile = files.files!.first;
-      _logger.i('Respaldo encontrado: ${remoteFile.name} (${remoteFile.size} bytes)');
+      _logger.i(
+        'Respaldo encontrado: ${remoteFile.name} (${remoteFile.size} bytes)',
+      );
 
-      final tempFile = File('${destinationDir.path}/temporal_${DateTime.now().millisecondsSinceEpoch}.db');
+      tempFile = File(
+        '${destinationDir.path}/temporal_${DateTime.now().millisecondsSinceEpoch}.db',
+      );
+
       final media = await _driveApi.files.get(
         remoteFile.id!,
         downloadOptions: drive.DownloadOptions.fullMedia,
@@ -155,7 +182,14 @@ class GoogleDriveDatasource {
       return tempFile;
     } catch (e, stack) {
       _logger.e('Error descargando respaldo desde Drive: $e', stackTrace: stack);
+
+      // Si quedó un archivo parcial/corrupto a medio escribir, se limpia.
+      if (tempFile != null && await tempFile.exists()) {
+        await tempFile.delete();
+      }
+
       if (e is BackupException) rethrow;
+
       throw BackupException(
         message: 'Error durante la descarga: ${e.toString()}',
         code: 'DOWNLOAD_FAILED',
@@ -177,8 +211,8 @@ class GoogleDriveDatasource {
 
       _logger.i('✅ Integridad del binario SQLite confirmada');
       return true;
-    } catch (e) {
-      _logger.e('Error validando integridad física: $e');
+    } catch (e, stack) {
+      _logger.e('Error validando integridad física: $e', stackTrace: stack);
       return false;
     }
   }
@@ -186,8 +220,7 @@ class GoogleDriveDatasource {
   Future<BackupDriveInfo> checkExistingBackups() async {
     try {
       final files = await _driveApi.files.list(
-        q:
-            "name contains '${BackupConstants.backupFilePrefix}' and trashed = false",
+        q: "name contains '${BackupConstants.backupFilePrefix}' and trashed = false",
         spaces: 'appDataFolder',
         pageSize: 1,
         orderBy: 'modifiedTime desc',
@@ -205,9 +238,11 @@ class GoogleDriveDatasource {
         lastBackupName: remoteFile.name,
         size: remoteFile.size,
       );
-    } catch (e) {
-      _logger.e('Error revisando respaldos existentes: $e');
-      return const BackupDriveInfo(hasBackup: false);
+    } catch (e, stack) {
+      _logger.e('Error revisando respaldos existentes: $e', stackTrace: stack);
+      // error: true permite que la UI distinga "no hay backup" de
+      // "no se pudo verificar" (red, permisos revocados, etc.)
+      return const BackupDriveInfo(hasBackup: false, error: true);
     }
   }
 
@@ -230,8 +265,8 @@ class GoogleDriveDatasource {
           _logger.i('Backup antiguo eliminado: ${file.name}');
         }
       }
-    } catch (e) {
-      _logger.e('Error limpiando backups antiguos: $e');
+    } catch (e, stack) {
+      _logger.e('Error limpiando backups antiguos: $e', stackTrace: stack);
     }
   }
 }

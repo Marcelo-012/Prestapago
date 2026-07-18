@@ -1,5 +1,5 @@
 name: prestapagos
-description: "A new Flutter project."
+description: "Gestión de préstamos personales"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
@@ -72,24 +72,14 @@ dependencies:
 dev_dependencies:
   build_runner: ^2.15.0
   drift_dev: ^2.34.1+1
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
 
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/prestapago_icon.png" # <-- Tu archivo Plain SVG aquí
-  # Opcional: para iconos adaptativos de Android
-  # adaptive_icon_background: "#FFFFFF"
-  # adaptive_icon_foreground: "assets/images/my_app_icon_foreground.svg"
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
-  flutter_lints: ^6.0.0
-  flutter_test:
-    sdk: flutter
+  image_path: "assets/icon/prestapago_icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
