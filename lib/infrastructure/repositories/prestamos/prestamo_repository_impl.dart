@@ -133,24 +133,98 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
   }
 
   @override
-  Future<void> cancelarPrestamo(int idPrestamo) async {
+  Future<void> cancelarPrestamo(int idPrestamo, String motivo, double montoDevuelto) async {
     await (_db.update(
       _db.configuracionPrestamos,
     )..where((t) => t.idPrestamo.equals(idPrestamo))).write(
       drift.ConfiguracionPrestamosCompanion(
         estadoPrestamo: Value(EstadoPrestamo.cancelado),
+        motivoCancelacion: Value(motivo),
+        montoDevuelto: Value(montoDevuelto),
         fechaActualizacion: Value(DateTime.now()),
       ),
     );
 
     await (_db.update(
       _db.amortizaciones,
-    )..where((t) => t.idPrestamo.equals(idPrestamo))).write(
+    )..where((t) => t.idPrestamo.equals(idPrestamo))
+      ..where((t) => t.estadoAmortizacion.isIn([
+        'pendiente',
+        'atrasado',
+      ]))
+    ).write(
       drift.AmortizacionesCompanion(
         estadoAmortizacion: Value(EstadoAmortizacion.cancelado),
+        diasMora: const Value(0),
+        montoMora: const Value(0),
         fechaActualizacion: Value(DateTime.now()),
       ),
     );
+
+    final prestamo = await (_db.select(_db.prestamos)
+      ..where((t) => t.id.equals(idPrestamo))).getSingle();
+    await _db.into(_db.scores).insertOnConflictUpdate(
+      drift.ScoresCompanion(
+        idPrestamo: Value(idPrestamo),
+        idDeudor: Value(prestamo.idDeudor),
+        score: const Value(50),
+      ),
+    );
+  }
+
+  @override
+  Future<void> castigarPrestamo(int idPrestamo, String motivo) async {
+    await _db.transaction(() async {
+      final amortRows = await (_db.select(_db.amortizaciones)
+        ..where((t) => t.idPrestamo.equals(idPrestamo))
+        ..where((t) => t.estadoAmortizacion.isIn([
+          'pendiente',
+          'atrasado',
+        ]))
+      ).get();
+
+      final montoPerdido = amortRows.fold<double>(
+        0,
+        (sum, a) => sum + a.montoACapital + a.montoInteres + a.montoMora,
+      );
+
+      final prestamo = await (_db.select(_db.prestamos)
+        ..where((t) => t.id.equals(idPrestamo))).getSingle();
+
+      await (_db.update(
+        _db.configuracionPrestamos,
+      )..where((t) => t.idPrestamo.equals(idPrestamo))).write(
+        drift.ConfiguracionPrestamosCompanion(
+          estadoPrestamo: Value(EstadoPrestamo.incobrable),
+          motivoCastigo: Value(motivo),
+          montoPerdido: Value(montoPerdido),
+          fechaActualizacion: Value(DateTime.now()),
+        ),
+      );
+
+      await (_db.update(
+        _db.amortizaciones,
+      )..where((t) => t.idPrestamo.equals(idPrestamo))
+        ..where((t) => t.estadoAmortizacion.isIn([
+          'pendiente',
+          'atrasado',
+        ]))
+      ).write(
+        drift.AmortizacionesCompanion(
+          estadoAmortizacion: Value(EstadoAmortizacion.cancelado),
+          montoMora: const Value(0),
+          fechaActualizacion: Value(DateTime.now()),
+        ),
+      );
+
+      await _db.into(_db.scores).insertOnConflictUpdate(
+        drift.ScoresCompanion(
+          idPrestamo: Value(idPrestamo),
+          idDeudor: Value(prestamo.idDeudor),
+          score: const Value(0),
+        ),
+      );
+    });
   }
 
   @override
@@ -206,6 +280,10 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
           manejo_excedente,
           periodidad_intereses,
           estado_prestamo,
+          motivo_cancelacion,
+          monto_devuelto,
+          motivo_castigo,
+          monto_perdido,
           fecha_creacion,
           fecha_actualizacion
         FROM configuracion_prestamos
@@ -281,6 +359,10 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
       manejoExcedente: configRow.read<String>('manejo_excedente'),
       periodidadIntereses: configRow.read<String>('periodidad_intereses'),
       estadoPrestamo: configRow.read<String>('estado_prestamo'),
+      motivoCancelacion: configRow.read<String?>('motivo_cancelacion'),
+      montoDevuelto: configRow.read<double>('monto_devuelto'),
+      motivoCastigo: configRow.read<String?>('motivo_castigo'),
+      montoPerdido: configRow.read<double>('monto_perdido'),
       fechaCreacion: configRow.read<DateTime>('fecha_creacion'),
       fechaActualizacion: configRow.read<DateTime>('fecha_actualizacion'),
     );

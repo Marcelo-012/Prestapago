@@ -8,6 +8,10 @@ class ConfiguracionPrestamo {
   final String estadoPrestamo;
   final DateTime fechaCreacion;
   final DateTime fechaActualizacion;
+  final String? motivoCancelacion;
+  final double montoDevuelto;
+  final String? motivoCastigo;
+  final double montoPerdido;
 
   ConfiguracionPrestamo({
     required this.idConfiguracion,
@@ -19,5 +23,9 @@ class ConfiguracionPrestamo {
     required this.estadoPrestamo,
     required this.fechaCreacion,
     required this.fechaActualizacion,
+    this.motivoCancelacion,
+    this.montoDevuelto = 0,
+    this.motivoCastigo,
+    this.montoPerdido = 0,
   });
 }

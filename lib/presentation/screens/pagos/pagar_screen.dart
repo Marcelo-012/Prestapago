@@ -11,8 +11,9 @@ import 'package:prestapagos/presentation/widgets/widgets.dart';
 class PagarScreen extends ConsumerStatefulWidget {
   static const name = 'pagar';
   final PrestamoDetalle detalle;
+  final double? montoInicial;
 
-  const PagarScreen({super.key, required this.detalle});
+  const PagarScreen({super.key, required this.detalle, this.montoInicial});
 
   @override
   ConsumerState<PagarScreen> createState() => _PagarScreenState();
@@ -21,6 +22,7 @@ class PagarScreen extends ConsumerStatefulWidget {
 class _PagarScreenState extends ConsumerState<PagarScreen> {
   late TextEditingController _montoController;
   late double _minimo;
+  late bool _esLiquidacion;
 
   Amortizacion? get _prox {
     for (final a in widget.detalle.amortizaciones) {
@@ -38,9 +40,13 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
     if (prox == null) return;
     final preview = ref.read(previewPagoProvider(widget.detalle));
     _minimo = preview.totalMinimo;
-    _montoController = TextEditingController(text: _minimo.toStringAsFixed(2));
+    final valorInicial = widget.montoInicial != null && widget.montoInicial! >= _minimo
+        ? widget.montoInicial!
+        : _minimo;
+    _esLiquidacion = widget.montoInicial != null && widget.montoInicial! >= _minimo;
+    _montoController = TextEditingController(text: valorInicial.toStringAsFixed(2));
     ref.read(
-      pagoFormProvider((minimo: _minimo, maximo: preview.montoMaximo)).notifier,
+      pagoFormProvider((minimo: _minimo, maximo: valorInicial > _minimo ? valorInicial : preview.montoMaximo)).notifier,
     );
     _checkClienteActivo();
   }
@@ -247,7 +253,7 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Total a pagar',
+                            _esLiquidacion ? 'Total liquidación' : 'Total a pagar',
                             style: textTheme.copyWith(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -256,7 +262,9 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
                           Text(
                             cubierto
                                 ? '\$0.00'
-                                : HumanFormats.monuted(preview.totalMinimo),
+                                : _esLiquidacion
+                                    ? HumanFormats.monuted(double.tryParse(_montoController.text) ?? 0)
+                                    : HumanFormats.monuted(preview.totalMinimo),
                             style: textTheme.copyWith(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

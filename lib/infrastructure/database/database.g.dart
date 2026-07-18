@@ -1572,6 +1572,53 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
       ).withConverter<EstadoPrestamo>(
         $ConfiguracionPrestamosTable.$converterestadoPrestamo,
       );
+  static const VerificationMeta _motivoCancelacionMeta = const VerificationMeta(
+    'motivoCancelacion',
+  );
+  @override
+  late final GeneratedColumn<String> motivoCancelacion =
+      GeneratedColumn<String>(
+        'motivo_cancelacion',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _montoDevueltoMeta = const VerificationMeta(
+    'montoDevuelto',
+  );
+  @override
+  late final GeneratedColumn<double> montoDevuelto = GeneratedColumn<double>(
+    'monto_devuelto',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _motivoCastigoMeta = const VerificationMeta(
+    'motivoCastigo',
+  );
+  @override
+  late final GeneratedColumn<String> motivoCastigo = GeneratedColumn<String>(
+    'motivo_castigo',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _montoPerdidoMeta = const VerificationMeta(
+    'montoPerdido',
+  );
+  @override
+  late final GeneratedColumn<double> montoPerdido = GeneratedColumn<double>(
+    'monto_perdido',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
   static const VerificationMeta _fechaCreacionMeta = const VerificationMeta(
     'fechaCreacion',
   );
@@ -1606,6 +1653,10 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
     manejoExcedente,
     periodidadIntereses,
     estadoPrestamo,
+    motivoCancelacion,
+    montoDevuelto,
+    motivoCastigo,
+    montoPerdido,
     fechaCreacion,
     fechaActualizacion,
   ];
@@ -1634,6 +1685,42 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
       );
     } else if (isInserting) {
       context.missing(_idPrestamoMeta);
+    }
+    if (data.containsKey('motivo_cancelacion')) {
+      context.handle(
+        _motivoCancelacionMeta,
+        motivoCancelacion.isAcceptableOrUnknown(
+          data['motivo_cancelacion']!,
+          _motivoCancelacionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('monto_devuelto')) {
+      context.handle(
+        _montoDevueltoMeta,
+        montoDevuelto.isAcceptableOrUnknown(
+          data['monto_devuelto']!,
+          _montoDevueltoMeta,
+        ),
+      );
+    }
+    if (data.containsKey('motivo_castigo')) {
+      context.handle(
+        _motivoCastigoMeta,
+        motivoCastigo.isAcceptableOrUnknown(
+          data['motivo_castigo']!,
+          _motivoCastigoMeta,
+        ),
+      );
+    }
+    if (data.containsKey('monto_perdido')) {
+      context.handle(
+        _montoPerdidoMeta,
+        montoPerdido.isAcceptableOrUnknown(
+          data['monto_perdido']!,
+          _montoPerdidoMeta,
+        ),
+      );
     }
     if (data.containsKey('fecha_creacion')) {
       context.handle(
@@ -1705,6 +1792,22 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
               data['${effectivePrefix}estado_prestamo'],
             )!,
           ),
+      motivoCancelacion: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}motivo_cancelacion'],
+      ),
+      montoDevuelto: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}monto_devuelto'],
+      )!,
+      motivoCastigo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}motivo_castigo'],
+      ),
+      montoPerdido: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}monto_perdido'],
+      )!,
       fechaCreacion: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}fecha_creacion'],
@@ -1750,6 +1853,10 @@ class ConfiguracionPrestamo extends DataClass
   final ManejoExcedente manejoExcedente;
   final PeriodicidadInteres periodidadIntereses;
   final EstadoPrestamo estadoPrestamo;
+  final String? motivoCancelacion;
+  final double montoDevuelto;
+  final String? motivoCastigo;
+  final double montoPerdido;
   final DateTime fechaCreacion;
   final DateTime fechaActualizacion;
   const ConfiguracionPrestamo({
@@ -1760,6 +1867,10 @@ class ConfiguracionPrestamo extends DataClass
     required this.manejoExcedente,
     required this.periodidadIntereses,
     required this.estadoPrestamo,
+    this.motivoCancelacion,
+    required this.montoDevuelto,
+    this.motivoCastigo,
+    required this.montoPerdido,
     required this.fechaCreacion,
     required this.fechaActualizacion,
   });
@@ -1801,6 +1912,14 @@ class ConfiguracionPrestamo extends DataClass
         ),
       );
     }
+    if (!nullToAbsent || motivoCancelacion != null) {
+      map['motivo_cancelacion'] = Variable<String>(motivoCancelacion);
+    }
+    map['monto_devuelto'] = Variable<double>(montoDevuelto);
+    if (!nullToAbsent || motivoCastigo != null) {
+      map['motivo_castigo'] = Variable<String>(motivoCastigo);
+    }
+    map['monto_perdido'] = Variable<double>(montoPerdido);
     map['fecha_creacion'] = Variable<DateTime>(fechaCreacion);
     map['fecha_actualizacion'] = Variable<DateTime>(fechaActualizacion);
     return map;
@@ -1815,6 +1934,14 @@ class ConfiguracionPrestamo extends DataClass
       manejoExcedente: Value(manejoExcedente),
       periodidadIntereses: Value(periodidadIntereses),
       estadoPrestamo: Value(estadoPrestamo),
+      motivoCancelacion: motivoCancelacion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(motivoCancelacion),
+      montoDevuelto: Value(montoDevuelto),
+      motivoCastigo: motivoCastigo == null && nullToAbsent
+          ? const Value.absent()
+          : Value(motivoCastigo),
+      montoPerdido: Value(montoPerdido),
       fechaCreacion: Value(fechaCreacion),
       fechaActualizacion: Value(fechaActualizacion),
     );
@@ -1840,6 +1967,12 @@ class ConfiguracionPrestamo extends DataClass
           .fromJson(serializer.fromJson<String>(json['periodidadIntereses'])),
       estadoPrestamo: $ConfiguracionPrestamosTable.$converterestadoPrestamo
           .fromJson(serializer.fromJson<String>(json['estadoPrestamo'])),
+      motivoCancelacion: serializer.fromJson<String?>(
+        json['motivoCancelacion'],
+      ),
+      montoDevuelto: serializer.fromJson<double>(json['montoDevuelto']),
+      motivoCastigo: serializer.fromJson<String?>(json['motivoCastigo']),
+      montoPerdido: serializer.fromJson<double>(json['montoPerdido']),
       fechaCreacion: serializer.fromJson<DateTime>(json['fechaCreacion']),
       fechaActualizacion: serializer.fromJson<DateTime>(
         json['fechaActualizacion'],
@@ -1875,6 +2008,10 @@ class ConfiguracionPrestamo extends DataClass
           estadoPrestamo,
         ),
       ),
+      'motivoCancelacion': serializer.toJson<String?>(motivoCancelacion),
+      'montoDevuelto': serializer.toJson<double>(montoDevuelto),
+      'motivoCastigo': serializer.toJson<String?>(motivoCastigo),
+      'montoPerdido': serializer.toJson<double>(montoPerdido),
       'fechaCreacion': serializer.toJson<DateTime>(fechaCreacion),
       'fechaActualizacion': serializer.toJson<DateTime>(fechaActualizacion),
     };
@@ -1888,6 +2025,10 @@ class ConfiguracionPrestamo extends DataClass
     ManejoExcedente? manejoExcedente,
     PeriodicidadInteres? periodidadIntereses,
     EstadoPrestamo? estadoPrestamo,
+    Value<String?> motivoCancelacion = const Value.absent(),
+    double? montoDevuelto,
+    Value<String?> motivoCastigo = const Value.absent(),
+    double? montoPerdido,
     DateTime? fechaCreacion,
     DateTime? fechaActualizacion,
   }) => ConfiguracionPrestamo(
@@ -1898,6 +2039,14 @@ class ConfiguracionPrestamo extends DataClass
     manejoExcedente: manejoExcedente ?? this.manejoExcedente,
     periodidadIntereses: periodidadIntereses ?? this.periodidadIntereses,
     estadoPrestamo: estadoPrestamo ?? this.estadoPrestamo,
+    motivoCancelacion: motivoCancelacion.present
+        ? motivoCancelacion.value
+        : this.motivoCancelacion,
+    montoDevuelto: montoDevuelto ?? this.montoDevuelto,
+    motivoCastigo: motivoCastigo.present
+        ? motivoCastigo.value
+        : this.motivoCastigo,
+    montoPerdido: montoPerdido ?? this.montoPerdido,
     fechaCreacion: fechaCreacion ?? this.fechaCreacion,
     fechaActualizacion: fechaActualizacion ?? this.fechaActualizacion,
   );
@@ -1924,6 +2073,18 @@ class ConfiguracionPrestamo extends DataClass
       estadoPrestamo: data.estadoPrestamo.present
           ? data.estadoPrestamo.value
           : this.estadoPrestamo,
+      motivoCancelacion: data.motivoCancelacion.present
+          ? data.motivoCancelacion.value
+          : this.motivoCancelacion,
+      montoDevuelto: data.montoDevuelto.present
+          ? data.montoDevuelto.value
+          : this.montoDevuelto,
+      motivoCastigo: data.motivoCastigo.present
+          ? data.motivoCastigo.value
+          : this.motivoCastigo,
+      montoPerdido: data.montoPerdido.present
+          ? data.montoPerdido.value
+          : this.montoPerdido,
       fechaCreacion: data.fechaCreacion.present
           ? data.fechaCreacion.value
           : this.fechaCreacion,
@@ -1943,6 +2104,10 @@ class ConfiguracionPrestamo extends DataClass
           ..write('manejoExcedente: $manejoExcedente, ')
           ..write('periodidadIntereses: $periodidadIntereses, ')
           ..write('estadoPrestamo: $estadoPrestamo, ')
+          ..write('motivoCancelacion: $motivoCancelacion, ')
+          ..write('montoDevuelto: $montoDevuelto, ')
+          ..write('motivoCastigo: $motivoCastigo, ')
+          ..write('montoPerdido: $montoPerdido, ')
           ..write('fechaCreacion: $fechaCreacion, ')
           ..write('fechaActualizacion: $fechaActualizacion')
           ..write(')'))
@@ -1958,6 +2123,10 @@ class ConfiguracionPrestamo extends DataClass
     manejoExcedente,
     periodidadIntereses,
     estadoPrestamo,
+    motivoCancelacion,
+    montoDevuelto,
+    motivoCastigo,
+    montoPerdido,
     fechaCreacion,
     fechaActualizacion,
   );
@@ -1972,6 +2141,10 @@ class ConfiguracionPrestamo extends DataClass
           other.manejoExcedente == this.manejoExcedente &&
           other.periodidadIntereses == this.periodidadIntereses &&
           other.estadoPrestamo == this.estadoPrestamo &&
+          other.motivoCancelacion == this.motivoCancelacion &&
+          other.montoDevuelto == this.montoDevuelto &&
+          other.motivoCastigo == this.motivoCastigo &&
+          other.montoPerdido == this.montoPerdido &&
           other.fechaCreacion == this.fechaCreacion &&
           other.fechaActualizacion == this.fechaActualizacion);
 }
@@ -1985,6 +2158,10 @@ class ConfiguracionPrestamosCompanion
   final Value<ManejoExcedente> manejoExcedente;
   final Value<PeriodicidadInteres> periodidadIntereses;
   final Value<EstadoPrestamo> estadoPrestamo;
+  final Value<String?> motivoCancelacion;
+  final Value<double> montoDevuelto;
+  final Value<String?> motivoCastigo;
+  final Value<double> montoPerdido;
   final Value<DateTime> fechaCreacion;
   final Value<DateTime> fechaActualizacion;
   const ConfiguracionPrestamosCompanion({
@@ -1995,6 +2172,10 @@ class ConfiguracionPrestamosCompanion
     this.manejoExcedente = const Value.absent(),
     this.periodidadIntereses = const Value.absent(),
     this.estadoPrestamo = const Value.absent(),
+    this.motivoCancelacion = const Value.absent(),
+    this.montoDevuelto = const Value.absent(),
+    this.motivoCastigo = const Value.absent(),
+    this.montoPerdido = const Value.absent(),
     this.fechaCreacion = const Value.absent(),
     this.fechaActualizacion = const Value.absent(),
   });
@@ -2006,6 +2187,10 @@ class ConfiguracionPrestamosCompanion
     required ManejoExcedente manejoExcedente,
     required PeriodicidadInteres periodidadIntereses,
     required EstadoPrestamo estadoPrestamo,
+    this.motivoCancelacion = const Value.absent(),
+    this.montoDevuelto = const Value.absent(),
+    this.motivoCastigo = const Value.absent(),
+    this.montoPerdido = const Value.absent(),
     this.fechaCreacion = const Value.absent(),
     this.fechaActualizacion = const Value.absent(),
   }) : idPrestamo = Value(idPrestamo),
@@ -2022,6 +2207,10 @@ class ConfiguracionPrestamosCompanion
     Expression<String>? manejoExcedente,
     Expression<String>? periodidadIntereses,
     Expression<String>? estadoPrestamo,
+    Expression<String>? motivoCancelacion,
+    Expression<double>? montoDevuelto,
+    Expression<String>? motivoCastigo,
+    Expression<double>? montoPerdido,
     Expression<DateTime>? fechaCreacion,
     Expression<DateTime>? fechaActualizacion,
   }) {
@@ -2034,6 +2223,10 @@ class ConfiguracionPrestamosCompanion
       if (periodidadIntereses != null)
         'periodidad_intereses': periodidadIntereses,
       if (estadoPrestamo != null) 'estado_prestamo': estadoPrestamo,
+      if (motivoCancelacion != null) 'motivo_cancelacion': motivoCancelacion,
+      if (montoDevuelto != null) 'monto_devuelto': montoDevuelto,
+      if (motivoCastigo != null) 'motivo_castigo': motivoCastigo,
+      if (montoPerdido != null) 'monto_perdido': montoPerdido,
       if (fechaCreacion != null) 'fecha_creacion': fechaCreacion,
       if (fechaActualizacion != null) 'fecha_actualizacion': fechaActualizacion,
     });
@@ -2047,6 +2240,10 @@ class ConfiguracionPrestamosCompanion
     Value<ManejoExcedente>? manejoExcedente,
     Value<PeriodicidadInteres>? periodidadIntereses,
     Value<EstadoPrestamo>? estadoPrestamo,
+    Value<String?>? motivoCancelacion,
+    Value<double>? montoDevuelto,
+    Value<String?>? motivoCastigo,
+    Value<double>? montoPerdido,
     Value<DateTime>? fechaCreacion,
     Value<DateTime>? fechaActualizacion,
   }) {
@@ -2058,6 +2255,10 @@ class ConfiguracionPrestamosCompanion
       manejoExcedente: manejoExcedente ?? this.manejoExcedente,
       periodidadIntereses: periodidadIntereses ?? this.periodidadIntereses,
       estadoPrestamo: estadoPrestamo ?? this.estadoPrestamo,
+      motivoCancelacion: motivoCancelacion ?? this.motivoCancelacion,
+      montoDevuelto: montoDevuelto ?? this.montoDevuelto,
+      motivoCastigo: motivoCastigo ?? this.motivoCastigo,
+      montoPerdido: montoPerdido ?? this.montoPerdido,
       fechaCreacion: fechaCreacion ?? this.fechaCreacion,
       fechaActualizacion: fechaActualizacion ?? this.fechaActualizacion,
     );
@@ -2107,6 +2308,18 @@ class ConfiguracionPrestamosCompanion
         ),
       );
     }
+    if (motivoCancelacion.present) {
+      map['motivo_cancelacion'] = Variable<String>(motivoCancelacion.value);
+    }
+    if (montoDevuelto.present) {
+      map['monto_devuelto'] = Variable<double>(montoDevuelto.value);
+    }
+    if (motivoCastigo.present) {
+      map['motivo_castigo'] = Variable<String>(motivoCastigo.value);
+    }
+    if (montoPerdido.present) {
+      map['monto_perdido'] = Variable<double>(montoPerdido.value);
+    }
     if (fechaCreacion.present) {
       map['fecha_creacion'] = Variable<DateTime>(fechaCreacion.value);
     }
@@ -2126,6 +2339,10 @@ class ConfiguracionPrestamosCompanion
           ..write('manejoExcedente: $manejoExcedente, ')
           ..write('periodidadIntereses: $periodidadIntereses, ')
           ..write('estadoPrestamo: $estadoPrestamo, ')
+          ..write('motivoCancelacion: $motivoCancelacion, ')
+          ..write('montoDevuelto: $montoDevuelto, ')
+          ..write('motivoCastigo: $motivoCastigo, ')
+          ..write('montoPerdido: $montoPerdido, ')
           ..write('fechaCreacion: $fechaCreacion, ')
           ..write('fechaActualizacion: $fechaActualizacion')
           ..write(')'))
@@ -4556,6 +4773,10 @@ typedef $$ConfiguracionPrestamosTableCreateCompanionBuilder =
       required ManejoExcedente manejoExcedente,
       required PeriodicidadInteres periodidadIntereses,
       required EstadoPrestamo estadoPrestamo,
+      Value<String?> motivoCancelacion,
+      Value<double> montoDevuelto,
+      Value<String?> motivoCastigo,
+      Value<double> montoPerdido,
       Value<DateTime> fechaCreacion,
       Value<DateTime> fechaActualizacion,
     });
@@ -4568,6 +4789,10 @@ typedef $$ConfiguracionPrestamosTableUpdateCompanionBuilder =
       Value<ManejoExcedente> manejoExcedente,
       Value<PeriodicidadInteres> periodidadIntereses,
       Value<EstadoPrestamo> estadoPrestamo,
+      Value<String?> motivoCancelacion,
+      Value<double> montoDevuelto,
+      Value<String?> motivoCastigo,
+      Value<double> montoPerdido,
       Value<DateTime> fechaCreacion,
       Value<DateTime> fechaActualizacion,
     });
@@ -4653,6 +4878,26 @@ class $$ConfiguracionPrestamosTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
+  ColumnFilters<String> get motivoCancelacion => $composableBuilder(
+    column: $table.motivoCancelacion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get montoDevuelto => $composableBuilder(
+    column: $table.montoDevuelto,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get motivoCastigo => $composableBuilder(
+    column: $table.motivoCastigo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get montoPerdido => $composableBuilder(
+    column: $table.montoPerdido,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get fechaCreacion => $composableBuilder(
     column: $table.fechaCreacion,
     builder: (column) => ColumnFilters(column),
@@ -4723,6 +4968,26 @@ class $$ConfiguracionPrestamosTableOrderingComposer
 
   ColumnOrderings<String> get estadoPrestamo => $composableBuilder(
     column: $table.estadoPrestamo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get motivoCancelacion => $composableBuilder(
+    column: $table.motivoCancelacion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get montoDevuelto => $composableBuilder(
+    column: $table.montoDevuelto,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get motivoCastigo => $composableBuilder(
+    column: $table.motivoCastigo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get montoPerdido => $composableBuilder(
+    column: $table.montoPerdido,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4801,6 +5066,26 @@ class $$ConfiguracionPrestamosTableAnnotationComposer
         column: $table.estadoPrestamo,
         builder: (column) => column,
       );
+
+  GeneratedColumn<String> get motivoCancelacion => $composableBuilder(
+    column: $table.motivoCancelacion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get montoDevuelto => $composableBuilder(
+    column: $table.montoDevuelto,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get motivoCastigo => $composableBuilder(
+    column: $table.motivoCastigo,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get montoPerdido => $composableBuilder(
+    column: $table.montoPerdido,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get fechaCreacion => $composableBuilder(
     column: $table.fechaCreacion,
@@ -4883,6 +5168,10 @@ class $$ConfiguracionPrestamosTableTableManager
                 Value<PeriodicidadInteres> periodidadIntereses =
                     const Value.absent(),
                 Value<EstadoPrestamo> estadoPrestamo = const Value.absent(),
+                Value<String?> motivoCancelacion = const Value.absent(),
+                Value<double> montoDevuelto = const Value.absent(),
+                Value<String?> motivoCastigo = const Value.absent(),
+                Value<double> montoPerdido = const Value.absent(),
                 Value<DateTime> fechaCreacion = const Value.absent(),
                 Value<DateTime> fechaActualizacion = const Value.absent(),
               }) => ConfiguracionPrestamosCompanion(
@@ -4893,6 +5182,10 @@ class $$ConfiguracionPrestamosTableTableManager
                 manejoExcedente: manejoExcedente,
                 periodidadIntereses: periodidadIntereses,
                 estadoPrestamo: estadoPrestamo,
+                motivoCancelacion: motivoCancelacion,
+                montoDevuelto: montoDevuelto,
+                motivoCastigo: motivoCastigo,
+                montoPerdido: montoPerdido,
                 fechaCreacion: fechaCreacion,
                 fechaActualizacion: fechaActualizacion,
               ),
@@ -4905,6 +5198,10 @@ class $$ConfiguracionPrestamosTableTableManager
                 required ManejoExcedente manejoExcedente,
                 required PeriodicidadInteres periodidadIntereses,
                 required EstadoPrestamo estadoPrestamo,
+                Value<String?> motivoCancelacion = const Value.absent(),
+                Value<double> montoDevuelto = const Value.absent(),
+                Value<String?> motivoCastigo = const Value.absent(),
+                Value<double> montoPerdido = const Value.absent(),
                 Value<DateTime> fechaCreacion = const Value.absent(),
                 Value<DateTime> fechaActualizacion = const Value.absent(),
               }) => ConfiguracionPrestamosCompanion.insert(
@@ -4915,6 +5212,10 @@ class $$ConfiguracionPrestamosTableTableManager
                 manejoExcedente: manejoExcedente,
                 periodidadIntereses: periodidadIntereses,
                 estadoPrestamo: estadoPrestamo,
+                motivoCancelacion: motivoCancelacion,
+                montoDevuelto: montoDevuelto,
+                motivoCastigo: motivoCastigo,
+                montoPerdido: montoPerdido,
                 fechaCreacion: fechaCreacion,
                 fechaActualizacion: fechaActualizacion,
               ),

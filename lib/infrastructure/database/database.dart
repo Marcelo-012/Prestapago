@@ -68,6 +68,14 @@ class ConfiguracionPrestamos extends Table {
       textEnum<PeriodicidadInteres>().named('periodidad_intereses')();
   TextColumn get estadoPrestamo =>
       textEnum<EstadoPrestamo>().named('estado_prestamo')();
+  TextColumn get motivoCancelacion =>
+      text().named('motivo_cancelacion').nullable()();
+  RealColumn get montoDevuelto =>
+      real().named('monto_devuelto').withDefault(const Constant(0.0))();
+  TextColumn get motivoCastigo =>
+      text().named('motivo_castigo').nullable()();
+  RealColumn get montoPerdido =>
+      real().named('monto_perdido').withDefault(const Constant(0.0))();
   DateTimeColumn get fechaCreacion =>
       dateTime().named('fecha_creacion').clientDefault(() => DateTime.now())();
   DateTimeColumn get fechaActualizacion => dateTime()
@@ -108,7 +116,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   DriftDatabaseOptions get options =>
@@ -175,6 +183,12 @@ class AppDatabase extends _$AppDatabase {
             WHERE cp.estado_prestamo = 'finalizado'
             GROUP BY cp.id_prestamo
           """);
+        }
+        if (from <= 4) {
+          await customStatement("ALTER TABLE configuracion_prestamos ADD COLUMN motivo_cancelacion TEXT");
+          await customStatement("ALTER TABLE configuracion_prestamos ADD COLUMN monto_devuelto REAL NOT NULL DEFAULT 0");
+          await customStatement("ALTER TABLE configuracion_prestamos ADD COLUMN motivo_castigo TEXT");
+          await customStatement("ALTER TABLE configuracion_prestamos ADD COLUMN monto_perdido REAL NOT NULL DEFAULT 0");
         }
       },
     );

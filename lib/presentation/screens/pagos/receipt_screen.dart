@@ -257,7 +257,18 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
                             const SizedBox(height: 12),
                             const _DashedLine(),
                             const SizedBox(height: 12),
-                            _row('Motivo', 'Abono a capital'),
+                            if (config.estadoPrestamo == 'cancelado')
+                              _row(
+                                'Motivo',
+                                config.motivoCancelacion ?? 'Cancelación de préstamo',
+                              )
+                            else if (config.estadoPrestamo == 'incobrable')
+                              _row(
+                                'Motivo',
+                                config.motivoCastigo ?? 'Castigo de préstamo',
+                              )
+                            else
+                              _row('Motivo', 'Abono a capital'),
                           ],
                           if (dto.totalAdeudado > 0) ...[
                             const SizedBox(height: 12),
@@ -272,8 +283,10 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
                           const SizedBox(height: 16),
                           const _DashedLine(),
                           const SizedBox(height: 24),
-                          const Text(
-                            'GRACIAS POR SU PAGO',
+                          Text(
+                            esCancelado
+                                ? 'DOCUMENTO DE CANCELACIÓN'
+                                : 'GRACIAS POR SU PAGO',
                             style: TextStyle(
                               color: Color(0xFF7A8B99),
                               fontFamily: 'monospace',

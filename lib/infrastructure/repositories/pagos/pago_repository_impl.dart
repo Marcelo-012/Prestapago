@@ -40,10 +40,13 @@ class PagoRepositoryImpl implements PagoRepository {
       final config = completo.configuracionPrestamo;
       final prestamo = completo.prestamo;
 
-      final deudor = await (_db.select(_db.deudores)
-        ..where((t) => t.id.equals(prestamo.idDeudor))).getSingleOrNull();
+      final deudor = await (_db.select(
+        _db.deudores,
+      )..where((t) => t.id.equals(prestamo.idDeudor))).getSingleOrNull();
       if (deudor != null && deudor.estado == EstadoCliente.inactivo) {
-        throw Exception('No se puede registrar un pago para un cliente inactivo');
+        throw Exception(
+          'No se puede registrar un pago para un cliente inactivo',
+        );
       }
 
       final prox = completo.amortizaciones.firstWhere(
@@ -105,9 +108,7 @@ class PagoRepositoryImpl implements PagoRepository {
                     ]),
                   )
                   ..where((t) => t.id.equals(prox.idAmortizacion).not())
-                  ..orderBy([
-                    (t) => OrderingTerm(expression: t.idCuota),
-                  ]))
+                  ..orderBy([(t) => OrderingTerm(expression: t.idCuota)]))
                 .get();
 
         for (final sig in pendientesActualizados) {
@@ -127,9 +128,7 @@ class PagoRepositoryImpl implements PagoRepository {
             await (_db.update(
               _db.amortizaciones,
             )..where((t) => t.id.equals(sig.id))).write(
-              drift.AmortizacionesCompanion(
-                montoExcedente: Value(excedente),
-              ),
+              drift.AmortizacionesCompanion(montoExcedente: Value(excedente)),
             );
             break;
           }
@@ -181,8 +180,9 @@ class PagoRepositoryImpl implements PagoRepository {
 
       await _estadoPrestamoService.recalcularEstadoPrestamo();
 
-      final configActual = await (_db.select(_db.configuracionPrestamos)
-        ..where((t) => t.idPrestamo.equals(idPrestamo))).getSingle();
+      final configActual = await (_db.select(
+        _db.configuracionPrestamos,
+      )..where((t) => t.idPrestamo.equals(idPrestamo))).getSingle();
       if (configActual.estadoPrestamo == EstadoPrestamo.finalizado) {
         await _calcularYGuardarScore(idPrestamo);
       }
@@ -190,22 +190,26 @@ class PagoRepositoryImpl implements PagoRepository {
   }
 
   Future<void> _calcularYGuardarScore(int idPrestamo) async {
-    final prestamo = await (_db.select(_db.prestamos)
-      ..where((t) => t.id.equals(idPrestamo))).getSingle();
+    final prestamo = await (_db.select(
+      _db.prestamos,
+    )..where((t) => t.id.equals(idPrestamo))).getSingle();
 
-    final cuotas = await (_db.select(_db.amortizaciones)
-      ..where((t) => t.idPrestamo.equals(idPrestamo))).get();
+    final cuotas = await (_db.select(
+      _db.amortizaciones,
+    )..where((t) => t.idPrestamo.equals(idPrestamo))).get();
 
     final total = cuotas.length;
     final sinMora = cuotas.where((a) => a.diasMora == 0).length;
     final score = total > 0 ? (sinMora / total * 100).round() : 0;
 
-    await _db.into(_db.scores).insertOnConflictUpdate(
-      drift.ScoresCompanion(
-        idPrestamo: Value(idPrestamo),
-        idDeudor: Value(prestamo.idDeudor),
-        score: Value(score.toDouble()),
-      ),
-    );
+    await _db
+        .into(_db.scores)
+        .insertOnConflictUpdate(
+          drift.ScoresCompanion(
+            idPrestamo: Value(idPrestamo),
+            idDeudor: Value(prestamo.idDeudor),
+            score: Value(score.toDouble()),
+          ),
+        );
   }
 }

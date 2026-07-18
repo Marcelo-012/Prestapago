@@ -38,7 +38,7 @@ class ReporteCardRepositoryImpl implements ReporteCardRepository {
         SELECT DISTINCT id_prestamo FROM amortizaciones
         WHERE estado_amortizacion = 'atrasado'
       )
-      AND estado_prestamo NOT IN ('finalizado', 'cancelado')
+      AND estado_prestamo NOT IN ('finalizado', 'cancelado', 'incobrable')
     """);
 
     final prestamos = _db.prestamos;

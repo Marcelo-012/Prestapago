@@ -461,4 +461,222 @@ class PdfReceiptService {
       data: rows,
     );
   }
+
+  Future<File> generateCancelacionPdf({
+    required PrestamoDetalle detalle,
+    required String motivo,
+    required double montoDevuelto,
+    required String tipo,
+    String? motivoCastigo,
+    double? montoPerdido,
+  }) async {
+    final pdf = pw.Document();
+    final hoy = DateTime.now();
+    final esCancelacion = tipo == 'cancelacion';
+
+    final totalCuotas = detalle.amortizaciones.length;
+    final cuotasPagadas = detalle.amortizaciones
+        .where((a) => a.estadoAmortizacion == 'pagado').length;
+
+    final totalAbonado = detalle.amortizaciones
+        .where((a) => a.estadoAmortizacion == 'pagado' || a.estadoAmortizacion == 'cancelado')
+        .fold<double>(0, (sum, a) => sum + a.montoPagado);
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.letter,
+        margin: const pw.EdgeInsets.all(40),
+        build: (pw.Context context) {
+          return [
+            pw.Center(
+              child: pw.Text(
+                esCancelacion ? 'CANCELACIÓN DE PRÉSTAMO' : 'CASTIGO DE PRÉSTAMO',
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  letterSpacing: 2,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.grey700,
+                ),
+              ),
+            ),
+            pw.SizedBox(height: 4),
+            pw.Center(
+              child: pw.Text(
+                HumanFormats.date(hoy),
+                style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey500),
+              ),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Header(text: 'Cliente', level: 1),
+            _infoRow('Nombre', detalle.nombreDeudor),
+            _infoRow('Identificación', detalle.numeroIdentificacion),
+            _infoRow('Teléfono', detalle.telefono),
+            pw.SizedBox(height: 16),
+            pw.Header(text: 'Información del Préstamo', level: 1),
+            _infoRow('Monto', HumanFormats.monuted(detalle.prestamo.monto)),
+            _infoRow('Plazo', '${detalle.prestamo.plazo} meses'),
+            _infoRow('Cuotas pagadas', '$cuotasPagadas / $totalCuotas'),
+            _infoRow('Total abonado', HumanFormats.monuted(totalAbonado)),
+            pw.SizedBox(height: 16),
+            if (esCancelacion) ...[
+              pw.RichText(
+                text: pw.TextSpan(
+                  style: const pw.TextStyle(fontSize: 11, lineSpacing: 1.5),
+                  children: [
+                    pw.TextSpan(text: 'Por este medio, se hace constar que el(la) señor(a) '),
+                    pw.TextSpan(text: detalle.nombreDeudor, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: ', con identificación '),
+                    pw.TextSpan(text: detalle.numeroIdentificacion, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: ' y número de teléfono '),
+                    pw.TextSpan(text: detalle.telefono, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: ', y el acreedor suscrito, llegaron a un acuerdo mutuo para la cancelación del préstamo otorgado por un monto de '),
+                    pw.TextSpan(text: HumanFormats.monuted(detalle.prestamo.monto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: ' ('),
+                    pw.TextSpan(text: _montoALetras(detalle.prestamo.monto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: '), por motivo de: '),
+                    pw.TextSpan(text: motivo, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: ', con un plazo original de '),
+                    pw.TextSpan(text: '${detalle.prestamo.plazo} meses', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: ', del cual se llevaban '),
+                    pw.TextSpan(text: '$cuotasPagadas de $totalCuotas', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: ' cuotas pagadas, con un total abonado de '),
+                    pw.TextSpan(text: HumanFormats.monuted(totalAbonado), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: '.'),
+                  ],
+                ),
+                textAlign: pw.TextAlign.justify,
+              ),
+              pw.SizedBox(height: 12),
+              pw.RichText(
+                text: pw.TextSpan(
+                  style: const pw.TextStyle(fontSize: 11, lineSpacing: 1.5),
+                  children: [
+                    pw.TextSpan(text: 'En virtud de dicho acuerdo, ambas partes convienen en dar por terminado y sin efecto el préstamo antes mencionado y siendo el día '),
+                    pw.TextSpan(text: '${HumanFormats.date(hoy)} a las ${HumanFormats.time(hoy)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: ', comprometiéndose el cliente a devolver al acreedor la cantidad de '),
+                    pw.TextSpan(text: HumanFormats.monuted(montoDevuelto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: ' ('),
+                    pw.TextSpan(text: _montoALetras(montoDevuelto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.TextSpan(text: '), correspondiente al saldo neto resultante de la cancelación.'),
+                  ],
+                ),
+                textAlign: pw.TextAlign.justify,
+              ),
+              pw.SizedBox(height: 12),
+              pw.RichText(
+                text: pw.TextSpan(
+                  style: const pw.TextStyle(fontSize: 11, lineSpacing: 1.5),
+                  children: [
+                    pw.TextSpan(text: 'Con la firma del presente documento, ambas partes manifiestan su plena conformidad con los términos aquí establecidos, dando por concluida cualquier obligación derivada del préstamo referido.'),
+                  ],
+                ),
+                textAlign: pw.TextAlign.justify,
+              ),
+            ] else ...[
+              pw.Header(text: 'Detalles de Castigo', level: 1),
+              _infoRow('Motivo de castigo', motivoCastigo ?? motivo),
+              if (montoPerdido != null)
+                _infoRow('Monto perdido', HumanFormats.monuted(montoPerdido)),
+            ],
+            pw.SizedBox(height: 32),
+            pw.Row(
+              children: [
+                pw.Expanded(
+                  child: _firmaSection('Firma del Cliente', detalle.nombreDeudor),
+                ),
+                pw.SizedBox(width: 24),
+                pw.Expanded(
+                  child: _firmaSection('Firma del Acreedor', ''),
+                ),
+              ],
+            ),
+          ];
+        },
+      ),
+    );
+
+    final dir = await getTemporaryDirectory();
+    final nombreCliente = detalle.nombreDeudor
+        .replaceAllMapped(RegExp(r'[áéíóúüñ]'), (m) => _sanitizeChar(m.group(0)!))
+        .replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_');
+    final prefix = esCancelacion ? 'cancelacion' : 'castigo';
+    final file = File(
+      '${dir.path}/${prefix}_${detalle.idPrestamo}_$nombreCliente.pdf',
+    );
+    await file.writeAsBytes(await pdf.save());
+    return file;
+  }
+
+  static const List<String> _unidades = [
+    'cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'
+  ];
+  static const List<String> _decenas = [
+    '', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'
+  ];
+  static const List<String> _dieces = [
+    'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'
+  ];
+  static const List<String> _centenas = [
+    '', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos',
+    'seiscientos', 'setecientos', 'ochocientos', 'novecientos'
+  ];
+
+  String _numeroALetras(int n) {
+    if (n == 0) return 'cero';
+    if (n == 100) return 'cien';
+
+    String result = '';
+
+    if (n >= 1000000) {
+      final millones = n ~/ 1000000;
+      if (millones == 1) {
+        result += 'un millón';
+      } else {
+        result += '${_numeroALetras(millones)} millones';
+      }
+      n %= 1000000;
+      if (n > 0) result += ' ';
+    }
+
+    if (n >= 1000) {
+      final miles = n ~/ 1000;
+      if (miles == 1) {
+        result += 'mil';
+      } else {
+        result += '${_numeroALetras(miles)} mil';
+      }
+      n %= 1000;
+      if (n > 0) result += ' ';
+    }
+
+    if (n >= 100) {
+      result += _centenas[n ~/ 100];
+      n %= 100;
+      if (n > 0) result += ' ';
+    }
+
+    if (n >= 10 && n < 20) {
+      result += _dieces[n - 10];
+      n = 0;
+    }
+
+    if (n >= 20) {
+      result += _decenas[n ~/ 10];
+      n %= 10;
+      if (n > 0) result += ' y ';
+    }
+
+    if (n > 0) {
+      result += _unidades[n];
+    }
+
+    return result;
+  }
+
+  String _montoALetras(double monto) {
+    final pesos = monto.floor();
+    final centavos = ((monto - pesos) * 100).round();
+    final pesosLetras = _numeroALetras(pesos);
+    return '$pesosLetras pesos $centavos/100';
+  }
 }

@@ -236,7 +236,7 @@ class ClienteRepositoryImpl implements ClienteRepository {
       SELECT 1 FROM prestamos p
       JOIN configuracion_prestamos cp ON cp.id_prestamo = p.id_prestamo
       WHERE p.id_deudor = ?
-        AND cp.estado_prestamo NOT IN ('finalizado', 'cancelado')
+        AND cp.estado_prestamo NOT IN ('finalizado', 'cancelado', 'incobrable')
       LIMIT 1
     ''',
       variables: [Variable<int>(idDeudor)],
