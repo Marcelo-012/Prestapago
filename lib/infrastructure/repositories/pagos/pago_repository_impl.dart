@@ -39,7 +39,6 @@ class PagoRepositoryImpl implements PagoRepository {
       final completo = await _prestamoRepository.getDetalle(idPrestamo);
       final config = completo.configuracionPrestamo;
       final prestamo = completo.prestamo;
-      final esSimple = config.tipoInteres == 'simple';
 
       final prox = completo.amortizaciones.firstWhere(
         (a) =>
@@ -56,7 +55,7 @@ class PagoRepositoryImpl implements PagoRepository {
         diasMora: diasMora,
       );
 
-      final totalDebido = (prox.montoCapital + prox.montoInteres) + (esSimple ? montoMora : 0);
+      final totalDebido = prox.montoCapital + prox.montoInteres + montoMora;
       double excedente = montoPagado + saldoPreCargado - totalDebido;
 
       double abonoACapital = 0;
@@ -89,33 +88,6 @@ class PagoRepositoryImpl implements PagoRepository {
               .toList()
             ..sort((a, b) => a.idCuota.compareTo(b.idCuota));
 
-      final hayMoraPendiente = pendientes.any((a) => a.montoMora > 0);
-      final moraTotal = montoMora + pendientes.fold(0.0, (sum, a) => sum + a.montoMora);
-
-      if ((diasMora > 0 || hayMoraPendiente) &&
-          config.tipoInteres == 'compuesto' &&
-          pendientes.isNotEmpty) {
-        final recalculadas = AmortizationCalculator.recalcularPorMora(
-          pendientes: pendientes,
-          montoMora: moraTotal,
-          tasaInteres: prestamo.tasaInteres,
-          periodicidadIntereses: config.periodidadIntereses,
-          cuotaMensual: prestamo.montoCuota,
-        );
-        for (final r in recalculadas) {
-          await (_db.update(
-            _db.amortizaciones,
-          )..where((t) => t.id.equals(r.idAmortizacion))).write(
-            drift.AmortizacionesCompanion(
-              montoInicial: Value(r.montoInicial),
-              montoACapital: Value(r.montoCapital),
-              montoInteres: Value(r.montoInteres),
-              montoMora: const Value(0),
-            ),
-          );
-        }
-      }
-
       if (tipoExcedente == ManejoExcedente.saldoFavor && excedente > 0.01) {
         final pendientesActualizados =
             await (_db.select(_db.amortizaciones)
@@ -143,7 +115,7 @@ class PagoRepositoryImpl implements PagoRepository {
                   diasMora: sig.diasMora,
                 )
               : 0.0;
-          final sigTotal = (sig.montoACapital + sig.montoInteres) + (esSimple ? sigMora : 0);
+          final sigTotal = sig.montoACapital + sig.montoInteres + sigMora;
 
           if (excedente < sigTotal) {
             await (_db.update(

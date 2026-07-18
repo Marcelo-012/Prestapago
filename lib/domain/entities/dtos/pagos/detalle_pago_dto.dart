@@ -20,10 +20,8 @@ class DetallePagoDto {
     required Amortizacion amortizacion,
     required List<Amortizacion> amortizaciones,
   }) {
-    final esSimple = config.tipoInteres == 'simple';
     final montoCuota = amortizacion.montoCapital + amortizacion.montoInteres;
-    final totalCuotaConMora =
-        montoCuota + (esSimple ? amortizacion.montoMora : 0);
+    final totalCuotaConMora = montoCuota + amortizacion.montoMora;
 
     double? abonoCapital;
     if (config.manejoExcedente == 'abonoCapital') {

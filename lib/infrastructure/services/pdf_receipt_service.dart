@@ -168,7 +168,7 @@ class PdfReceiptService {
               _infoRow('Abono a', 'Interés y Capital'),
               _infoRow('Método de Pago', 'Efectivo'),
               _infoRow('Monto', HumanFormats.monuted(dto.montoCuota)),
-              if (esSimple && amortizacion.montoMora > 0)
+              if (amortizacion.montoMora > 0)
                 _infoRow(
                   'Mora (${amortizacion.diasMora}d)',
                   HumanFormats.monuted(amortizacion.montoMora),
@@ -322,6 +322,21 @@ class PdfReceiptService {
     }
   }
 
+  String _estadoLabel(String estado) {
+    switch (estado) {
+      case 'completado':
+        return 'Completado';
+      case 'en_progreso':
+        return 'En progreso';
+      case 'pendiente':
+        return 'Pendiente';
+      case 'sin_amortizaciones':
+        return 'Sin amortizaciones';
+      default:
+        return estado;
+    }
+  }
+
   Future<File> generateLoanDetailPdf({
     required PrestamoDetalle detalle,
     required int cuotasPagadas,
@@ -368,8 +383,8 @@ class PdfReceiptService {
             _infoRow('Tasa interés', '${detalle.prestamo.tasaInteres}%'),
             _infoRow('Tasa moratoria', '${detalle.prestamo.tasaInteresMoratoria}%'),
             _infoRow('Tipo interés', esSimple ? 'Simple' : 'Compuesto'),
-            _infoRow('Periodicidad', detalle.configuracionPrestamo.periodidadIntereses),
-            _infoRow('Estado', detalle.estadoPagos),
+            _infoRow('Periodicidad', detalle.configuracionPrestamo.periodidadIntereses[0].toUpperCase() + detalle.configuracionPrestamo.periodidadIntereses.substring(1)),
+            _infoRow('Estado', _estadoLabel(detalle.estadoPagos)),
             pw.SizedBox(height: 16),
             pw.Header(text: 'Progreso', level: 1),
             _infoRow('Cuotas pagadas', '$cuotasPagadas / $cuotasTotales'),
@@ -381,7 +396,6 @@ class PdfReceiptService {
             pw.Header(text: 'Amortizaciones', level: 1),
             _buildAmortizacionTable(
               detalle.amortizaciones,
-              esSimple,
               tasaMoratoria: detalle.prestamo.tasaInteresMoratoria,
               periodicidad: detalle.configuracionPrestamo.periodidadIntereses,
             ),
@@ -402,8 +416,7 @@ class PdfReceiptService {
   }
 
   pw.Widget _buildAmortizacionTable(
-    List<Amortizacion> amortizaciones,
-    bool esSimple, {
+    List<Amortizacion> amortizaciones, {
     required double tasaMoratoria,
     required String periodicidad,
   }) {
@@ -414,12 +427,12 @@ class PdfReceiptService {
     final headers = <String>[
       '#', 'Vencimiento', 'Fecha pago', 'Monto inicial', 'Cuota',
       'Capital', 'Interés', 'Monto pagado', 'Excedente', 'Días mora',
+      'Mora',
+      'Estado',
     ];
-    if (esSimple) headers.add('Mora');
-    headers.add('Estado');
 
     final rows = amortizaciones.map((a) {
-      final montoMoraCalculado = esSimple && a.diasMora > 0
+      final montoMoraCalculado = a.diasMora > 0
           ? (a.montoCapital + a.montoInteres) * tasaDiaria * a.diasMora
           : 0.0;
 
@@ -435,8 +448,8 @@ class PdfReceiptService {
         HumanFormats.monuted(a.montoExcedente),
         a.diasMora.toString(),
       ];
-      if (esSimple) cells.add(HumanFormats.monuted(montoMoraCalculado));
-      cells.add(a.estadoAmortizacion);
+      cells.add(HumanFormats.monuted(montoMoraCalculado));
+      cells.add(a.estadoAmortizacion[0].toUpperCase() + a.estadoAmortizacion.substring(1));
       return cells;
     }).toList();
 

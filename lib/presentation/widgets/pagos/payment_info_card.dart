@@ -81,16 +81,6 @@ class PaymentInfoCard extends StatelessWidget {
               icon: Icons.money,
               color: colors.primary,
             ),
-            if (preview.diasMora > 0 &&
-                detalle.configuracionPrestamo.tipoInteres == 'simple') ...[
-              const Divider(),
-              InfoRow(
-                label: 'Monto mora',
-                value: HumanFormats.monuted(preview.montoMora),
-                icon: Icons.add,
-                color: Colors.red,
-              ),
-            ],
             if (preview.saldoAFavor > 0) ...[
               const Divider(),
               InfoRow(
