@@ -5,6 +5,8 @@ import 'package:prestapagos/infrastructure/database/database.dart' as drift;
 import 'package:prestapagos/infrastructure/services/services.dart';
 
 class PagoRepositoryImpl implements PagoRepository {
+  static const double _umbralExcedente = 0.01;
+
   final drift.AppDatabase _db;
   final PrestamoRepository _prestamoRepository;
   final EstadoPrestamoService _estadoPrestamoService;
@@ -44,15 +46,16 @@ class PagoRepositoryImpl implements PagoRepository {
         _db.deudores,
       )..where((t) => t.id.equals(prestamo.idDeudor))).getSingleOrNull();
       if (deudor != null && deudor.estado == EstadoCliente.inactivo) {
-        throw Exception(
-          'No se puede registrar un pago para un cliente inactivo',
-        );
+        throw StateError('No se puede registrar un pago para un cliente inactivo');
       }
 
       final prox = completo.amortizaciones.firstWhere(
         (a) =>
             a.estadoAmortizacion == 'atrasado' ||
             a.estadoAmortizacion == 'pendiente',
+        orElse: () => throw StateError(
+          'El préstamo $idPrestamo no tiene cuotas pendientes por pagar',
+        ),
       );
 
       final saldoPreCargado = prox.montoExcedente;
@@ -68,7 +71,7 @@ class PagoRepositoryImpl implements PagoRepository {
       double excedente = montoPagado + saldoPreCargado - totalDebido;
 
       double abonoACapital = 0;
-      if (tipoExcedente == ManejoExcedente.abonoCapital && excedente > 0.01) {
+      if (tipoExcedente == ManejoExcedente.abonoCapital && excedente > _umbralExcedente) {
         abonoACapital = excedente;
         excedente = 0;
       }
@@ -82,7 +85,7 @@ class PagoRepositoryImpl implements PagoRepository {
           montoPagado: Value(montoPagado),
           diasMora: Value(diasMora),
           montoMora: Value(montoMora),
-          montoExcedente: Value(excedente > 0.01 ? excedente : 0),
+              montoExcedente: Value(excedente > _umbralExcedente ? excedente : 0),
         ),
       );
 
@@ -97,7 +100,7 @@ class PagoRepositoryImpl implements PagoRepository {
               .toList()
             ..sort((a, b) => a.idCuota.compareTo(b.idCuota));
 
-      if (tipoExcedente == ManejoExcedente.saldoFavor && excedente > 0.01) {
+      if (tipoExcedente == ManejoExcedente.saldoFavor && excedente > _umbralExcedente) {
         final pendientesActualizados =
             await (_db.select(_db.amortizaciones)
                   ..where((t) => t.idPrestamo.equals(idPrestamo))
@@ -112,7 +115,7 @@ class PagoRepositoryImpl implements PagoRepository {
                 .get();
 
         for (final sig in pendientesActualizados) {
-          if (excedente <= 0.01) break;
+          if (excedente <= _umbralExcedente) break;
 
           final sigMora = sig.diasMora > 0
               ? AmortizationCalculator.calcularMontoMora(
@@ -141,7 +144,7 @@ class PagoRepositoryImpl implements PagoRepository {
               estadoAmortizacion: const Value(EstadoAmortizacion.pagado),
               fechaPagado: Value(fechaPago),
               montoPagado: const Value(0),
-              montoExcedente: Value(excedente > 0.01 ? excedente : 0),
+          montoExcedente: Value(excedente > _umbralExcedente ? excedente : 0),
               montoMora: Value(sigMora),
             ),
           );

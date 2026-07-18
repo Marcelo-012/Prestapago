@@ -8,10 +8,10 @@ class ClienteRepositoryImpl implements ClienteRepository {
 
   ClienteRepositoryImpl(this._db);
 
-  String _scoreSubquery(String alias) =>
+  String _scoreSubquery() =>
       'COALESCE((SELECT ROUND(AVG(sq.score)) FROM (SELECT s.score FROM scores s '
       'INNER JOIN prestamos p ON s.id_prestamo = p.id_prestamo '
-      'WHERE p.id_deudor = $alias.id_deudor '
+      'WHERE p.id_deudor = d.id_deudor '
       'ORDER BY p.fecha_creacion DESC LIMIT 5) sq), 0)';
 
   @override
@@ -36,7 +36,7 @@ class ClienteRepositoryImpl implements ClienteRepository {
         d.nombre,
         d.telefono,
         d.estado,
-        COALESCE(${_scoreSubquery('d')}, 0) AS score
+        COALESCE($_scoreSubquery, 0) AS score
       FROM deudores d
       WHERE (? = 0 OR d.nombre LIKE ? OR d.telefono LIKE ?)
       ORDER BY d.nombre ASC
@@ -213,6 +213,10 @@ class ClienteRepositoryImpl implements ClienteRepository {
 
   @override
   Future<void> deleteCliente(int idDeudor) async {
+    final hasActive = await hasActiveLoans(idDeudor);
+    if (hasActive) {
+      throw Exception('No se puede eliminar un cliente con préstamos activos');
+    }
     await (_db.delete(_db.deudores)..where((t) => t.id.equals(idDeudor))).go();
   }
 

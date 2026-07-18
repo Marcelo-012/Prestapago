@@ -121,55 +121,67 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
 
   @override
   Future<void> deletePrestamo(int idPrestamo) async {
-    await (_db.delete(
-      _db.amortizaciones,
-    )..where((t) => t.idPrestamo.equals(idPrestamo))).go();
-    await (_db.delete(
-      _db.configuracionPrestamos,
-    )..where((t) => t.idPrestamo.equals(idPrestamo))).go();
-    await (_db.delete(
-      _db.prestamos,
-    )..where((t) => t.id.equals(idPrestamo))).go();
+    await _db.transaction(() async {
+      final exists = await _db.customSelect(
+        'SELECT 1 FROM prestamos WHERE id_prestamo = ?',
+        variables: [Variable<int>(idPrestamo)],
+      ).get();
+      if (exists.isEmpty) return;
+
+      await (_db.delete(
+        _db.amortizaciones,
+      )..where((t) => t.idPrestamo.equals(idPrestamo))).go();
+      await (_db.delete(
+        _db.configuracionPrestamos,
+      )..where((t) => t.idPrestamo.equals(idPrestamo))).go();
+      await (_db.delete(
+        _db.prestamos,
+      )..where((t) => t.id.equals(idPrestamo))).go();
+    });
   }
 
   @override
   Future<void> cancelarPrestamo(int idPrestamo, String motivo, double montoDevuelto) async {
-    await (_db.update(
-      _db.configuracionPrestamos,
-    )..where((t) => t.idPrestamo.equals(idPrestamo))).write(
-      drift.ConfiguracionPrestamosCompanion(
-        estadoPrestamo: Value(EstadoPrestamo.cancelado),
-        motivoCancelacion: Value(motivo),
-        montoDevuelto: Value(montoDevuelto),
-        fechaActualizacion: Value(DateTime.now()),
-      ),
-    );
+    await _db.transaction(() async {
+      final prestamo = await (_db.select(_db.prestamos)
+        ..where((t) => t.id.equals(idPrestamo))).getSingleOrNull();
+      if (prestamo == null) return;
 
-    await (_db.update(
-      _db.amortizaciones,
-    )..where((t) => t.idPrestamo.equals(idPrestamo))
-      ..where((t) => t.estadoAmortizacion.isIn([
-        'pendiente',
-        'atrasado',
-      ]))
-    ).write(
-      drift.AmortizacionesCompanion(
-        estadoAmortizacion: Value(EstadoAmortizacion.cancelado),
-        diasMora: const Value(0),
-        montoMora: const Value(0),
-        fechaActualizacion: Value(DateTime.now()),
-      ),
-    );
+      await (_db.update(
+        _db.configuracionPrestamos,
+      )..where((t) => t.idPrestamo.equals(idPrestamo))).write(
+        drift.ConfiguracionPrestamosCompanion(
+          estadoPrestamo: Value(EstadoPrestamo.cancelado),
+          motivoCancelacion: Value(motivo),
+          montoDevuelto: Value(montoDevuelto),
+          fechaActualizacion: Value(DateTime.now()),
+        ),
+      );
 
-    final prestamo = await (_db.select(_db.prestamos)
-      ..where((t) => t.id.equals(idPrestamo))).getSingle();
-    await _db.into(_db.scores).insertOnConflictUpdate(
-      drift.ScoresCompanion(
-        idPrestamo: Value(idPrestamo),
-        idDeudor: Value(prestamo.idDeudor),
-        score: const Value(50),
-      ),
-    );
+      await (_db.update(
+        _db.amortizaciones,
+      )..where((t) => t.idPrestamo.equals(idPrestamo))
+        ..where((t) => t.estadoAmortizacion.isIn([
+          'pendiente',
+          'atrasado',
+        ]))
+      ).write(
+        drift.AmortizacionesCompanion(
+          estadoAmortizacion: Value(EstadoAmortizacion.cancelado),
+          diasMora: const Value(0),
+          montoMora: const Value(0),
+          fechaActualizacion: Value(DateTime.now()),
+        ),
+      );
+
+      await _db.into(_db.scores).insertOnConflictUpdate(
+        drift.ScoresCompanion(
+          idPrestamo: Value(idPrestamo),
+          idDeudor: Value(prestamo.idDeudor),
+          score: const Value(50),
+        ),
+      );
+    });
   }
 
   @override
