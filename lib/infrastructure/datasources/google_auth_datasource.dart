@@ -11,7 +11,7 @@ class GoogleAuthDatasource {
   final String serverClientId;
   bool _initialized = false;
 
-  final _logger = Logger(level: kReleaseMode ? Level.warning : Level.trace);
+  final _logger = Logger(level: kReleaseMode ? Level.off : Level.trace);
 
   GoogleAuthDatasource({
     required this.secureStorage,
@@ -37,7 +37,7 @@ class GoogleAuthDatasource {
         scopeHint: [BackupConstants.driveScope],
       );
 
-      _logger.i('Usuario autenticado: ${account.email}');
+      _logger.i('Usuario autenticado');
 
       final authz = await account.authorizationClient.authorizeScopes(
         [BackupConstants.driveScope],
@@ -54,7 +54,7 @@ class GoogleAuthDatasource {
         await localBackupStorage.setUserPhotoUrl(account.photoUrl!);
       }
 
-      _logger.i('✅ Autenticación exitosa: ${account.email}');
+      _logger.i('Autenticación exitosa');
     } on BackupException {
       rethrow;
     } on GoogleSignInException catch (e) {
@@ -63,10 +63,10 @@ class GoogleAuthDatasource {
         return;
       }
       _logger.e('Error en autenticación: $e');
-      throw AuthenticationFailedException(e.toString());
+      throw AuthenticationFailedException('Error de autenticación con Google. Intenta de nuevo.');
     } catch (e, stack) {
-      _logger.e('Error en autenticación: $e', stackTrace: stack);
-      throw AuthenticationFailedException(e.toString());
+      _logger.e('Error en autenticación', error: e, stackTrace: stack);
+      throw AuthenticationFailedException('Error de autenticación con Google. Intenta de nuevo.');
     }
   }
 
@@ -98,8 +98,8 @@ class GoogleAuthDatasource {
 
       _logger.w('No se pudo renovar el token sin interacción del usuario');
       return null;
-    } catch (e) {
-      _logger.e('Error renovando Access Token: $e');
+    } catch (e, stack) {
+      _logger.e('Error renovando Access Token', error: e, stackTrace: stack);
       return null;
     }
   }
@@ -109,8 +109,8 @@ class GoogleAuthDatasource {
       await _ensureInitialized();
       await GoogleSignIn.instance.disconnect();
       _logger.i('✅ Desconexión de Google completada');
-    } catch (e) {
-      _logger.w('Advertencia al desconectar de Google: $e');
+    } catch (e, stack) {
+      _logger.w('Advertencia al desconectar de Google', error: e, stackTrace: stack);
     }
   }
 }

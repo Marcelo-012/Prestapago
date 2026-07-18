@@ -17,7 +17,7 @@ class SecureStorageDatasource {
     ),
   );
 
-  final _logger = Logger(level: kReleaseMode ? Level.warning : Level.trace);
+  final _logger = Logger(level: kReleaseMode ? Level.off : Level.trace);
   String? _accessTokenInMemory;
 
   // ============ BÓVEDA EN DISCO (REFRESH TOKEN) ============
@@ -26,8 +26,8 @@ class SecureStorageDatasource {
     try {
       await _secureStorage.write(key: _refreshTokenKey, value: token);
       _logger.i('Refresh Token guardado en bóveda segura');
-    } catch (e) {
-      _logger.e('Error guardando Refresh Token: $e');
+    } catch (e, stack) {
+      _logger.e('Error guardando Refresh Token', error: e, stackTrace: stack);
       rethrow;
     }
   }
@@ -35,8 +35,8 @@ class SecureStorageDatasource {
   Future<String?> getRefreshToken() async {
     try {
       return await _secureStorage.read(key: _refreshTokenKey);
-    } catch (e) {
-      _logger.e('Error leyendo Refresh Token: $e');
+    } catch (e, stack) {
+      _logger.e('Error leyendo Refresh Token', error: e, stackTrace: stack);
       return null;
     }
   }
@@ -62,8 +62,8 @@ class SecureStorageDatasource {
       await _secureStorage.delete(key: _refreshTokenKey);
       clearAccessTokenFromMemory();
       _logger.i('Tokens de autenticación revocados y eliminados por completo');
-    } catch (e) {
-      _logger.e('Error limpiando datos de autenticación seguros: $e');
+    } catch (e, stack) {
+      _logger.e('Error limpiando datos de autenticación seguros', error: e, stackTrace: stack);
       rethrow;
     }
   }
