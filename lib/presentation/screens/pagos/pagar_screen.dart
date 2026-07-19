@@ -22,7 +22,7 @@ class PagarScreen extends ConsumerStatefulWidget {
 class _PagarScreenState extends ConsumerState<PagarScreen> {
   late TextEditingController _montoController;
   late double _minimo;
-  late bool _esLiquidacion;
+  late   bool _esLiquidacion = false;
 
   Amortizacion? get _prox {
     for (final a in widget.detalle.amortizaciones) {
@@ -43,11 +43,7 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
     final valorInicial = widget.montoInicial != null && widget.montoInicial! >= _minimo
         ? widget.montoInicial!
         : _minimo;
-    _esLiquidacion = widget.montoInicial != null && widget.montoInicial! >= _minimo;
     _montoController = TextEditingController(text: valorInicial.toStringAsFixed(2));
-    ref.read(
-      pagoFormProvider((minimo: _minimo, maximo: valorInicial > _minimo ? valorInicial : preview.montoMaximo)).notifier,
-    );
     _checkClienteActivo();
   }
 
@@ -73,7 +69,7 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
           ),
         );
       }
-    } catch (_) {}
+    } catch (e) { debugPrint('Error al verificar cliente activo: $e'); }
   }
 
   @override
@@ -172,7 +168,11 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
     final textTheme = GoogleFonts.poppins();
     final preview = ref.watch(previewPagoProvider(widget.detalle.idPrestamo));
     final minimo = preview.totalMinimo;
-    if (_minimo != minimo) _minimo = minimo;
+    if (_minimo != minimo) {
+      _minimo = minimo;
+      if (_minimo <= 0) _montoController.clear();
+    }
+    _esLiquidacion = widget.montoInicial != null && widget.montoInicial! >= _minimo;
     final formState = ref.watch(
       pagoFormProvider((minimo: minimo, maximo: preview.montoMaximo)),
     );

@@ -71,21 +71,21 @@ class CreatePrestamoStep3 extends ConsumerWidget {
             children: [
               Expanded(
                 child: CompactCard(
-                  selected: formState.manejoExcedente == 'abono_capital',
+                  selected: formState.manejoExcedente == 'abonoCapital',
                   title: 'Abono a capital',
                   description: 'Pagos extra reducen el capital pendiente.',
                   color: scheme.primary,
-                  onTap: () => ref.read(createPrestamoFormProvider.notifier).onManejoExcedenteChanged('abono_capital'),
+                  onTap: () => ref.read(createPrestamoFormProvider.notifier).onManejoExcedenteChanged('abonoCapital'),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: CompactCard(
-                  selected: formState.manejoExcedente == 'saldo_favor',
+                  selected: formState.manejoExcedente == 'saldoFavor',
                   title: 'Saldo a favor',
                   description: 'Pagos extra quedan para futuras cuotas.',
                   color: scheme.primary,
-                  onTap: () => ref.read(createPrestamoFormProvider.notifier).onManejoExcedenteChanged('saldo_favor'),
+                  onTap: () => ref.read(createPrestamoFormProvider.notifier).onManejoExcedenteChanged('saldoFavor'),
                 ),
               ),
             ],

@@ -37,7 +37,7 @@ class ClientesDetalles extends StatelessWidget {
         CircleAvatar(
           backgroundColor: colors.primary,
           child: Text(
-            nombre[0].toUpperCase(),
+            nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
             style: const TextStyle(color: Colors.white70),
           ),
         ),

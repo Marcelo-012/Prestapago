@@ -25,15 +25,6 @@ class PrestamoScreen extends ConsumerStatefulWidget {
 
 class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
   int get _id => int.parse(widget.prestamoId);
-  bool _showContent = false;
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      if (mounted) setState(() => _showContent = true);
-    });
-  }
 
   void _goToPagar(PrestamoDetalle detalle, {double? montoInicial}) {
     Navigator.push(
@@ -99,10 +90,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
       body: detalleAsync.when(
         loading: () => const FullScreenLoader(),
         error: (e, _) => Center(child: Text('Error: $e')),
-        data: (detalle) {
-          if (!_showContent) return const FullScreenLoader();
-          return _buildUI(detalle);
-        },
+        data: (detalle) => _buildUI(detalle),
       ),
     );
   }

@@ -20,7 +20,6 @@ export 'package:prestapagos/presentation/widgets/clientes/cliente_stats_section.
 export 'package:prestapagos/presentation/widgets/clientes/clientes_detalles.dart';
 export 'package:prestapagos/presentation/widgets/clientes/clientes_list_item.dart';
 export 'package:prestapagos/presentation/widgets/clientes/clientes_profile.dart';
-export 'package:prestapagos/presentation/widgets/home/cards_clientes.dart';
 export 'package:prestapagos/presentation/widgets/home/lists_card_clientes.dart';
 export 'package:prestapagos/presentation/widgets/home/ultimos_pagos_section.dart';
 export 'package:prestapagos/presentation/widgets/home/proximos_vencimientos_section.dart';

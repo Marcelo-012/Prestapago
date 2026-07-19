@@ -51,7 +51,10 @@ class HomeView extends ConsumerWidget {
                 const SizedBox(height: 16),
                 cardHomeAsyncValue.when(
                   loading: () => const SizedBox.shrink(),
-                  error: (e, s) => const SizedBox.shrink(),
+                  error: (error, stackTrace) => ErrorWidgetCustom(
+                    error: error,
+                    onRetry: () => ref.refresh(reporteCardProvider),
+                  ),
                   data: (cardsHome) => _EsteMesCards(cardsHome: cardsHome),
                 ),
                 const SizedBox(height: 24),

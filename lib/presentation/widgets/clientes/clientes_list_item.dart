@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/entities/entities.dart';
+import 'package:prestapagos/domain/entities/entities.dart';
 import 'clientes_detalles.dart';
 
 class ClientesListItem extends StatelessWidget {

@@ -18,15 +18,11 @@ class ClienteScreen extends ConsumerStatefulWidget {
 
 class _ClienteScreenState extends ConsumerState<ClienteScreen> {
   int get _id => int.parse(widget.clienteId);
-  bool _showContent = false;
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() => ref.invalidate(clienteDetalleProvider(_id)));
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      if (mounted) setState(() => _showContent = true);
-    });
   }
 
   @override
@@ -38,10 +34,7 @@ class _ClienteScreenState extends ConsumerState<ClienteScreen> {
       body: detalleAsync.when(
         loading: () => const FullScreenLoader(),
         error: (e, _) => Center(child: Text('Error: $e')),
-        data: (detalle) {
-          if (!_showContent) return const FullScreenLoader();
-          return _buildUI(detalle);
-        },
+        data: (detalle) => _buildUI(detalle),
       ),
     );
   }

@@ -27,7 +27,6 @@ class ReceiptScreen extends ConsumerStatefulWidget {
 
 class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   bool _isSharing = false;
-  bool _ready = false;
 
   Future<void> _sharePdf({
     required PrestamoDetalle detalle,
@@ -68,15 +67,9 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
       loading: () => _fullScreenLoader(colors),
       error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
       data: (detalle) {
-        if (!_ready) {
-          Future.microtask(() async {
-            await Future.delayed(const Duration(milliseconds: 500));
-            if (mounted) setState(() => _ready = true);
-          });
-          return _fullScreenLoader(colors);
-        }
         final amortizacion = detalle.amortizaciones.firstWhere(
           (a) => a.idCuota == widget.idCuota,
+          orElse: () => detalle.amortizaciones.last,
         );
         final config = detalle.configuracionPrestamo;
         final esPagado = amortizacion.estadoAmortizacion == 'pagado';

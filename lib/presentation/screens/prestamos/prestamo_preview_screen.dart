@@ -103,13 +103,10 @@ class PrestamoPreviewScreen extends ConsumerWidget {
   }
 
   List<DataRow> _buildAmortizacionRows(List<CreateAmortizacionDTO> list) {
-    double saldo = double.parse(
-      (list as List).isNotEmpty
-          ? (list.first.montoCapital + list.first.montoInteres).toString()
-          : '0',
-    );
+    var saldo = 0.0;
 
     return list.map<DataRow>((a) {
+      saldo += a.montoCapital + a.montoInteres;
       return DataRow(cells: [
         DataCell(Text('${a.idCuota}')),
         DataCell(Text('${a.fechaVencimiento.day}/${a.fechaVencimiento.month}/${a.fechaVencimiento.year}')),

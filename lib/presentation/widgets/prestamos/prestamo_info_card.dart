@@ -28,8 +28,6 @@ class _PrestamoInfoCardState extends State<PrestamoInfoCard> {
         return Colors.red;
       case 'finalizado':
         return Colors.green;
-      case 'nopagado':
-        return Colors.grey;
       default:
         return Colors.grey;
     }

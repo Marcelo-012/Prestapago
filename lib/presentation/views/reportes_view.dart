@@ -192,9 +192,6 @@ class _ResumenCards extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //spacing: 3,
-            // runSpacing: 8,
-            // alignment: WrapAlignment.center,
             children: [
               _MiniCard(
                 titulo: 'Clientes',
