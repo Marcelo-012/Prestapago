@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:prestapagos/config/constants/prestamo_constants.dart';
 import 'package:prestapagos/config/helpers/helpers.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/infrastructure/services/pdf_receipt_service.dart';
 import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:prestapagos/presentation/screens/pagos/pagos.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
@@ -37,7 +36,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
 
   Future<void> _generarPdf(PrestamoDetalle detalle) async {
     final config = detalle.configuracionPrestamo;
-    final service = PdfReceiptService();
+    final service = ref.read(pdfReceiptServiceProvider);
 
     final file = config.estadoPrestamo == 'cancelado'
         ? await service.generateCancelacionPdf(
@@ -610,7 +609,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
     final updated = ref.read(cancelarPrestamoProvider);
     if (updated.isSuccess) {
       try {
-        final service = PdfReceiptService();
+        final service = ref.read(pdfReceiptServiceProvider);
         final file = await service.generateCancelacionPdf(
           detalle: detalle,
           motivo: motivo,
@@ -659,7 +658,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
     final updated = ref.read(castigarPrestamoProvider);
     if (updated.isSuccess) {
       try {
-        final service = PdfReceiptService();
+        final service = ref.read(pdfReceiptServiceProvider);
         final file = await service.generateCancelacionPdf(
           detalle: detalle,
           motivo: motivo,

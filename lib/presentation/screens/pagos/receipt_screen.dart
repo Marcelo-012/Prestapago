@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:prestapagos/config/helpers/helpers.dart';
 import 'package:prestapagos/domain/domain.dart';
-import 'package:prestapagos/infrastructure/services/pdf_receipt_service.dart';
 import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -37,7 +36,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     setState(() => _isSharing = true);
     try {
       final account = ref.read(accountProvider);
-      final service = PdfReceiptService();
+      final service = ref.read(pdfReceiptServiceProvider);
       final file = await service.generateReceipt(
         detalle: detalle,
         amortizacion: amortizacion,
