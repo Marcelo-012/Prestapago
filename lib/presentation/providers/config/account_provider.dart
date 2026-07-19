@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prestapagos/infrastructure/datasources/datasources.dart';
 
@@ -23,17 +24,25 @@ class AccountNotifier extends Notifier<AccountState> {
   }
 
   Future<void> linkAccount() async {
-    final auth = ref.read(googleAuthDatasourceProvider);
-    await auth.authenticateWithGoogle();
-    _refresh();
+    try {
+      final auth = ref.read(googleAuthDatasourceProvider);
+      await auth.authenticateWithGoogle();
+      _refresh();
+    } catch (e) {
+      debugPrint('Error al vincular cuenta: $e');
+    }
   }
 
   Future<void> unlinkAccount() async {
-    final auth = ref.read(googleAuthDatasourceProvider);
-    final localBackup = ref.read(localBackupDatasourceProvider);
-    await auth.disconnectFromGoogle();
-    await localBackup.clearLocalBackupData();
-    _refresh();
+    try {
+      final auth = ref.read(googleAuthDatasourceProvider);
+      final localBackup = ref.read(localBackupDatasourceProvider);
+      await auth.disconnectFromGoogle();
+      await localBackup.clearLocalBackupData();
+      _refresh();
+    } catch (e) {
+      debugPrint('Error al desvincular cuenta: $e');
+    }
   }
 
   void _refresh() {

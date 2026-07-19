@@ -38,16 +38,19 @@ class CancelarPrestamoNotifier extends Notifier<CancelarPrestamoState> {
 
     try {
       await ref.read(prestamoRepositoryProvider).cancelarPrestamo(idPrestamo, motivo, montoDevuelto);
-      _invalidateProviders();
+      _invalidateProviders(idPrestamo);
       state = state.copyWith(isSubmitting: false, isSuccess: true);
     } catch (e) {
       state = state.copyWith(isSubmitting: false, errorMessage: mapErrorToMessage(e));
     }
   }
 
-  void _invalidateProviders() {
+  void _invalidateProviders(int idPrestamo) {
     ref.invalidate(prestamoPaginationProvider);
     ref.read(prestamoPaginationProvider.notifier).refresh();
+    ref.invalidate(prestamoDetalleProvider(idPrestamo));
+    ref.invalidate(prestamoProvider(idPrestamo));
+    invalidateAllReportes(ref);
   }
 }
 

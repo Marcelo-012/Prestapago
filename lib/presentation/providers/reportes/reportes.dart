@@ -6,3 +6,4 @@ export 'reporte_loan_graphic_provider.dart';
 export 'reporte_morosidad_provider.dart';
 export 'reporte_payments_graphic_provider.dart';
 export 'reporte_saldo_pendiente_provider.dart';
+export 'reporte_invalidation.dart';

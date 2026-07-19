@@ -49,6 +49,9 @@ class EditClienteNotifier extends Notifier<EditClienteState> {
             ),
           );
 
+      ref.invalidate(clienteProvider(clienteId));
+      ref.invalidate(clienteDetalleProvider(clienteId));
+      ref.invalidate(clientePaginationProvider);
       state = state.copyWith(isSubmitting: false, isSuccess: true);
     } catch (e) {
       state = state.copyWith(isSubmitting: false, errorMessage: mapErrorToMessage(e));

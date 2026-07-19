@@ -15,15 +15,6 @@ class ReporteLoanGraphicProvider extends AsyncNotifier<ReporteLoanGraphic> {
     final repository = ref.read(reporteLoanGraphicRepositoryProvider);
     return repository.getReporteLoanGraphic();
   }
-
-  Future<void> refreshLoanGraphic() async {
-    state = const AsyncLoading();
-
-    state = await AsyncValue.guard(() async {
-      final repository = ref.read(reporteLoanGraphicRepositoryProvider);
-      return repository.getReporteLoanGraphic();
-    });
-  }
 }
 
 final reporteLoanGraphicProvider =

@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prestapagos/config/errors/errors.dart';
-import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/providers.dart';
 
 class CreatePrestamoState {
@@ -42,20 +41,7 @@ class CreatePrestamoNotifier extends Notifier<CreatePrestamoState> {
     state = state.copyWith(isSubmitting: true, errorMessage: null);
 
     try {
-      final dto = CreatePrestamoDTO(
-        idDeudor: int.parse(formState.idDeudor.value),
-        monto: double.parse(formState.monto.value),
-        plazo: (double.parse(formState.plazo.value)).toInt(),
-        tasaInteres: double.parse(formState.tasaInteres.value),
-        tasaInteresMoratoria: formState.tasaInteresMoratoria.value.isEmpty
-            ? 0
-            : double.parse(formState.tasaInteresMoratoria.value),
-        montoCuota: double.parse(formState.montoCuota.value),
-        tipoInteres: formState.tipoInteres,
-        estadoMoratorio: formState.estadoMoratorio,
-        manejoExcedente: formState.manejoExcedente,
-        periodidadIntereses: formState.periodidadIntereses,
-      );
+      final dto = formState.toDTO(amortizaciones: formState.calcularAmortizaciones());
 
       await ref.read(prestamoRepositoryProvider).createPrestamo(dto);
 

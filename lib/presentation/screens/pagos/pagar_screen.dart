@@ -38,7 +38,7 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
     super.initState();
     final prox = _prox;
     if (prox == null) return;
-    final preview = ref.read(previewPagoProvider(widget.detalle));
+    final preview = ref.read(previewPagoProvider(widget.detalle.idPrestamo));
     _minimo = preview.totalMinimo;
     final valorInicial = widget.montoInicial != null && widget.montoInicial! >= _minimo
         ? widget.montoInicial!
@@ -87,7 +87,7 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
         .read(
           pagoFormProvider((
             minimo: _minimo,
-            maximo: ref.read(previewPagoProvider(widget.detalle)).montoMaximo,
+            maximo: ref.read(previewPagoProvider(widget.detalle.idPrestamo)).montoMaximo,
           )).notifier,
         )
         .onMontoChanged(value);
@@ -139,7 +139,7 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
   Future<void> _onPagar() async {
     final arg = (
       minimo: _minimo,
-      maximo: ref.read(previewPagoProvider(widget.detalle)).montoMaximo,
+      maximo: ref.read(previewPagoProvider(widget.detalle.idPrestamo)).montoMaximo,
     );
     final notifier = ref.read(pagoFormProvider(arg).notifier);
     final formState = ref.read(pagoFormProvider(arg));
@@ -170,7 +170,7 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
 
     final colors = Theme.of(context).colorScheme;
     final textTheme = GoogleFonts.poppins();
-    final preview = ref.watch(previewPagoProvider(widget.detalle));
+    final preview = ref.watch(previewPagoProvider(widget.detalle.idPrestamo));
     final minimo = preview.totalMinimo;
     if (_minimo != minimo) _minimo = minimo;
     final formState = ref.watch(

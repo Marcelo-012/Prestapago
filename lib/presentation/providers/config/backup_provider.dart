@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:prestapagos/config/errors/errors.dart';
@@ -98,7 +99,8 @@ class BackupNotifier extends Notifier<BackupState> {
       await drive.initialize(token);
       return drive.checkExistingBackups();
     } catch (e) {
-      return const BackupDriveInfo(hasBackup: false);
+      debugPrint('Error al verificar backups existentes: $e');
+      return const BackupDriveInfo(hasBackup: false, error: true);
     }
   }
 

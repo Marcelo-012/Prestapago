@@ -31,6 +31,7 @@ class PagoSubmitNotifier extends FamilyNotifier<PagoSubmitState, int> {
     try {
       final repo = ref.read(pagoRepositoryProvider);
       await repo.registrarPago(arg, monto, fecha, tipoExcedente: tipoExcedente);
+      invalidateAllReportes(ref);
       state = const PagoSubmitState(status: PagoSubmitStatus.success);
     } catch (e) {
       state = PagoSubmitState(status: PagoSubmitStatus.error, error: mapErrorToMessage(e));

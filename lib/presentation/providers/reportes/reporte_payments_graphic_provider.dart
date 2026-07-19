@@ -17,15 +17,6 @@ class ReportePaymentsGraphicProvider
     final repository = ref.read(reportePaymentsGraphicRepositoryProvider);
     return repository.getReportePaymentsGraphic();
   }
-
-  Future<void> refresPaymentsGraphic() async {
-    state = AsyncLoading();
-
-    state = await AsyncValue.guard(() async {
-      final repository = ref.read(reportePaymentsGraphicRepositoryProvider);
-      return repository.getReportePaymentsGraphic();
-    });
-  }
 }
 
 final reportePaymentsGraphicProvider =

@@ -14,15 +14,6 @@ class ReporteCardProvider extends AsyncNotifier<ReporteCard> {
     final repository = ref.read(reporteCardRepositoryProvider);
     return repository.getReporteCard();
   }
-
-  Future<void> refreshCard() async {
-    state = const AsyncLoading();
-
-    state = await AsyncValue.guard(() async {
-      final repository = ref.read(reporteCardRepositoryProvider);
-      return repository.getReporteCard();
-    });
-  }
 }
 
 final reporteCardProvider =
