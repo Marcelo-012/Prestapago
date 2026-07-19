@@ -8,7 +8,7 @@ class ClienteRepositoryImpl implements ClienteRepository {
 
   ClienteRepositoryImpl(this._db);
 
-  String _scoreSubquery() =>
+  String get _scoreSubquery =>
       'COALESCE((SELECT ROUND(AVG(sq.score)) FROM (SELECT s.score FROM scores s '
       'INNER JOIN prestamos p ON s.id_prestamo = p.id_prestamo '
       'WHERE p.id_deudor = d.id_deudor '
@@ -36,7 +36,7 @@ class ClienteRepositoryImpl implements ClienteRepository {
         d.nombre,
         d.telefono,
         d.estado,
-        COALESCE($_scoreSubquery, 0) AS score
+        $_scoreSubquery AS score
       FROM deudores d
       WHERE (? = 0 OR d.nombre LIKE ? OR d.telefono LIKE ?)
       ORDER BY d.nombre ASC

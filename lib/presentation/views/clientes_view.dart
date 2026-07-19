@@ -102,11 +102,12 @@ class _ClientesViewState extends ConsumerState<ClientesView> {
 
               if (paginationState.error != null)
                 SliverFillRemaining(
-                  child: ErrorWidgetCustom(
-                    error: paginationState.error!,
-                    onRetry: () =>
-                        ref.read(clientePaginationProvider.notifier).refresh(),
-                  ),
+                  child: Text(paginationState.error!),
+                  // ErrorWidgetCustom(
+                  //   error: paginationState.error!,
+                  //   onRetry: () =>
+                  //       ref.read(clientePaginationProvider.notifier).refresh(),
+                  // ),
                 )
               else if (paginationState.items.isEmpty &&
                   !paginationState.isLoading)

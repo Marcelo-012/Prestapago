@@ -4,11 +4,7 @@ class ErrorWidgetCustom extends StatelessWidget {
   final Object error;
   final VoidCallback? onRetry;
 
-  const ErrorWidgetCustom({
-    super.key,
-    required this.error,
-    this.onRetry,
-  });
+  const ErrorWidgetCustom({super.key, required this.error, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +20,9 @@ class ErrorWidgetCustom extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Error al cargar datos',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: colors.error,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: colors.error),
             ),
             const SizedBox(height: 8),
             Text(
@@ -34,9 +30,9 @@ class ErrorWidgetCustom extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 24),

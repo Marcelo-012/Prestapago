@@ -54,6 +54,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
             motivo: config.motivoCancelacion ?? 'Cancelación de préstamo',
             montoDevuelto: config.montoDevuelto,
             tipo: 'cancelacion',
+            acreedorNombre: ref.read(accountProvider).name,
           )
         : config.estadoPrestamo == 'incobrable'
             ? await service.generateCancelacionPdf(
@@ -63,6 +64,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
                 montoDevuelto: 0,
                 montoPerdido: config.montoPerdido,
                 tipo: 'castigo',
+                acreedorNombre: ref.read(accountProvider).name,
               )
             : await service.generateLoanDetailPdf(
                 detalle: detalle,
@@ -626,6 +628,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
           motivo: motivo,
           montoDevuelto: montoDevuelto,
           tipo: 'cancelacion',
+          acreedorNombre: ref.read(accountProvider).name,
         );
         if (!mounted) return;
         await SharePlus.instance.share(
@@ -674,6 +677,7 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
           motivo: motivo,
           montoDevuelto: 0,
           tipo: 'castigo',
+          acreedorNombre: ref.read(accountProvider).name,
         );
         if (!mounted) return;
         await SharePlus.instance.share(

@@ -12,246 +12,247 @@ class PdfReceiptService {
     required DetallePagoDto dto,
     required String? acreedorNombre,
   }) async {
-    final pdf = pw.Document();
+    try {
+      final pdf = pw.Document();
 
-    final config = detalle.configuracionPrestamo;
-    final esPagado = amortizacion.estadoAmortizacion == 'pagado';
-    final esCancelado = amortizacion.estadoAmortizacion == 'cancelado';
-    final esSimple = config.tipoInteres == 'simple';
-    final esAbonoCapital = config.manejoExcedente == 'abonoCapital';
-    final esSaldoFavor = config.manejoExcedente == 'saldoFavor';
+      final config = detalle.configuracionPrestamo;
+      final esPagado = amortizacion.estadoAmortizacion == 'pagado';
+      final esCancelado = amortizacion.estadoAmortizacion == 'cancelado';
+      final esSimple = config.tipoInteres == 'simple';
+      final esAbonoCapital = config.manejoExcedente == 'abonoCapital';
+      final esSaldoFavor = config.manejoExcedente == 'saldoFavor';
 
-    final totalCuotas = detalle.amortizaciones.length;
-    final cuotasPagadas = detalle.amortizaciones
-        .where((a) =>
-            a.estadoAmortizacion == 'pagado' ||
-            a.estadoAmortizacion == 'cancelado')
-        .length;
-    final cuotasVencidas = detalle.amortizaciones
-        .where((a) => a.estadoAmortizacion == 'atrasado')
-        .length;
+      final totalCuotas = detalle.amortizaciones.length;
+      final cuotasPagadas = detalle.amortizaciones
+          .where((a) =>
+              a.estadoAmortizacion == 'pagado' ||
+              a.estadoAmortizacion == 'cancelado')
+          .length;
+      final cuotasVencidas = detalle.amortizaciones
+          .where((a) => a.estadoAmortizacion == 'atrasado')
+          .length;
 
-    final proxCuota = detalle.amortizaciones
-        .where((a) =>
-            a.estadoAmortizacion == 'pendiente' ||
-            a.estadoAmortizacion == 'atrasado')
-        .firstOrNull;
+      final proxCuota = detalle.amortizaciones
+          .where((a) =>
+              a.estadoAmortizacion == 'pendiente' ||
+              a.estadoAmortizacion == 'atrasado')
+          .firstOrNull;
 
-    final totalIntereses = detalle.amortizaciones.fold<double>(
-        0, (sum, a) => sum + a.montoInteres);
+      final totalIntereses = detalle.amortizaciones.fold<double>(
+          0, (sum, a) => sum + a.montoInteres);
 
-    final totalAbonado = detalle.amortizaciones
-        .where((a) =>
-            a.estadoAmortizacion == 'pagado' ||
-            a.estadoAmortizacion == 'cancelado')
-        .fold<double>(0, (sum, a) => sum + a.montoCapital + a.montoInteres);
+      final totalAbonado = detalle.amortizaciones
+          .where((a) =>
+              a.estadoAmortizacion == 'pagado' ||
+              a.estadoAmortizacion == 'cancelado')
+          .fold<double>(0, (sum, a) => sum + a.montoCapital + a.montoInteres);
 
-    final deudaCapital = detalle.amortizaciones
-        .where((a) =>
-            a.estadoAmortizacion == 'pendiente' ||
-            a.estadoAmortizacion == 'atrasado')
-        .fold<double>(0, (sum, a) => sum + a.montoCapital);
+      final deudaCapital = detalle.amortizaciones
+          .where((a) =>
+              a.estadoAmortizacion == 'pendiente' ||
+              a.estadoAmortizacion == 'atrasado')
+          .fold<double>(0, (sum, a) => sum + a.montoCapital);
 
-    final interesesPendientes = detalle.amortizaciones
-        .where((a) =>
-            a.estadoAmortizacion == 'pendiente' ||
-            a.estadoAmortizacion == 'atrasado')
-        .fold<double>(0, (sum, a) => sum + a.montoInteres);
+      final interesesPendientes = detalle.amortizaciones
+          .where((a) =>
+              a.estadoAmortizacion == 'pendiente' ||
+              a.estadoAmortizacion == 'atrasado')
+          .fold<double>(0, (sum, a) => sum + a.montoInteres);
 
-    final prestadoMasIntereses =
-        detalle.prestamo.montoCuota * totalCuotas;
+      final prestadoMasIntereses = detalle.prestamo.montoCuota * totalCuotas;
 
-    final hoy = DateTime.now();
+      final hoy = DateTime.now();
 
-    pdf.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.letter,
-        margin: const pw.EdgeInsets.all(40),
-        build: (pw.Context context) {
-          return [
-            pw.Center(
-              child: pw.Text(
-                'RECIBO',
-                style: pw.TextStyle(
-                  fontSize: 24,
-                  letterSpacing: 6,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.grey600,
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.letter,
+          margin: const pw.EdgeInsets.all(40),
+          build: (pw.Context context) {
+            return [
+              pw.Center(
+                child: pw.Text(
+                  'RECIBO',
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    letterSpacing: 6,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.grey600,
+                  ),
                 ),
               ),
-            ),
-            pw.SizedBox(height: 6),
-            pw.Center(
-              child: pw.Text(
-                HumanFormats.date(hoy),
-                style: pw.TextStyle(
-                  fontSize: 11,
-                  color: PdfColors.grey600,
+              pw.SizedBox(height: 6),
+              pw.Center(
+                child: pw.Text(
+                  HumanFormats.date(hoy),
+                  style: pw.TextStyle(
+                    fontSize: 11,
+                    color: PdfColors.grey600,
+                  ),
                 ),
               ),
-            ),
-            pw.SizedBox(height: 20),
-            pw.Header(text: 'Cliente', level: 1),
-            _infoRow('Nombre', detalle.nombreDeudor),
-            _infoRow('ID', detalle.numeroIdentificacion),
-            pw.SizedBox(height: 16),
-            pw.Header(text: 'Información del Préstamo', level: 1),
-            _infoRow(
-              'Fecha del crédito',
-              HumanFormats.date(detalle.prestamo.fechaCreacion),
-            ),
-            _infoRow(
-              'Fecha próxima cuota',
-              proxCuota != null
-                  ? HumanFormats.date(proxCuota.fechaVencimiento)
-                  : 'Completado',
-            ),
-            _infoRow(
-              'Vencimiento del crédito',
-              HumanFormats.date(
-                detalle.amortizaciones.last.fechaVencimiento,
-              ),
-            ),
-            _infoRow('Cuotas vencidas', cuotasVencidas.toString()),
-            _infoRow(
-              'Interés',
-              '${detalle.prestamo.tasaInteres}% (${esSimple ? 'Simple' : 'Compuesto'})',
-            ),
-            _infoRow(
-              'Valor total intereses',
-              HumanFormats.monuted(totalIntereses),
-            ),
-            _infoRow(
-              'Número de cuotas',
-              '$cuotasPagadas/$totalCuotas',
-            ),
-            _infoRow('Frecuencia de Pago', 'Mensual'),
-            _infoRow(
-              'Valor cuota',
-              HumanFormats.monuted(detalle.prestamo.montoCuota),
-            ),
-            _infoRow(
-              'Total prestado',
-              HumanFormats.monuted(detalle.prestamo.monto),
-            ),
-            _infoRow(
-              'Prestado + intereses',
-              HumanFormats.monuted(prestadoMasIntereses),
-            ),
-            _infoRow(
-              'Total abonado',
-              HumanFormats.monuted(totalAbonado),
-            ),
-            _infoRow(
-              'Deuda a Capital',
-              HumanFormats.monuted(deudaCapital),
-            ),
-            _infoRow(
-              'Intereses Pendientes',
-              HumanFormats.monuted(interesesPendientes),
-            ),
-            _infoRow(
-              'Saldo Total',
-              HumanFormats.monuted(dto.totalAdeudado),
-            ),
-            pw.SizedBox(height: 16),
-            pw.Header(text: 'Detalles del Recibo', level: 1),
-            if (esPagado) ...[
+              pw.SizedBox(height: 20),
+              pw.Header(text: 'Cliente', level: 1),
+              _infoRow('Nombre', detalle.nombreDeudor),
+              _infoRow('ID', detalle.numeroIdentificacion),
+              pw.SizedBox(height: 16),
+              pw.Header(text: 'Información del Préstamo', level: 1),
               _infoRow(
-                'Fecha',
-                HumanFormats.date(amortizacion.fechaPagado!),
+                'Fecha del crédito',
+                HumanFormats.date(detalle.prestamo.fechaCreacion),
               ),
               _infoRow(
-                'Hora',
-                HumanFormats.time(amortizacion.fechaPagado!),
+                'Fecha próxima cuota',
+                proxCuota != null
+                    ? HumanFormats.date(proxCuota.fechaVencimiento)
+                    : 'Completado',
               ),
-              _infoRow('Abono a', 'Interés y Capital'),
-              _infoRow('Método de Pago', 'Efectivo'),
-              _infoRow('Monto', HumanFormats.monuted(dto.montoCuota)),
-              if (amortizacion.montoMora > 0)
-                _infoRow(
-                  'Mora (${amortizacion.diasMora}d)',
-                  HumanFormats.monuted(amortizacion.montoMora),
-                ),
               _infoRow(
-                'Abonado',
-                HumanFormats.monuted(dto.totalCuotaConMora),
-                isBold: true,
+                'Vencimiento del crédito',
+                HumanFormats.date(
+                  detalle.amortizaciones.last.fechaVencimiento,
+                ),
               ),
-              if (amortizacion.montoPagado > 0 &&
-                  (dto.saldoUsado <= 0.01 || esAbonoCapital))
-                _infoRow(
-                  'Efectivo',
-                  HumanFormats.monuted(amortizacion.montoPagado),
-                ),
-              if (amortizacion.montoPagado > 0 &&
-                  dto.saldoUsado > 0.01 &&
-                  !esAbonoCapital) ...[
-                _infoRow(
-                  'Efectivo',
-                  HumanFormats.monuted(amortizacion.montoPagado),
-                ),
-                _infoRow(
-                  'Saldo a favor usado',
-                  HumanFormats.monuted(dto.saldoUsado),
-                ),
-              ],
-              if (amortizacion.montoPagado == 0)
-                _infoRow(
-                  'Pagado con saldo a favor',
-                  HumanFormats.monuted(dto.totalCuotaConMora),
-                ),
-              if (dto.abonoCapital != null)
-                _infoRow(
-                  'Abono a capital',
-                  HumanFormats.monuted(dto.abonoCapital),
-                ),
-              if (esSaldoFavor && amortizacion.montoExcedente > 0)
-                _infoRow(
-                  'Nuevo saldo a favor',
-                  HumanFormats.monuted(amortizacion.montoExcedente),
-                ),
-            ],
-            if (esCancelado) ...[
+              _infoRow('Cuotas vencidas', cuotasVencidas.toString()),
               _infoRow(
-                'Fecha cancelación',
-                HumanFormats.date(amortizacion.fechaActualizacion),
+                'Interés',
+                '${detalle.prestamo.tasaInteres}% (${esSimple ? 'Simple' : 'Compuesto'})',
               ),
-              _infoRow('Motivo', 'Abono a capital'),
-            ],
-            if (dto.totalAdeudado > 0) ...[
-              pw.SizedBox(height: 8),
               _infoRow(
-                'Total adeudado',
+                'Valor total intereses',
+                HumanFormats.monuted(totalIntereses),
+              ),
+              _infoRow(
+                'Número de cuotas',
+                '$cuotasPagadas/$totalCuotas',
+              ),
+              _infoRow('Frecuencia de Pago', 'Mensual'),
+              _infoRow(
+                'Valor cuota',
+                HumanFormats.monuted(detalle.prestamo.montoCuota),
+              ),
+              _infoRow(
+                'Total prestado',
+                HumanFormats.monuted(detalle.prestamo.monto),
+              ),
+              _infoRow(
+                'Prestado + intereses',
+                HumanFormats.monuted(prestadoMasIntereses),
+              ),
+              _infoRow(
+                'Total abonado',
+                HumanFormats.monuted(totalAbonado),
+              ),
+              _infoRow(
+                'Deuda a Capital',
+                HumanFormats.monuted(deudaCapital),
+              ),
+              _infoRow(
+                'Intereses Pendientes',
+                HumanFormats.monuted(interesesPendientes),
+              ),
+              _infoRow(
+                'Saldo Total',
                 HumanFormats.monuted(dto.totalAdeudado),
-                isBold: true,
               ),
-            ],
-            pw.SizedBox(height: 32),
-            pw.Row(
-              children: [
-                pw.Expanded(
-                  child: _firmaSection('Firma del Cliente', detalle.nombreDeudor),
+              pw.SizedBox(height: 16),
+              pw.Header(text: 'Detalles del Recibo', level: 1),
+              if (esPagado) ...[
+                _infoRow(
+                  'Fecha',
+                  HumanFormats.date(amortizacion.fechaPagado!),
                 ),
-                pw.SizedBox(width: 24),
-                pw.Expanded(
-                  child: _firmaSection('Firma del Acreedor', acreedorNombre ?? ''),
+                _infoRow(
+                  'Hora',
+                  HumanFormats.time(amortizacion.fechaPagado!),
+                ),
+                _infoRow('Abono a', 'Interés y Capital'),
+                _infoRow('Método de Pago', 'Efectivo'),
+                _infoRow('Monto', HumanFormats.monuted(dto.montoCuota)),
+                if (amortizacion.montoMora > 0)
+                  _infoRow(
+                    'Mora (${amortizacion.diasMora}d)',
+                    HumanFormats.monuted(amortizacion.montoMora),
+                  ),
+                _infoRow(
+                  'Abonado',
+                  HumanFormats.monuted(dto.totalCuotaConMora),
+                  isBold: true,
+                ),
+                if (amortizacion.montoPagado > 0 &&
+                    (dto.saldoUsado <= 0.01 || esAbonoCapital))
+                  _infoRow(
+                    'Efectivo',
+                    HumanFormats.monuted(amortizacion.montoPagado),
+                  ),
+                if (amortizacion.montoPagado > 0 &&
+                    dto.saldoUsado > 0.01 &&
+                    !esAbonoCapital) ...[
+                  _infoRow(
+                    'Efectivo',
+                    HumanFormats.monuted(amortizacion.montoPagado),
+                  ),
+                  _infoRow(
+                    'Saldo a favor usado',
+                    HumanFormats.monuted(dto.saldoUsado),
+                  ),
+                ],
+                if (amortizacion.montoPagado == 0)
+                  _infoRow(
+                    'Pagado con saldo a favor',
+                    HumanFormats.monuted(dto.totalCuotaConMora),
+                  ),
+                if (dto.abonoCapital != null)
+                  _infoRow(
+                    'Abono a capital',
+                    HumanFormats.monuted(dto.abonoCapital),
+                  ),
+                if (esSaldoFavor && amortizacion.montoExcedente > 0)
+                  _infoRow(
+                    'Nuevo saldo a favor',
+                    HumanFormats.monuted(amortizacion.montoExcedente),
+                  ),
+              ],
+              if (esCancelado) ...[
+                _infoRow(
+                  'Fecha cancelación',
+                  HumanFormats.date(amortizacion.fechaActualizacion),
+                ),
+                _infoRow('Motivo', 'Abono a capital'),
+              ],
+              if (dto.totalAdeudado > 0) ...[
+                pw.SizedBox(height: 8),
+                _infoRow(
+                  'Total adeudado',
+                  HumanFormats.monuted(dto.totalAdeudado),
+                  isBold: true,
                 ),
               ],
-            ),
-          ];
-        },
-      ),
-    );
+              pw.SizedBox(height: 32),
+              pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: _firmaSection('Firma del Cliente', detalle.nombreDeudor),
+                  ),
+                  pw.SizedBox(width: 24),
+                  pw.Expanded(
+                    child: _firmaSection('Firma del Acreedor', acreedorNombre ?? ''),
+                  ),
+                ],
+              ),
+            ];
+          },
+        ),
+      );
 
-    final dir = await getTemporaryDirectory();
-    final nombreCliente = detalle.nombreDeudor
-        .replaceAllMapped(RegExp(r'[áéíóúüñ]'), (m) => _sanitizeChar(m.group(0)!))
-        .replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_');
-    final file = File(
-        '${dir.path}/recibo_${amortizacion.idCuota}_$nombreCliente.pdf');
-    await file.writeAsBytes(await pdf.save());
-    return file;
+      final dir = await getTemporaryDirectory();
+      final file = File(
+        '${dir.path}/recibo_${amortizacion.idCuota}_${_sanitizeFileName(detalle.nombreDeudor)}.pdf',
+      );
+      await file.writeAsBytes(await pdf.save());
+      return file;
+    } catch (e) {
+      throw Exception('Error al generar el recibo PDF: $e');
+    }
   }
 
   pw.Widget _infoRow(String label, String value, {bool isBold = false}) {
@@ -322,6 +323,12 @@ class PdfReceiptService {
     }
   }
 
+  String _sanitizeFileName(String name) {
+    return name
+        .replaceAllMapped(RegExp(r'[áéíóúüñ]'), (m) => _sanitizeChar(m.group(0)!))
+        .replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_');
+  }
+
   String _estadoLabel(String estado) {
     switch (estado) {
       case 'completado':
@@ -343,76 +350,77 @@ class PdfReceiptService {
     required int cuotasTotales,
     required double capitalPagado,
   }) async {
-    final pdf = pw.Document();
-    final hoy = DateTime.now();
-    final esSimple = detalle.configuracionPrestamo.tipoInteres == 'simple';
+    try {
+      final pdf = pw.Document();
+      final hoy = DateTime.now();
+      final esSimple = detalle.configuracionPrestamo.tipoInteres == 'simple';
 
-    pdf.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.letter,
-        margin: const pw.EdgeInsets.all(40),
-        build: (pw.Context context) {
-          return [
-            pw.Center(
-              child: pw.Text(
-                'Detalle de Préstamo',
-                style: pw.TextStyle(
-                  fontSize: 22,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.grey700,
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.letter,
+          margin: const pw.EdgeInsets.all(40),
+          build: (pw.Context context) {
+            return [
+              pw.Center(
+                child: pw.Text(
+                  'Detalle de Préstamo',
+                  style: pw.TextStyle(
+                    fontSize: 22,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.grey700,
+                  ),
                 ),
               ),
-            ),
-            pw.SizedBox(height: 4),
-            pw.Center(
-              child: pw.Text(
-                HumanFormats.date(hoy),
-                style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey500),
+              pw.SizedBox(height: 4),
+              pw.Center(
+                child: pw.Text(
+                  HumanFormats.date(hoy),
+                  style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey500),
+                ),
               ),
-            ),
-            pw.SizedBox(height: 20),
-            pw.Header(text: 'Cliente', level: 1),
-            _infoRow('Nombre', detalle.nombreDeudor),
-            _infoRow('Identificación', detalle.numeroIdentificacion),
-            _infoRow('Teléfono', detalle.telefono),
-            pw.SizedBox(height: 16),
-            pw.Header(text: 'Información del Préstamo', level: 1),
-            _infoRow('Monto', HumanFormats.monuted(detalle.prestamo.monto)),
-            _infoRow('Plazo', '${detalle.prestamo.plazo} meses'),
-            _infoRow('Cuota mensual', HumanFormats.monuted(detalle.prestamo.montoCuota)),
-            _infoRow('Tasa interés', '${detalle.prestamo.tasaInteres}%'),
-            _infoRow('Tasa moratoria', '${detalle.prestamo.tasaInteresMoratoria}%'),
-            _infoRow('Tipo interés', esSimple ? 'Simple' : 'Compuesto'),
-            _infoRow('Periodicidad', detalle.configuracionPrestamo.periodidadIntereses[0].toUpperCase() + detalle.configuracionPrestamo.periodidadIntereses.substring(1)),
-            _infoRow('Estado', _estadoLabel(detalle.estadoPagos)),
-            pw.SizedBox(height: 16),
-            pw.Header(text: 'Progreso', level: 1),
-            _infoRow('Cuotas pagadas', '$cuotasPagadas / $cuotasTotales'),
-            _infoRow('Capital pagado', HumanFormats.monuted(capitalPagado)),
-            _infoRow('Capital pendiente', HumanFormats.monuted(
-              detalle.prestamo.monto - capitalPagado,
-            )),
-            pw.SizedBox(height: 16),
-            pw.Header(text: 'Amortizaciones', level: 1),
-            _buildAmortizacionTable(
-              detalle.amortizaciones,
-              tasaMoratoria: detalle.prestamo.tasaInteresMoratoria,
-              periodicidad: detalle.configuracionPrestamo.periodidadIntereses,
-            ),
-          ];
-        },
-      ),
-    );
+              pw.SizedBox(height: 20),
+              pw.Header(text: 'Cliente', level: 1),
+              _infoRow('Nombre', detalle.nombreDeudor),
+              _infoRow('Identificación', detalle.numeroIdentificacion),
+              _infoRow('Teléfono', detalle.telefono),
+              pw.SizedBox(height: 16),
+              pw.Header(text: 'Información del Préstamo', level: 1),
+              _infoRow('Monto', HumanFormats.monuted(detalle.prestamo.monto)),
+              _infoRow('Plazo', '${detalle.prestamo.plazo} meses'),
+              _infoRow('Cuota mensual', HumanFormats.monuted(detalle.prestamo.montoCuota)),
+              _infoRow('Tasa interés', '${detalle.prestamo.tasaInteres}%'),
+              _infoRow('Tasa moratoria', '${detalle.prestamo.tasaInteresMoratoria}%'),
+              _infoRow('Tipo interés', esSimple ? 'Simple' : 'Compuesto'),
+              _infoRow('Periodicidad', detalle.configuracionPrestamo.periodidadIntereses[0].toUpperCase() + detalle.configuracionPrestamo.periodidadIntereses.substring(1)),
+              _infoRow('Estado', _estadoLabel(detalle.estadoPagos)),
+              pw.SizedBox(height: 16),
+              pw.Header(text: 'Progreso', level: 1),
+              _infoRow('Cuotas pagadas', '$cuotasPagadas / $cuotasTotales'),
+              _infoRow('Capital pagado', HumanFormats.monuted(capitalPagado)),
+              _infoRow('Capital pendiente', HumanFormats.monuted(
+                detalle.prestamo.monto - capitalPagado,
+              )),
+              pw.SizedBox(height: 16),
+              pw.Header(text: 'Amortizaciones', level: 1),
+              _buildAmortizacionTable(
+                detalle.amortizaciones,
+                tasaMoratoria: detalle.prestamo.tasaInteresMoratoria,
+                periodicidad: detalle.configuracionPrestamo.periodidadIntereses,
+              ),
+            ];
+          },
+        ),
+      );
 
-    final dir = await getTemporaryDirectory();
-    final nombreCliente = detalle.nombreDeudor
-        .replaceAllMapped(RegExp(r'[áéíóúüñ]'), (m) => _sanitizeChar(m.group(0)!))
-        .replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_');
-    final file = File(
-      '${dir.path}/detalle_prestamo_${detalle.idPrestamo}_$nombreCliente.pdf',
-    );
-    await file.writeAsBytes(await pdf.save());
-    return file;
+      final dir = await getTemporaryDirectory();
+      final file = File(
+        '${dir.path}/detalle_prestamo_${detalle.idPrestamo}_${_sanitizeFileName(detalle.nombreDeudor)}.pdf',
+      );
+      await file.writeAsBytes(await pdf.save());
+      return file;
+    } catch (e) {
+      throw Exception('Error al generar el detalle PDF: $e');
+    }
   }
 
   pw.Widget _buildAmortizacionTable(
@@ -469,142 +477,157 @@ class PdfReceiptService {
     required String tipo,
     String? motivoCastigo,
     double? montoPerdido,
+    String? acreedorNombre,
   }) async {
-    final pdf = pw.Document();
-    final hoy = DateTime.now();
-    final esCancelacion = tipo == 'cancelacion';
-
-    final totalCuotas = detalle.amortizaciones.length;
-    final cuotasPagadas = detalle.amortizaciones
-        .where((a) => a.estadoAmortizacion == 'pagado').length;
-
-    final totalAbonado = detalle.amortizaciones
-        .where((a) => a.estadoAmortizacion == 'pagado' || a.estadoAmortizacion == 'cancelado')
-        .fold<double>(0, (sum, a) => sum + a.montoPagado);
-
-    pdf.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.letter,
-        margin: const pw.EdgeInsets.all(40),
-        build: (pw.Context context) {
-          return [
-            pw.Center(
-              child: pw.Text(
-                esCancelacion ? 'CANCELACIÓN DE PRÉSTAMO' : 'CASTIGO DE PRÉSTAMO',
-                style: pw.TextStyle(
-                  fontSize: 20,
-                  letterSpacing: 2,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.grey700,
+    try {
+      final pdf = pw.Document();
+      final hoy = DateTime.now();
+      final esCancelacion = tipo == 'cancelacion';
+  
+      final totalCuotas = detalle.amortizaciones.length;
+      final cuotasPagadas = detalle.amortizaciones
+          .where((a) => a.estadoAmortizacion == 'pagado').length;
+  
+      final totalAbonado = detalle.amortizaciones
+          .where((a) => a.estadoAmortizacion == 'pagado' || a.estadoAmortizacion == 'cancelado')
+          .fold<double>(0, (sum, a) => sum + a.montoPagado);
+  
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.letter,
+          margin: const pw.EdgeInsets.all(40),
+          build: (pw.Context context) {
+            return [
+              pw.Center(
+                child: pw.Text(
+                  esCancelacion ? 'CANCELACIÓN DE PRÉSTAMO' : 'CASTIGO DE PRÉSTAMO',
+                  style: pw.TextStyle(
+                    fontSize: 20,
+                    letterSpacing: 2,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.grey700,
+                  ),
                 ),
               ),
-            ),
-            pw.SizedBox(height: 4),
-            pw.Center(
-              child: pw.Text(
-                HumanFormats.date(hoy),
-                style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey500),
+              pw.SizedBox(height: 4),
+              pw.Center(
+                child: pw.Text(
+                  HumanFormats.date(hoy),
+                  style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey500),
+                ),
               ),
-            ),
-            pw.SizedBox(height: 20),
-            pw.Header(text: 'Cliente', level: 1),
-            _infoRow('Nombre', detalle.nombreDeudor),
-            _infoRow('Identificación', detalle.numeroIdentificacion),
-            _infoRow('Teléfono', detalle.telefono),
-            pw.SizedBox(height: 16),
-            pw.Header(text: 'Información del Préstamo', level: 1),
-            _infoRow('Monto', HumanFormats.monuted(detalle.prestamo.monto)),
-            _infoRow('Plazo', '${detalle.prestamo.plazo} meses'),
-            _infoRow('Cuotas pagadas', '$cuotasPagadas / $totalCuotas'),
-            _infoRow('Total abonado', HumanFormats.monuted(totalAbonado)),
-            pw.SizedBox(height: 16),
-            if (esCancelacion) ...[
-              pw.RichText(
-                text: pw.TextSpan(
-                  style: const pw.TextStyle(fontSize: 11, lineSpacing: 1.5),
-                  children: [
-                    pw.TextSpan(text: 'Por este medio, se hace constar que el(la) señor(a) '),
-                    pw.TextSpan(text: detalle.nombreDeudor, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: ', con identificación '),
-                    pw.TextSpan(text: detalle.numeroIdentificacion, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: ' y número de teléfono '),
-                    pw.TextSpan(text: detalle.telefono, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: ', y el acreedor suscrito, llegaron a un acuerdo mutuo para la cancelación del préstamo otorgado por un monto de '),
-                    pw.TextSpan(text: HumanFormats.monuted(detalle.prestamo.monto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: ' ('),
-                    pw.TextSpan(text: _montoALetras(detalle.prestamo.monto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: '), por motivo de: '),
-                    pw.TextSpan(text: motivo, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: ', con un plazo original de '),
-                    pw.TextSpan(text: '${detalle.prestamo.plazo} meses', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: ', del cual se llevaban '),
-                    pw.TextSpan(text: '$cuotasPagadas de $totalCuotas', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: ' cuotas pagadas, con un total abonado de '),
-                    pw.TextSpan(text: HumanFormats.monuted(totalAbonado), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: '.'),
-                  ],
+              pw.SizedBox(height: 20),
+              pw.Header(text: 'Cliente', level: 1),
+              _infoRow('Nombre', detalle.nombreDeudor),
+              _infoRow('Identificación', detalle.numeroIdentificacion),
+              _infoRow('Teléfono', detalle.telefono),
+              pw.SizedBox(height: 16),
+              pw.Header(text: 'Información del Préstamo', level: 1),
+              _infoRow('Monto', HumanFormats.monuted(detalle.prestamo.monto)),
+              _infoRow('Plazo', '${detalle.prestamo.plazo} meses'),
+              _infoRow('Cuotas pagadas', '$cuotasPagadas / $totalCuotas'),
+              _infoRow('Total abonado', HumanFormats.monuted(totalAbonado)),
+              pw.SizedBox(height: 16),
+              if (esCancelacion) ...[
+                pw.RichText(
+                  text: pw.TextSpan(
+                    style: const pw.TextStyle(fontSize: 11, lineSpacing: 1.5),
+                    children: [
+                      pw.TextSpan(text: 'Por este medio, se hace constar que el(la) señor(a) '),
+                      pw.TextSpan(text: detalle.nombreDeudor, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.TextSpan(text: ', con identificación '),
+                      pw.TextSpan(text: detalle.numeroIdentificacion, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.TextSpan(text: ' y número de teléfono '),
+                      pw.TextSpan(text: detalle.telefono, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.TextSpan(text: ', y el acreedor suscrito, llegaron a un acuerdo mutuo para la cancelación del préstamo otorgado por un monto de '),
+                      pw.TextSpan(text: HumanFormats.monuted(detalle.prestamo.monto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.TextSpan(text: ' ('),
+                      pw.TextSpan(text: _montoALetras(detalle.prestamo.monto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.TextSpan(text: '), por motivo de: '),
+                      pw.TextSpan(text: motivo, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.TextSpan(text: ', con un plazo original de '),
+                      pw.TextSpan(text: '${detalle.prestamo.plazo} meses', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.TextSpan(text: ', del cual se llevaban '),
+                      pw.TextSpan(text: '$cuotasPagadas de $totalCuotas', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.TextSpan(text: ' cuotas pagadas, con un total abonado de '),
+                      pw.TextSpan(text: HumanFormats.monuted(totalAbonado), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.TextSpan(text: '.'),
+                    ],
+                  ),
+                  textAlign: pw.TextAlign.justify,
                 ),
-                textAlign: pw.TextAlign.justify,
-              ),
-              pw.SizedBox(height: 12),
-              pw.RichText(
-                text: pw.TextSpan(
-                  style: const pw.TextStyle(fontSize: 11, lineSpacing: 1.5),
-                  children: [
-                    pw.TextSpan(text: 'En virtud de dicho acuerdo, ambas partes convienen en dar por terminado y sin efecto el préstamo antes mencionado y siendo el día '),
-                    pw.TextSpan(text: '${HumanFormats.date(hoy)} a las ${HumanFormats.time(hoy)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: ', comprometiéndose el cliente a devolver al acreedor la cantidad de '),
-                    pw.TextSpan(text: HumanFormats.monuted(montoDevuelto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: ' ('),
-                    pw.TextSpan(text: _montoALetras(montoDevuelto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.TextSpan(text: '), correspondiente al saldo neto resultante de la cancelación.'),
-                  ],
+                pw.SizedBox(height: 12),
+                if (montoDevuelto > 0)
+                  pw.RichText(
+                    text: pw.TextSpan(
+                      style: const pw.TextStyle(fontSize: 11, lineSpacing: 1.5),
+                      children: [
+                        pw.TextSpan(text: 'En virtud de dicho acuerdo, ambas partes convienen en dar por terminado y sin efecto el préstamo antes mencionado y siendo el día '),
+                        pw.TextSpan(text: '${HumanFormats.date(hoy)} a las ${HumanFormats.time(hoy)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        pw.TextSpan(text: ', comprometiéndose el cliente a devolver al acreedor la cantidad de '),
+                        pw.TextSpan(text: HumanFormats.monuted(montoDevuelto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        pw.TextSpan(text: ' ('),
+                        pw.TextSpan(text: _montoALetras(montoDevuelto), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        pw.TextSpan(text: '), correspondiente al saldo neto resultante de la cancelación.'),
+                      ],
+                    ),
+                    textAlign: pw.TextAlign.justify,
+                  )
+                else
+                  pw.RichText(
+                    text: pw.TextSpan(
+                      style: const pw.TextStyle(fontSize: 11, lineSpacing: 1.5),
+                      children: [
+                        pw.TextSpan(text: 'En virtud de dicho acuerdo, ambas partes convienen en dar por terminado y sin efecto el préstamo antes mencionado, siendo el día '),
+                        pw.TextSpan(text: '${HumanFormats.date(hoy)} a las ${HumanFormats.time(hoy)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        pw.TextSpan(text: ', declarando que no existen saldos pendientes entre las partes, quedando el cliente libre de toda obligación derivada del préstamo referido.'),
+                      ],
+                    ),
+                    textAlign: pw.TextAlign.justify,
+                  ),
+                pw.SizedBox(height: 12),
+                pw.RichText(
+                  text: pw.TextSpan(
+                    style: const pw.TextStyle(fontSize: 11, lineSpacing: 1.5),
+                    children: [
+                      pw.TextSpan(text: 'Con la firma del presente documento, ambas partes manifiestan su plena conformidad con los términos aquí establecidos, dando por concluida cualquier obligación derivada del préstamo referido.'),
+                    ],
+                  ),
+                  textAlign: pw.TextAlign.justify,
                 ),
-                textAlign: pw.TextAlign.justify,
-              ),
-              pw.SizedBox(height: 12),
-              pw.RichText(
-                text: pw.TextSpan(
-                  style: const pw.TextStyle(fontSize: 11, lineSpacing: 1.5),
-                  children: [
-                    pw.TextSpan(text: 'Con la firma del presente documento, ambas partes manifiestan su plena conformidad con los términos aquí establecidos, dando por concluida cualquier obligación derivada del préstamo referido.'),
-                  ],
-                ),
-                textAlign: pw.TextAlign.justify,
-              ),
-            ] else ...[
-              pw.Header(text: 'Detalles de Castigo', level: 1),
-              _infoRow('Motivo de castigo', motivoCastigo ?? motivo),
-              if (montoPerdido != null)
-                _infoRow('Monto perdido', HumanFormats.monuted(montoPerdido)),
-            ],
-            pw.SizedBox(height: 32),
-            pw.Row(
-              children: [
-                pw.Expanded(
-                  child: _firmaSection('Firma del Cliente', detalle.nombreDeudor),
-                ),
-                pw.SizedBox(width: 24),
-                pw.Expanded(
-                  child: _firmaSection('Firma del Acreedor', ''),
-                ),
+              ] else ...[
+                pw.Header(text: 'Detalles de Castigo', level: 1),
+                _infoRow('Motivo de castigo', motivoCastigo ?? motivo),
+                if (montoPerdido != null)
+                  _infoRow('Monto perdido', HumanFormats.monuted(montoPerdido)),
               ],
-            ),
-          ];
-        },
-      ),
-    );
-
-    final dir = await getTemporaryDirectory();
-    final nombreCliente = detalle.nombreDeudor
-        .replaceAllMapped(RegExp(r'[áéíóúüñ]'), (m) => _sanitizeChar(m.group(0)!))
-        .replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_');
-    final prefix = esCancelacion ? 'cancelacion' : 'castigo';
-    final file = File(
-      '${dir.path}/${prefix}_${detalle.idPrestamo}_$nombreCliente.pdf',
-    );
-    await file.writeAsBytes(await pdf.save());
-    return file;
+              pw.SizedBox(height: 32),
+              pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: _firmaSection('Firma del Cliente', detalle.nombreDeudor),
+                  ),
+                  pw.SizedBox(width: 24),
+                  pw.Expanded(
+                    child: _firmaSection('Firma del Acreedor', acreedorNombre ?? ''),
+                  ),
+                ],
+              ),
+            ];
+          },
+        ),
+      );
+  
+      final dir = await getTemporaryDirectory();
+      final prefix = esCancelacion ? 'cancelacion' : 'castigo';
+      final file = File(
+        '${dir.path}/${prefix}_${detalle.idPrestamo}_${_sanitizeFileName(detalle.nombreDeudor)}.pdf',
+      );
+      await file.writeAsBytes(await pdf.save());
+      return file;
+    } catch (e) {
+      throw Exception('Error al generar el PDF de cancelación: $e');
+    }
   }
 
   static const List<String> _unidades = [
@@ -622,6 +645,7 @@ class PdfReceiptService {
   ];
 
   String _numeroALetras(int n) {
+    if (n < 0) return 'menos ${_numeroALetras(-n)}';
     if (n == 0) return 'cero';
     if (n == 100) return 'cien';
 
@@ -674,8 +698,12 @@ class PdfReceiptService {
   }
 
   String _montoALetras(double monto) {
+    if (monto < 0) return 'menos ${_montoALetras(-monto)}';
     final pesos = monto.floor();
     final centavos = ((monto - pesos) * 100).round();
+    if (pesos == 0 && centavos > 0) {
+      return '$centavos/100 centavos';
+    }
     final pesosLetras = _numeroALetras(pesos);
     return '$pesosLetras pesos $centavos/100';
   }

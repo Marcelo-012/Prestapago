@@ -1,5 +1,5 @@
-import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -30,6 +30,14 @@ Duration _delayUntil(int hour, int minute) {
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('Error no manejado: $error\n$stack');
+    return true;
+  };
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+  };
 
   try {
     await dotenv.load();
@@ -112,28 +120,18 @@ void main() async {
     );
   }
 
-  runZonedGuarded(
-    () {
-      FlutterError.onError = (details) {
-        FlutterError.presentError(details);
-      };
-      runApp(
-        ProviderScope(
-          overrides: [
-            sharedPrefsProvider.overrideWithValue(prefs),
-            localBackupDatasourceProvider.overrideWithValue(localBackup),
-            secureStorageDatasourceProvider.overrideWithValue(secureStorage),
-            googleAuthDatasourceProvider.overrideWithValue(authDatasource),
-            appDatabaseProvider.overrideWithValue(database),
-            backupRepositoryProvider.overrideWithValue(backupRepository),
-          ],
-          child: const MainApp(),
-        ),
-      );
-    },
-    (error, stackTrace) {
-      debugPrint('Error no manejado: $error\n$stackTrace');
-    },
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPrefsProvider.overrideWithValue(prefs),
+        localBackupDatasourceProvider.overrideWithValue(localBackup),
+        secureStorageDatasourceProvider.overrideWithValue(secureStorage),
+        googleAuthDatasourceProvider.overrideWithValue(authDatasource),
+        appDatabaseProvider.overrideWithValue(database),
+        backupRepositoryProvider.overrideWithValue(backupRepository),
+      ],
+      child: const MainApp(),
+    ),
   );
 
   WidgetsBinding.instance.addPostFrameCallback((_) {

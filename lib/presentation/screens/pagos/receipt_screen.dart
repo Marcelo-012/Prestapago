@@ -8,7 +8,6 @@ import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/infrastructure/services/pdf_receipt_service.dart';
 import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ReceiptScreen extends ConsumerStatefulWidget {
   static const name = 'receipt';
@@ -28,6 +27,7 @@ class ReceiptScreen extends ConsumerStatefulWidget {
 
 class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   bool _isSharing = false;
+  bool _ready = false;
 
   Future<void> _sharePdf({
     required PrestamoDetalle detalle,
@@ -65,10 +65,16 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     final detalleAsync = ref.watch(prestamoDetalleProvider(widget.idPrestamo));
 
     return detalleAsync.when(
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => _fullScreenLoader(colors),
       error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
       data: (detalle) {
+        if (!_ready) {
+          Future.microtask(() async {
+            await Future.delayed(const Duration(milliseconds: 500));
+            if (mounted) setState(() => _ready = true);
+          });
+          return _fullScreenLoader(colors);
+        }
         final amortizacion = detalle.amortizaciones.firstWhere(
           (a) => a.idCuota == widget.idCuota,
         );
@@ -299,23 +305,28 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  GestureDetector(
-                    onTap: () async {
-                      final phone = detalle.telefono.replaceAll(
-                        RegExp(r'[^0-9]'),
-                        '',
-                      );
-                      final uri = Uri.parse(
-                        'https://wa.me/$phone?text=${Uri.encodeComponent('Hola ${detalle.nombreDeudor}, aquí está tu recibo de pago - Cuota #${amortizacion.idCuota}')}',
-                      );
-                      await launchUrl(uri);
-                    },
-                    child: const FaIcon(
-                      FontAwesomeIcons.whatsapp,
-                      color: Color(0xFF25D366),
-                      size: 50,
+                  if (_isSharing)
+                    const SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: Center(
+                          child: CircularProgressIndicator(strokeWidth: 2)),
+                    )
+                  else
+                    GestureDetector(
+                      onTap: () => _sharePdf(
+                        detalle: detalle,
+                        amortizacion: amortizacion,
+                        dto: dto,
+                        text:
+                            'Recibo de pago - Cuota #${amortizacion.idCuota}',
+                      ),
+                      child: const FaIcon(
+                        FontAwesomeIcons.whatsapp,
+                        color: Color(0xFF25D366),
+                        size: 50,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -324,6 +335,11 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
       },
     );
   }
+
+  Widget _fullScreenLoader(ColorScheme colors) => Scaffold(
+    backgroundColor: colors.primary,
+    body: const Center(child: CircularProgressIndicator(color: Colors.white)),
+  );
 
   Widget _row(String label, String value, {bool isBold = false}) {
     return Padding(
