@@ -113,6 +113,7 @@ class ClienteFormBody extends StatelessWidget {
           const SizedBox(height: 30),
           CustomTextFormField(
             label: 'Dirección',
+            maxLines: 3,
             controller: addressController,
             onChanged: onAddressChanged,
             errorMessage: formState.address.errorMessage,

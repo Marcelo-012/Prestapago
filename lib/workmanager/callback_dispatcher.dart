@@ -2,15 +2,17 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqlite3/sqlite3.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:prestapagos/config/constants/constants.dart';
+import 'package:prestapagos/infrastructure/database/database.dart';
 import 'package:prestapagos/infrastructure/datasources/datasources.dart';
 import 'package:prestapagos/infrastructure/repositories/repositories.dart';
+import 'package:prestapagos/infrastructure/services/services.dart';
 
 const _autoBackupTaskName = 'autoBackup';
 const _dailyTaskName = 'dailyAmortizationUpdate';
+const _reminderTaskName = 'dailyReminder';
 
 final _notifications = FlutterLocalNotificationsPlugin();
 
@@ -19,82 +21,24 @@ void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     if (task == _dailyTaskName) {
       try {
-        await dotenv.load();
+        final db = AppDatabase();
+        final service = EstadoPrestamoService(db: db);
+        await service.actualizarMorosidad();
+        await service.recalcularEstadoPrestamo();
 
-        const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-        const initSettings = InitializationSettings(android: androidSettings);
-        await _notifications.initialize(initSettings);
-
-        final dir = await getApplicationSupportDirectory();
-        final db = sqlite3.open('${dir.path}/${BackupConstants.localDatabaseFilename}');
-
-        db.execute("""
-          UPDATE amortizaciones SET
-            estado_amortizacion = 'atrasado',
-            dias_mora = CAST(julianday('now') - julianday(fecha_vencimiento, 'unixepoch') AS INTEGER)
-          WHERE estado_amortizacion IN ('pendiente', 'atrasado')
-            AND date(fecha_vencimiento, 'unixepoch') < date('now')
-        """);
-
-        db.execute("""
-          UPDATE configuracion_prestamos SET estado_prestamo = 'atrasado'
-          WHERE id_prestamo IN (
-            SELECT DISTINCT id_prestamo FROM amortizaciones
-            WHERE estado_amortizacion = 'atrasado'
-          )
-          AND estado_prestamo NOT IN ('finalizado', 'cancelado')
-        """);
-
-        db.execute("""
-          UPDATE configuracion_prestamos SET
-            estado_prestamo = 'finalizado',
-            fecha_actualizacion = CAST(strftime('%s', 'now') AS INTEGER)
-          WHERE estado_prestamo NOT IN ('finalizado', 'cancelado')
-            AND (
-              SELECT COUNT(*) FROM amortizaciones a
-              WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
-                AND a.estado_amortizacion NOT IN ('pagado', 'cancelado')
-            ) = 0
-            AND (
-              SELECT COALESCE(SUM(a.monto_capital), 0) FROM amortizaciones a
-              WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
-                AND a.estado_amortizacion = 'pagado'
-            ) >= (SELECT COALESCE(p.monto, 0) FROM prestamos p WHERE p.id_prestamo = configuracion_prestamos.id_prestamo)
-        """);
-
-        db.execute("""
-          UPDATE configuracion_prestamos SET
-            estado_prestamo = 'atrasado',
-            fecha_actualizacion = CAST(strftime('%s', 'now') AS INTEGER)
-          WHERE estado_prestamo = 'activo'
-            AND EXISTS (
-              SELECT 1 FROM amortizaciones a
-              WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
-                AND a.estado_amortizacion = 'atrasado'
-            )
-        """);
-
-        db.execute("""
-          UPDATE configuracion_prestamos SET
-            estado_prestamo = 'activo',
-            fecha_actualizacion = CAST(strftime('%s', 'now') AS INTEGER)
-          WHERE estado_prestamo = 'atrasado'
-            AND NOT EXISTS (
-              SELECT 1 FROM amortizaciones a
-              WHERE a.id_prestamo = configuracion_prestamos.id_prestamo
-                AND a.estado_amortizacion = 'atrasado'
-            )
-        """);
-
-        final atrasados = db.select("""
+        final atrasados = await db.customSelect("""
           SELECT COUNT(DISTINCT id_prestamo) AS total
           FROM amortizaciones WHERE estado_amortizacion = 'atrasado'
-        """);
-        final totalAtrasados = atrasados.first['total'] as int;
+        """).getSingle();
+        final totalAtrasados = atrasados.read<int>('total');
 
         final body = totalAtrasados > 0
             ? '$totalAtrasados préstamo(s) con atraso.'
             : 'Sin préstamos con atraso.';
+
+        const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+        const initSettings = InitializationSettings(android: androidSettings);
+        await _notifications.initialize(initSettings);
 
         await _notifications.show(
           NotificationConstants.dailyUpdateNotificationId,
@@ -112,7 +56,46 @@ void callbackDispatcher() {
           ),
         );
 
-        db.close();
+        await db.close();
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    if (task == _reminderTaskName) {
+      try {
+        final db = AppDatabase();
+        final row = await db.customSelect("""
+          SELECT COUNT(*) AS total FROM amortizaciones
+          WHERE estado_amortizacion IN ('pendiente', 'atrasado')
+            AND date(fecha_vencimiento, 'unixepoch') = date('now')
+        """).getSingle();
+        final total = row.read<int>('total');
+
+        if (total > 0) {
+          const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+          const initSettings = InitializationSettings(android: androidSettings);
+          await _notifications.initialize(initSettings);
+
+          await _notifications.show(
+            NotificationConstants.reminderNotificationId,
+            'Recordatorio de pagos',
+            'Tienes $total cuota(s) por vencer hoy.',
+            const NotificationDetails(
+              android: AndroidNotificationDetails(
+                NotificationConstants.channelReminderId,
+                NotificationConstants.channelReminderName,
+                channelDescription: NotificationConstants.channelReminderDescription,
+                importance: Importance.defaultImportance,
+                priority: Priority.defaultPriority,
+                icon: '@mipmap/ic_launcher',
+              ),
+            ),
+          );
+        }
+
+        await db.close();
         return true;
       } catch (_) {
         return false;

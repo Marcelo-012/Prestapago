@@ -196,6 +196,12 @@ class ClienteRepositoryImpl implements ClienteRepository {
 
   @override
   Future<void> createCliente(Cliente cliente) async {
+    final existing = await (_db.select(_db.deudores)
+      ..where((t) => t.numeroIdentificacion.equals(cliente.dni)))
+      .get();
+    if (existing.isNotEmpty) {
+      throw StateError('El número de identidad ya está registrado');
+    }
     await _db
         .into(_db.deudores)
         .insert(
@@ -267,6 +273,13 @@ class ClienteRepositoryImpl implements ClienteRepository {
 
   @override
   Future<void> updateCliente(Cliente cliente) async {
+    final existing = await (_db.select(_db.deudores)
+      ..where((t) => t.numeroIdentificacion.equals(cliente.dni))
+      ..where((t) => t.id.equals(cliente.idDeudor).not()))
+      .get();
+    if (existing.isNotEmpty) {
+      throw StateError('El número de identidad ya está registrado');
+    }
     await (_db.update(
       _db.deudores,
     )..where((t) => t.id.equals(cliente.idDeudor))).write(

@@ -8,13 +8,13 @@ part 'database.g.dart';
 
 class Deudores extends Table {
   IntColumn get id => integer().named('id_deudor').autoIncrement()();
-  TextColumn get nombre => text().withLength(max: 120)();
+  TextColumn get nombre => text().withLength(max: 45)();
   TextColumn get telefono => text().withLength(max: 10)();
   TextColumn get correoElectronico =>
-      text().named('email').withLength(min: 1, max: 100).unique().nullable()();
+      text().named('email').withLength(min: 1, max: 60).unique().nullable()();
   TextColumn get direccion => text().withLength(min: 1, max: 150)();
   TextColumn get numeroIdentificacion =>
-      text().named('numero_identificacion').withLength(min: 1, max: 30)();
+      text().named('numero_identificacion').withLength(min: 1, max: 30).unique()();
   IntColumn get edad => integer()();
   TextColumn get estado => textEnum<EstadoCliente>()();
   DateTimeColumn get fechaCreacion =>

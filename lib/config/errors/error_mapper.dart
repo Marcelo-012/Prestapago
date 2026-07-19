@@ -47,6 +47,10 @@ String mapErrorToMessage(Object? error) {
     return error.message;
   }
 
+  if (errorStr.contains('El número de identidad ya está registrado')) {
+    return 'El número de identidad ya está registrado. Verifica los datos e intenta de nuevo.';
+  }
+
   if (error is BackupException) {
     return switch (error.code) {
       'NO_INTERNET' =>

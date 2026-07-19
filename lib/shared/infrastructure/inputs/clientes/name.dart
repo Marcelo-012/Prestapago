@@ -16,7 +16,7 @@ class Name extends FormzInput<String, NameError> {
     if (displayError == NameError.empty) return 'El campo es requerido';
     if (displayError == NameError.length) return 'Nombre muy corto';
     if (displayError == NameError.maxLength) {
-      return 'El nombre no puede superar los 60 caracteres';
+      return 'El nombre no puede superar los 45 caracteres';
     }
 
     if (displayError == NameError.format) return 'Caracteres no validos ';
@@ -29,7 +29,7 @@ class Name extends FormzInput<String, NameError> {
     final trimmed = value.trim();
     if (trimmed.isEmpty) return NameError.empty;
     if (trimmed.length < 10) return NameError.length;
-    if (trimmed.length > 60) return NameError.maxLength;
+    if (trimmed.length > 45) return NameError.maxLength;
     if (!nameRegExp.hasMatch(trimmed)) return NameError.format;
 
     return null;

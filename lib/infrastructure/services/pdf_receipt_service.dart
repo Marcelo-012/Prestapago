@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:prestapagos/config/helpers/helpers.dart';
@@ -6,6 +7,16 @@ import 'package:prestapagos/domain/domain.dart';
 import 'package:path_provider/path_provider.dart';
 
 class PdfReceiptService {
+  static pw.Font? _baseFont;
+  static pw.Font? _boldFont;
+
+  static Future<void> _ensureFonts() async {
+    if (_baseFont != null) return;
+    final base = await rootBundle.load('google_fonts/poppins/Poppins-Regular.ttf');
+    final bold = await rootBundle.load('google_fonts/poppins/Poppins-Bold.ttf');
+    _baseFont = pw.Font.ttf(base);
+    _boldFont = pw.Font.ttf(bold);
+  }
   Future<File> generateReceipt({
     required PrestamoDetalle detalle,
     required Amortizacion amortizacion,
@@ -13,7 +24,13 @@ class PdfReceiptService {
     required String? acreedorNombre,
   }) async {
     try {
-      final pdf = pw.Document();
+      await _ensureFonts();
+      final pdf = pw.Document(
+        theme: pw.ThemeData.withFont(
+          base: _baseFont!,
+          bold: _boldFont!,
+        ),
+      );
 
       final config = detalle.configuracionPrestamo;
       final esPagado = amortizacion.estadoAmortizacion == 'pagado';
@@ -351,7 +368,13 @@ class PdfReceiptService {
     required double capitalPagado,
   }) async {
     try {
-      final pdf = pw.Document();
+      await _ensureFonts();
+      final pdf = pw.Document(
+        theme: pw.ThemeData.withFont(
+          base: _baseFont!,
+          bold: _boldFont!,
+        ),
+      );
       final hoy = DateTime.now();
       final esSimple = detalle.configuracionPrestamo.tipoInteres == 'simple';
 
@@ -480,7 +503,13 @@ class PdfReceiptService {
     String? acreedorNombre,
   }) async {
     try {
-      final pdf = pw.Document();
+      await _ensureFonts();
+      final pdf = pw.Document(
+        theme: pw.ThemeData.withFont(
+          base: _baseFont!,
+          bold: _boldFont!,
+        ),
+      );
       final hoy = DateTime.now();
       final esCancelacion = tipo == 'cancelacion';
   

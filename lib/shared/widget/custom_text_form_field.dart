@@ -5,6 +5,7 @@ class CustomTextFormField extends StatelessWidget {
   final String? hint;
   final String? errorMessage;
   final bool obscureText;
+  final int? maxLines;
   final TextInputType? keyboardType;
   final TextCapitalization? textCapitalization;
   final Function(String)? onChanged;
@@ -18,6 +19,7 @@ class CustomTextFormField extends StatelessWidget {
     this.hint,
     this.errorMessage,
     this.obscureText = false,
+    this.maxLines,
     this.keyboardType = TextInputType.text,
     this.onChanged,
     this.onFieldSubmitted,
@@ -60,6 +62,7 @@ class CustomTextFormField extends StatelessWidget {
         validator: validator,
         onFieldSubmitted: onFieldSubmitted,
         obscureText: obscureText,
+        maxLines: maxLines,
         keyboardType: keyboardType,
         textCapitalization: textCapitalization ?? TextCapitalization.none,
         style: const TextStyle(fontSize: 20, color: Colors.black54),

@@ -444,9 +444,6 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
     String? search,
     String? filter,
   }) async {
-    await _estadoPrestamoService.actualizarMorosidad();
-    await _estadoPrestamoService.recalcularEstadoPrestamo();
-
     final limit = pageSize + 1;
     final offset = page * pageSize;
 

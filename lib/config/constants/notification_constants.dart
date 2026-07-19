@@ -9,4 +9,9 @@ class NotificationConstants {
   static const String channelDailyName = 'Actualizaciones diarias';
   static const String channelDailyDescription = 'Notificaciones de moratorios y atrasos';
   static const int dailyUpdateNotificationId = 1003;
+
+  static const String channelReminderId = 'daily_reminder_channel';
+  static const String channelReminderName = 'Recordatorios de pago';
+  static const String channelReminderDescription = 'Recordatorios de cuotas por vencer hoy';
+  static const int reminderNotificationId = 1004;
 }

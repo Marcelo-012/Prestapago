@@ -122,6 +122,24 @@ class ClientesProfile extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 15),
+              Text('Correo', style: style),
+              Row(
+                children: [
+                  const Icon(Icons.email_outlined),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      client.email ?? 'Correo no añadido',
+                      style: style.copyWith(
+                        fontStyle: client.email == null
+                            ? FontStyle.italic
+                            : FontStyle.normal,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
               Text('Número de identificación', style: style),
               Row(
                 children: [
