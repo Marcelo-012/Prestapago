@@ -20,7 +20,9 @@ class ReporteSaldoPendienteRepositoryImpl
           WHERE a.estado_amortizacion IN ('pendiente', 'atrasado')
             AND a.id_prestamo IN (
               SELECT p.id_prestamo FROM prestamos p
-              WHERE strftime('%Y-%m', p.fecha_creacion, 'unixepoch') <= m.mes
+              INNER JOIN configuracion_prestamos cp ON cp.id_prestamo = p.id_prestamo
+              WHERE cp.estado_prestamo NOT IN ('cancelado', 'incobrable')
+                AND strftime('%Y-%m', p.fecha_creacion, 'unixepoch') <= m.mes
             )
         ), 0) as saldo
       FROM meses m

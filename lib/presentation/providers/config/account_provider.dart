@@ -24,13 +24,9 @@ class AccountNotifier extends Notifier<AccountState> {
   }
 
   Future<void> linkAccount() async {
-    try {
-      final auth = ref.read(googleAuthDatasourceProvider);
-      await auth.authenticateWithGoogle();
-      _refresh();
-    } catch (e) {
-      debugPrint('Error al vincular cuenta: $e');
-    }
+    final auth = ref.read(googleAuthDatasourceProvider);
+    await auth.authenticateWithGoogle();
+    _refresh();
   }
 
   Future<void> unlinkAccount() async {

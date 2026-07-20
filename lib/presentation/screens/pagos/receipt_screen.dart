@@ -337,7 +337,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
@@ -348,13 +348,19 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
               fontSize: isBold ? 14 : 12,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: const Color(0xFF7A8B99),
-              fontFamily: 'monospace',
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              fontSize: isBold ? 14 : 12,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value,
+              maxLines: 4,
+              textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: const Color(0xFF7A8B99),
+                fontFamily: 'monospace',
+                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                fontSize: isBold ? 14 : 12,
+              ),
             ),
           ),
         ],

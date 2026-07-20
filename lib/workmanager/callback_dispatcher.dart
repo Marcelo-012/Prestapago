@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:prestapagos/config/constants/constants.dart';
+import 'package:prestapagos/config/errors/errors.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
 import 'package:prestapagos/infrastructure/datasources/datasources.dart';
 import 'package:prestapagos/infrastructure/repositories/repositories.dart';
@@ -15,6 +17,12 @@ const _dailyTaskName = 'dailyAmortizationUpdate';
 const _reminderTaskName = 'dailyReminder';
 
 final _notifications = FlutterLocalNotificationsPlugin();
+
+Future<void> _ensureNotificationsInitialized() async {
+  const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+  const initSettings = InitializationSettings(android: androidSettings);
+  await _notifications.initialize(initSettings);
+}
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
@@ -36,9 +44,7 @@ void callbackDispatcher() {
             ? '$totalAtrasados préstamo(s) con atraso.'
             : 'Sin préstamos con atraso.';
 
-        const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-        const initSettings = InitializationSettings(android: androidSettings);
-        await _notifications.initialize(initSettings);
+        await _ensureNotificationsInitialized();
 
         await _notifications.show(
           NotificationConstants.dailyUpdateNotificationId,
@@ -58,7 +64,8 @@ void callbackDispatcher() {
 
         await db.close();
         return true;
-      } catch (_) {
+      } catch (e, s) {
+        debugPrint('callback_dispatcher[daily]: $e\n$s');
         return false;
       }
     }
@@ -69,14 +76,12 @@ void callbackDispatcher() {
         final row = await db.customSelect("""
           SELECT COUNT(*) AS total FROM amortizaciones
           WHERE estado_amortizacion IN ('pendiente', 'atrasado')
-            AND date(fecha_vencimiento, 'unixepoch') = date('now')
+            AND date(fecha_vencimiento, 'unixepoch') = date('now', 'localtime')
         """).getSingle();
         final total = row.read<int>('total');
 
         if (total > 0) {
-          const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-          const initSettings = InitializationSettings(android: androidSettings);
-          await _notifications.initialize(initSettings);
+          await _ensureNotificationsInitialized();
 
           await _notifications.show(
             NotificationConstants.reminderNotificationId,
@@ -97,7 +102,8 @@ void callbackDispatcher() {
 
         await db.close();
         return true;
-      } catch (_) {
+      } catch (e, s) {
+        debugPrint('callback_dispatcher[reminder]: $e\n$s');
         return false;
       }
     }
@@ -107,10 +113,6 @@ void callbackDispatcher() {
     try {
       await dotenv.load();
 
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-      const initSettings = InitializationSettings(android: androidSettings);
-      await _notifications.initialize(initSettings);
-
       final prefs = await SharedPreferences.getInstance();
       final localBackup = LocalBackupDatasource(prefs);
 
@@ -118,8 +120,6 @@ void callbackDispatcher() {
       if (frequency == 'Manual') return true;
 
       final secureStorage = SecureStorageDatasource();
-      final accessToken = secureStorage.getAccessTokenFromMemory();
-      if (accessToken == null) return false;
 
       final authDatasource = GoogleAuthDatasource(
         secureStorage: secureStorage,
@@ -136,18 +136,23 @@ void callbackDispatcher() {
       final dir = await getApplicationSupportDirectory();
       final databaseFile = File('${dir.path}/${BackupConstants.localDatabaseFilename}');
 
+      final db = AppDatabase();
       final repository = BackupRepositoryImpl(
         authDatasource: authDatasource,
         driveDatasource: driveDatasource,
         localBackupDatasource: localBackup,
         secureStorageDatasource: secureStorage,
         databaseFile: databaseFile,
+        database: db,
       );
 
       await for (final _ in repository.performBackup()) {}
+      await db.close();
 
       await localBackup.setLastBackupTime(DateTime.now());
       await localBackup.setBackupStatus('Exitoso');
+
+      await _ensureNotificationsInitialized();
 
       await _notifications.show(
         NotificationConstants.successNotificationId,
@@ -166,17 +171,20 @@ void callbackDispatcher() {
       );
 
       return true;
-    } catch (e) {
+    } catch (e, s) {
+      debugPrint('callback_dispatcher[backup]: $e\n$s');
       try {
         final prefs = await SharedPreferences.getInstance();
         final localBackup = LocalBackupDatasource(prefs);
         await localBackup.setBackupStatus('Falló');
 
-        final isQuota = e.toString().contains('STORAGE_QUOTA_EXCEEDED');
+        final isQuota = e is StorageQuotaExceededException;
         final title = isQuota ? 'Almacenamiento lleno' : 'Respaldo fallido';
         final body = isQuota
             ? 'El respaldo automático no pudo completarse porque tu Google Drive está lleno. Libera espacio e intenta de nuevo.'
             : 'El respaldo automático no pudo completarse. Revisa tu conexión e intenta de nuevo.';
+
+        await _ensureNotificationsInitialized();
 
         await _notifications.show(
           NotificationConstants.failureNotificationId,
@@ -193,7 +201,9 @@ void callbackDispatcher() {
             ),
           ),
         );
-      } catch (_) {}
+      } catch (e2, s2) {
+        debugPrint('callback_dispatcher[backup].catch: $e2\n$s2');
+      }
 
       return false;
     }

@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,7 +16,17 @@ class ResumenRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: GoogleFonts.poppins(color: Colors.grey.shade600)),
-          Text(value, style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          const SizedBox(width: 8),
+          Flexible(
+            child: AutoSizeText(
+              value,
+              maxLines: 2,
+              minFontSize: 10,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.right,
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+            ),
+          ),
         ],
       ),
     );

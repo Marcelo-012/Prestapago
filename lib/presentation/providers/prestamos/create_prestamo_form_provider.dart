@@ -109,7 +109,6 @@ class PrestamoFormState {
       fechaInicio: DateTime.now(),
       tipoInteres: tipoInteres,
       periodicidadIntereses: periodidadIntereses,
-      estadoMoratorioActivo: estadoMoratorio == 'activo',
     );
 
     return amortizaciones

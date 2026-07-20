@@ -17,8 +17,14 @@ class PrestamoPreviewScreen extends ConsumerWidget {
     final formState = ref.watch(createPrestamoFormProvider);
     final client = formState.selectedClient;
     final amortizaciones = formState.calcularAmortizaciones();
-    final total = amortizaciones.fold<double>(0.0, (sum, a) => sum + a.montoCapital + a.montoInteres);
-    final totalInteres = amortizaciones.fold<double>(0.0, (sum, a) => sum + a.montoInteres);
+    final total = amortizaciones.fold<double>(
+      0.0,
+      (sum, a) => sum + a.montoCapital + a.montoInteres,
+    );
+    final totalInteres = amortizaciones.fold<double>(
+      0.0,
+      (sum, a) => sum + a.montoInteres,
+    );
 
     return Scaffold(
       body: CustomScrollView(
@@ -46,26 +52,66 @@ class PrestamoPreviewScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Resumen', style: GoogleFonts.poppins(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text(
+                            'Resumen',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           const SizedBox(height: 12),
-                          ResumenRow(label: 'Cliente', value: client?.nombre ?? '—'),
-                          ResumenRow(label: 'Monto', value: HumanFormats.monuted(double.tryParse(formState.monto.value) ?? 0)),
-                          ResumenRow(label: 'Plazo', value: '${formState.plazo.value} meses'),
-                          ResumenRow(label: 'Tasa interés', value: '${formState.tasaInteres.value}% ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'}'),
-                          ResumenRow(label: 'Cuota mensual', value: HumanFormats.monuted(double.tryParse(formState.montoCuota.value) ?? 0)),
+                          ResumenRow(
+                            label: 'Cliente',
+                            value: client?.nombre ?? '—',
+                          ),
+                          ResumenRow(
+                            label: 'Monto',
+                            value: HumanFormats.monuted(
+                              double.tryParse(formState.monto.value) ?? 0,
+                            ),
+                          ),
+                          ResumenRow(
+                            label: 'Plazo',
+                            value: '${formState.plazo.value} meses',
+                          ),
+                          ResumenRow(
+                            label: 'Tasa interés',
+                            value:
+                                '${formState.tasaInteres.value}% ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'}',
+                          ),
+                          ResumenRow(
+                            label: 'Cuota mensual',
+                            value: HumanFormats.monuted(
+                              double.tryParse(formState.montoCuota.value) ?? 0,
+                            ),
+                          ),
                           if (formState.estadoMoratorio == 'activo')
-                            ResumenRow(label: 'Tasa moratoria', value: '${formState.tasaInteresMoratoria.value}% ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'}'),
-                          ResumenRow(label: 'Intereses', value: HumanFormats.monuted(totalInteres)),
+                            ResumenRow(
+                              label: 'Tasa moratoria',
+                              value:
+                                  '${formState.tasaInteresMoratoria.value}% ${formState.periodidadIntereses == 'mensual' ? 'mensual' : 'anual'}',
+                            ),
+                          ResumenRow(
+                            label: 'Intereses',
+                            value: HumanFormats.monuted(totalInteres),
+                          ),
                           const Divider(),
-                          ResumenRow(label: 'Monto + Intereses', value: HumanFormats.monuted(total)),
+                          ResumenRow(
+                            label: 'Monto + Intereses',
+                            value: HumanFormats.monuted(total),
+                          ),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text('Amortizaciones', style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Amortizaciones',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -86,10 +132,20 @@ class PrestamoPreviewScreen extends ConsumerWidget {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.icon(
-                      onPressed: () => _crearPrestamo(context, ref, formState, amortizaciones),
+                      onPressed: () => _crearPrestamo(
+                        context,
+                        ref,
+                        formState,
+                        amortizaciones,
+                      ),
                       icon: const Icon(Icons.save),
-                      label: const Text('Crear préstamo', style: TextStyle(fontSize: 16)),
-                      style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                      label: const Text(
+                        'Crear préstamo',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -107,14 +163,20 @@ class PrestamoPreviewScreen extends ConsumerWidget {
 
     return list.map<DataRow>((a) {
       saldo += a.montoCapital + a.montoInteres;
-      return DataRow(cells: [
-        DataCell(Text('${a.idCuota}')),
-        DataCell(Text('${a.fechaVencimiento.day}/${a.fechaVencimiento.month}/${a.fechaVencimiento.year}')),
-        DataCell(Text(HumanFormats.monuted(a.montoCapital + a.montoInteres))),
-        DataCell(Text(HumanFormats.monuted(a.montoCapital))),
-        DataCell(Text(HumanFormats.monuted(a.montoInteres))),
-        DataCell(Text(HumanFormats.monuted(saldo))),
-      ]);
+      return DataRow(
+        cells: [
+          DataCell(Text('${a.idCuota}')),
+          DataCell(
+            Text(
+              '${a.fechaVencimiento.day}/${a.fechaVencimiento.month}/${a.fechaVencimiento.year}',
+            ),
+          ),
+          DataCell(Text(HumanFormats.monuted(a.montoCapital + a.montoInteres))),
+          DataCell(Text(HumanFormats.monuted(a.montoCapital))),
+          DataCell(Text(HumanFormats.monuted(a.montoInteres))),
+          DataCell(Text(HumanFormats.monuted(saldo))),
+        ],
+      );
     }).toList();
   }
 
@@ -127,15 +189,28 @@ class PrestamoPreviewScreen extends ConsumerWidget {
     if (!state.isFormValid) return;
     try {
       final dto = state.toDTO(amortizaciones: amortizaciones);
-      final idPrestamo = await ref.read(prestamoRepositoryProvider).createPrestamo(dto);
+      final idPrestamo = await ref
+          .read(prestamoRepositoryProvider)
+          .createPrestamo(dto);
       if (!context.mounted) return;
-      Fluttertoast.showToast(msg: 'Préstamo creado exitosamente', gravity: ToastGravity.TOP, backgroundColor: Colors.green, textColor: Colors.white);
+      Fluttertoast.showToast(
+        msg: 'Préstamo creado exitosamente',
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
       ref.read(createPrestamoFormProvider.notifier).reset();
       ref.invalidate(prestamoPaginationProvider);
       context.go('/home/1/prestamo/$idPrestamo');
     } catch (e) {
+      debugPrint('Error al crear préstamo: $e');
       if (!context.mounted) return;
-      Fluttertoast.showToast(msg: 'Error al crear el préstamo', gravity: ToastGravity.TOP, backgroundColor: Colors.red, textColor: Colors.white);
+      Fluttertoast.showToast(
+        msg: 'Error al crear el préstamo',
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
   }
 }

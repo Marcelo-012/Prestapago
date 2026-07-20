@@ -1,6 +1,6 @@
 enum ManejoExcedente {
-  abonoCapital('abono_capital'),
-  saldoFavor('saldo_favor');
+  abonoCapital('abonoCapital'),
+  saldoFavor('saldoFavor');
 
   final String value;
   const ManejoExcedente(this.value);

@@ -158,6 +158,8 @@ class PagoRepositoryImpl implements PagoRepository {
           tasaInteres: prestamo.tasaInteres,
           periodicidadIntereses: config.periodidadIntereses,
           cuotaMensual: prestamo.montoCuota,
+          tipoInteres: config.tipoInteres,
+          montoOriginal: prestamo.monto,
         );
         for (final r in result.actualizadas) {
           await (_db.update(

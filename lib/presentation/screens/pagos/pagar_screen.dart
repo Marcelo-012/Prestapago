@@ -47,29 +47,32 @@ class _PagarScreenState extends ConsumerState<PagarScreen> {
     _checkClienteActivo();
   }
 
-  void _checkClienteActivo() async {
-    final repo = ref.read(clienteRepositoryProvider);
-    try {
-      final cliente = await repo.getById(widget.detalle.prestamo.idDeudor);
-      if (cliente.estado == 'inactivo' && mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => AlertDialog(
-            title: const Text('Cliente inactivo'),
-            content: const Text(
-              'Este cliente está inactivo. No se pueden registrar pagos hasta que sea reactivado.',
-            ),
-            actions: [
-              FilledButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Entendido'),
+  void _checkClienteActivo() {
+    Future.microtask(() async {
+      final idDeudor = widget.detalle.prestamo.idDeudor;
+      ref.invalidate(clienteDetalleProvider(idDeudor));
+      try {
+        final cliente = await ref.read(clienteDetalleProvider(idDeudor).future);
+        if (cliente.cliente.estado == 'inactivo' && mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => AlertDialog(
+              title: const Text('Cliente inactivo'),
+              content: const Text(
+                'Este cliente está inactivo. No se pueden registrar pagos hasta que sea reactivado.',
               ),
-            ],
-          ),
-        );
-      }
-    } catch (e) { debugPrint('Error al verificar cliente activo: $e'); }
+              actions: [
+                FilledButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Entendido'),
+                ),
+              ],
+            ),
+          );
+        }
+      } catch (e) { debugPrint('Error al verificar cliente activo: $e'); }
+    });
   }
 
   @override

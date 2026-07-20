@@ -1,8 +1,9 @@
 import 'dart:io';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
-import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/config/errors/errors.dart';
+import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/infrastructure/database/database.dart';
 import 'package:prestapagos/infrastructure/datasources/datasources.dart';
 
@@ -83,7 +84,7 @@ class BackupRepositoryImpl implements BackupRepository {
       _logger.e('Fallo controlado en operación de copia: ${e.message}', error: e, stackTrace: stack);
       yield BackupStatus(
         status: BackupStatusEnum.failed,
-        message: e.message,
+        message: mapErrorToMessage(e),
         errorCode: e.code,
       );
     } catch (e, stack) {
@@ -186,7 +187,7 @@ class BackupRepositoryImpl implements BackupRepository {
       _logger.e('Fallo controlado en restauración de datos: ${e.message}', error: e, stackTrace: stack);
       yield BackupStatus(
         status: BackupStatusEnum.failed,
-        message: e.message,
+        message: mapErrorToMessage(e),
         errorCode: e.code,
       );
     } catch (e, stack) {
@@ -201,7 +202,13 @@ class BackupRepositoryImpl implements BackupRepository {
 
   // ============ COMPLEMENTOS DE HARDWARE (MOCKADOS PARA FASE 8) ============
 
-  Future<bool> _checkInternetConnection() async => true;
+  Future<bool> _checkInternetConnection() async {
+    final connectivity = await Connectivity().checkConnectivity();
+    return connectivity.contains(ConnectivityResult.wifi) ||
+        connectivity.contains(ConnectivityResult.mobile) ||
+        connectivity.contains(ConnectivityResult.ethernet);
+  }
+
   Future<bool> _checkBatteryLevel() async => true;
   Future<bool> _checkDiskSpace() async => true;
 }

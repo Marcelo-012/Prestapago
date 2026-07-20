@@ -23,7 +23,7 @@ class CreatePrestamoDTO {
     required this.montoCuota,
     this.tipoInteres = 'compuesto',
     this.estadoMoratorio = 'activo',
-    this.manejoExcedente = 'abono_capital',
+    this.manejoExcedente = 'abonoCapital',
     this.periodidadIntereses = 'mensual',
     this.estadoPrestamo = 'activo',
     this.amortizaciones = const [],

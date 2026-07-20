@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:logger/logger.dart';
@@ -31,6 +32,14 @@ class GoogleAuthDatasource {
   Future<void> authenticateWithGoogle() async {
     try {
       _logger.i('Iniciando flujo de autenticación Google...');
+
+      final connectivity = await Connectivity().checkConnectivity();
+      if (!connectivity.contains(ConnectivityResult.wifi) &&
+          !connectivity.contains(ConnectivityResult.mobile) &&
+          !connectivity.contains(ConnectivityResult.ethernet)) {
+        throw NoInternetException();
+      }
+
       await _ensureInitialized();
 
       final account = await GoogleSignIn.instance.authenticate(

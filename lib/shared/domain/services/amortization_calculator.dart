@@ -14,6 +14,8 @@ class AmortizationCalculator {
     required double tasaInteres,
     required String periodicidadIntereses,
     required double cuotaMensual,
+    required String tipoInteres,
+    required double montoOriginal,
   }) {
     if (pendientes.isEmpty)
       return (actualizadas: pendientes, idsCanceladas: []);
@@ -23,13 +25,14 @@ class AmortizationCalculator {
         pendientes.fold(0.0, (sum, a) => sum + a.montoCapital) - abono;
     if (saldo < 0) saldo = 0;
 
-    // Con la misma cuota, calcular cuántas cuotas se necesitan
     int cuotasNecesarias = 0;
     double tempSaldo = saldo;
     while (tempSaldo > 0.01 && cuotasNecesarias < pendientes.length) {
       cuotasNecesarias++;
-      final interes = tempSaldo * tasaMensual;
+      final base = tipoInteres == 'simple' ? montoOriginal : tempSaldo;
+      final interes = base * tasaMensual;
       double capital = cuotaMensual - interes;
+      if (capital < 0) capital = 0;
       if (capital >= tempSaldo) capital = tempSaldo;
       tempSaldo -= capital;
     }
@@ -45,8 +48,10 @@ class AmortizationCalculator {
         continue;
       }
 
-      final interesMes = saldoActual * tasaMensual;
+      final baseInteres = tipoInteres == 'simple' ? montoOriginal : saldoActual;
+      final interesMes = baseInteres * tasaMensual;
       double capitalMes = cuotaMensual - interesMes;
+      if (capitalMes < 0) capitalMes = 0;
       if (capitalMes >= saldoActual || i == cuotasNecesarias - 1) {
         capitalMes = saldoActual;
       }
@@ -114,14 +119,9 @@ class AmortizationCalculator {
     required DateTime fechaInicio,
     required String tipoInteres,
     required String periodicidadIntereses,
-    bool estadoMoratorioActivo = false,
   }) {
     final List<Amortizacion> amortizaciones = [];
     final tasaMensual = _toMonthlyRate(tasaInteres, periodicidadIntereses);
-    final tasaMoraMensual = _toMonthlyRate(
-      tasaInteresMoratoria,
-      periodicidadIntereses,
-    );
     double saldo = monto;
     int idCuota = 0;
 
@@ -136,11 +136,6 @@ class AmortizationCalculator {
       if (capitalMes >= saldo || idCuota == plazoMeses) {
         capitalMes = saldo;
       }
-
-      final pagoCuota = capitalMes + interesMes;
-      final montoMora = estadoMoratorioActivo
-          ? pagoCuota * tasaMoraMensual
-          : 0.0;
 
       final fechaVencimiento = DateTime(
         fechaInicio.year,
@@ -160,7 +155,7 @@ class AmortizationCalculator {
           montoCapital: capitalMes,
           montoInteres: interesMes,
           diasMora: 0,
-          montoMora: montoMora,
+          montoMora: 0.0,
           montoExcedente: 0,
           estadoAmortizacion: 'pendiente',
           fechaActualizacion: DateTime.now(),
@@ -210,6 +205,15 @@ class AmortizationCalculator {
         .where((a) => a.estadoAmortizacion == 'pendiente' || a.estadoAmortizacion == 'atrasado')
         .fold<double>(0, (sum, a) => sum + a.montoCapital + a.montoInteres);
 
+    final moraTotal = amortizaciones
+        .where((a) => a.estadoAmortizacion == 'atrasado' && a.diasMora > 0)
+        .fold<double>(0, (sum, a) => sum + calcularMontoMora(
+          montoInicial: a.montoCapital + a.montoInteres,
+          tasaMoratoria: prestamo.tasaInteresMoratoria,
+          periodicidad: config.periodidadIntereses,
+          diasMora: a.diasMora,
+        ));
+
     final bruto = prox.montoCapital + prox.montoInteres + montoMora;
     final totalMinimo = bruto - saldoPreCargado;
 
@@ -219,8 +223,35 @@ class AmortizationCalculator {
       diasMora: prox.diasMora,
       saldoAFavor: saldoPreCargado > 0 ? (saldoPreCargado * 100).round() / 100 : 0,
       totalMinimo: totalMinimo > 0 ? (totalMinimo * 100).round() / 100 : 0,
-      montoMaximo: totalRestante + montoMora,
+      montoMaximo: totalRestante + moraTotal,
     );
+  }
+
+  static double calcularTotalLiquidacion(PrestamoDetalle detalle) {
+    final pendientes = detalle.amortizaciones.where(
+      (a) => a.estadoAmortizacion == 'pendiente' || a.estadoAmortizacion == 'atrasado',
+    ).toList();
+    final tasaMoratoria = detalle.prestamo.tasaInteresMoratoria;
+    final periodicidad = detalle.configuracionPrestamo.periodidadIntereses;
+
+    var capitalPendiente = 0.0;
+    var moraAcumulada = 0.0;
+    for (final a in pendientes) {
+      capitalPendiente += a.montoCapital;
+      if (a.estadoAmortizacion == 'atrasado' && a.diasMora > 0) {
+        moraAcumulada += calcularMontoMora(
+          montoInicial: a.montoCapital + a.montoInteres,
+          tasaMoratoria: tasaMoratoria,
+          periodicidad: periodicidad,
+          diasMora: a.diasMora,
+        );
+      }
+    }
+
+    final primerPendiente = pendientes.isNotEmpty ? pendientes.first : null;
+    final interesMesCurso = primerPendiente?.montoInteres ?? 0.0;
+
+    return capitalPendiente + moraAcumulada + interesMesCurso;
   }
 
   static double calcularCuota({

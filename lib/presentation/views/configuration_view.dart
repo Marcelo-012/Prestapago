@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:prestapagos/config/errors/error_mapper.dart';
 import 'package:prestapagos/presentation/providers/providers.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -75,8 +76,20 @@ class _ConfigurationViewState extends ConsumerState<ConfigurationView> {
                         tooltip: 'Desvincular',
                       )
                     : FilledButton.tonal(
-                        onPressed: () =>
-                            ref.read(accountProvider.notifier).linkAccount(),
+                        onPressed: () async {
+                          try {
+                            await ref.read(accountProvider.notifier).linkAccount();
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(mapErrorToMessage(e)),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        },
                         child: const Text('Vincular'),
                       ),
               ),

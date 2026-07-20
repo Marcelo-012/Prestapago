@@ -243,35 +243,8 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
     );
   }
 
-  double _calcularTotalLiquidacion(PrestamoDetalle detalle) {
-    final pendientes = detalle.amortizaciones.where(
-      (a) => a.estadoAmortizacion == 'pendiente' || a.estadoAmortizacion == 'atrasado',
-    ).toList();
-    final tasaMoratoria = detalle.prestamo.tasaInteresMoratoria;
-    final periodicidad = detalle.configuracionPrestamo.periodidadIntereses;
-
-    var capitalPendiente = 0.0;
-    var moraAcumulada = 0.0;
-    for (final a in pendientes) {
-      capitalPendiente += a.montoCapital;
-      if (a.estadoAmortizacion == 'atrasado' && a.diasMora > 0) {
-        moraAcumulada += AmortizationCalculator.calcularMontoMora(
-          montoInicial: a.montoCapital + a.montoInteres,
-          tasaMoratoria: tasaMoratoria,
-          periodicidad: periodicidad,
-          diasMora: a.diasMora,
-        );
-      }
-    }
-
-    final primerPendiente = pendientes.isNotEmpty ? pendientes.first : null;
-    final interesMesCurso = primerPendiente?.montoInteres ?? 0.0;
-
-    return capitalPendiente + moraAcumulada + interesMesCurso;
-  }
-
   Future<void> _mostrarDialogoLiquidacion(PrestamoDetalle detalle) async {
-    final total = _calcularTotalLiquidacion(detalle);
+    final total = AmortizationCalculator.calcularTotalLiquidacion(detalle);
 
     final result = await showDialog<bool>(
       context: context,
@@ -603,40 +576,15 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
 
     await ref
         .read(cancelarPrestamoProvider.notifier)
-        .cancelarPrestamo(detalle.idPrestamo, motivo, montoDevuelto);
+        .cancelarPrestamo(detalle.idPrestamo, motivo, montoDevuelto, detalle);
 
     if (!mounted) return;
     final updated = ref.read(cancelarPrestamoProvider);
     if (updated.isSuccess) {
-      try {
-        final service = ref.read(pdfReceiptServiceProvider);
-        final file = await service.generateCancelacionPdf(
-          detalle: detalle,
-          motivo: motivo,
-          montoDevuelto: montoDevuelto,
-          tipo: 'cancelacion',
-          acreedorNombre: ref.read(accountProvider).name,
-        );
-        if (!mounted) return;
-        await SharePlus.instance.share(
-          ShareParams(
-            files: [XFile(file.path)],
-            text: 'Cancelación de préstamo - ${detalle.nombreDeudor}',
-          ),
-        );
-      } catch (_) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Préstamo cancelado correctamente')),
-        );
-      }
-      ref.invalidate(prestamoDetalleProvider(_id));
-      final idDeudor = detalle.prestamo.idDeudor;
-      ref.invalidate(clienteDetalleProvider(idDeudor));
-      ref.invalidate(clientePaginationProvider);
-      ref.read(clientePaginationProvider.notifier).refresh();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Préstamo cancelado correctamente')),
+      );
     } else if (updated.errorMessage != null) {
-      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(updated.errorMessage!)),
       );
@@ -652,37 +600,12 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
 
     await ref
         .read(castigarPrestamoProvider.notifier)
-        .castigarPrestamo(detalle.idPrestamo, motivo);
+        .castigarPrestamo(detalle.idPrestamo, motivo, detalle);
 
     if (!mounted) return;
     final updated = ref.read(castigarPrestamoProvider);
     if (updated.isSuccess) {
-      try {
-        final service = ref.read(pdfReceiptServiceProvider);
-        final file = await service.generateCancelacionPdf(
-          detalle: detalle,
-          motivo: motivo,
-          montoDevuelto: 0,
-          tipo: 'castigo',
-          acreedorNombre: ref.read(accountProvider).name,
-        );
-        if (!mounted) return;
-        await SharePlus.instance.share(
-          ShareParams(
-            files: [XFile(file.path)],
-            text: 'Castigo de préstamo - ${detalle.nombreDeudor}',
-          ),
-        );
-      } catch (_) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Préstamo castigado correctamente')),
-        );
-      }
-      if (!mounted) return;
-      final repo = ref.read(clienteRepositoryProvider);
-      final tieneActivos = await repo.hasActiveLoans(detalle.prestamo.idDeudor);
-      if (!tieneActivos && mounted) {
+      if (updated.puedeInactivar) {
         final inactivar = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -708,11 +631,10 @@ class _PrestamoScreenState extends ConsumerState<PrestamoScreen> {
           );
         }
       }
-      ref.invalidate(prestamoDetalleProvider(_id));
-      final idDeudor = detalle.prestamo.idDeudor;
-      ref.invalidate(clienteDetalleProvider(idDeudor));
-      ref.invalidate(clientePaginationProvider);
-      ref.read(clientePaginationProvider.notifier).refresh();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Préstamo castigado correctamente')),
+      );
     } else if (updated.errorMessage != null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
