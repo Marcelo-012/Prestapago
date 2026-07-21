@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:prestapagos/config/errors/error_mapper.dart';
 import 'package:prestapagos/presentation/providers/providers.dart';
+import 'package:prestapagos/presentation/widgets/shared/notification_permission_dialog.dart';
 import 'package:prestapagos/presentation/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:workmanager/workmanager.dart';
 
 class ConfigurationView extends ConsumerStatefulWidget {
   const ConfigurationView({super.key});
@@ -71,8 +74,7 @@ class _ConfigurationViewState extends ConsumerState<ConfigurationView> {
                 trailing: account.isLinked
                     ? IconButton(
                         icon: const Icon(Icons.logout),
-                        onPressed: () =>
-                            ref.read(accountProvider.notifier).unlinkAccount(),
+                        onPressed: () => _confirmarUnlink(context),
                         tooltip: 'Desvincular',
                       )
                     : FilledButton.tonal(
@@ -101,6 +103,46 @@ class _ConfigurationViewState extends ConsumerState<ConfigurationView> {
                 subtitle: const Text('Modo claro/oscuro, esquema de color'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/ajustes/apariencia'),
+              ),
+              const SizedBox(height: 8),
+              _sectionHeader('NOTIFICACIONES', theme),
+              SwitchListTile(
+                secondary: const Icon(Icons.notifications_outlined),
+                title: const Text('Recordatorios de cuotas'),
+                subtitle: const Text('Recibe notificaciones de cuotas por vencer'),
+                value: ref.watch(notificacionesProvider) == NotificacionesEstado.enabled,
+                onChanged: (value) async {
+                  if (value) {
+                    final status = await Permission.notification.request();
+                    if (status.isGranted) {
+                      await ref.read(notificacionesProvider.notifier).aceptar();
+                      await Workmanager().registerPeriodicTask(
+                        'dailyReminder12pm',
+                        'dailyReminder',
+                        frequency: const Duration(hours: 24),
+                        initialDelay: const Duration(hours: 12),
+                        existingWorkPolicy:
+                            ExistingPeriodicWorkPolicy.replace,
+                      );
+                      await Workmanager().registerPeriodicTask(
+                        'dailyReminder5pm',
+                        'dailyReminder',
+                        frequency: const Duration(hours: 24),
+                        initialDelay: const Duration(hours: 17),
+                        existingWorkPolicy:
+                            ExistingPeriodicWorkPolicy.replace,
+                      );
+                    } else if (status.isPermanentlyDenied) {
+                      if (context.mounted) {
+                        await showGoToSettingsDialog(context);
+                      }
+                    }
+                  } else {
+                    await ref.read(notificacionesProvider.notifier).rechazar();
+                    await Workmanager().cancelByUniqueName('dailyReminder12pm');
+                    await Workmanager().cancelByUniqueName('dailyReminder5pm');
+                  }
+                },
               ),
               const SizedBox(height: 8),
               _sectionHeader('RESPALDO', theme),
@@ -163,5 +205,32 @@ class _ConfigurationViewState extends ConsumerState<ConfigurationView> {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmarUnlink(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Desvincular cuenta'),
+        content: const Text(
+          '¿Estás seguro de desvincular tu cuenta de Google? '
+          'Perderás el acceso a tus respaldos en la nube.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Desvincular'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      await ref.read(accountProvider.notifier).unlinkAccount();
+    }
   }
 }

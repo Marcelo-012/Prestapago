@@ -106,21 +106,26 @@ void main() async {
     existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
   );
 
-  await Workmanager().registerPeriodicTask(
-    'dailyReminder12pm',
-    'dailyReminder',
-    frequency: const Duration(hours: 24),
-    initialDelay: _delayUntil(12, 0),
-    existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
-  );
+  final notificationsEnabled =
+      prefs.getString('notificaciones_estado') == 'enabled';
 
-  await Workmanager().registerPeriodicTask(
-    'dailyReminder5pm',
-    'dailyReminder',
-    frequency: const Duration(hours: 24),
-    initialDelay: _delayUntil(17, 0),
-    existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
-  );
+  if (notificationsEnabled) {
+    await Workmanager().registerPeriodicTask(
+      'dailyReminder12pm',
+      'dailyReminder',
+      frequency: const Duration(hours: 24),
+      initialDelay: _delayUntil(12, 0),
+      existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
+    );
+
+    await Workmanager().registerPeriodicTask(
+      'dailyReminder5pm',
+      'dailyReminder',
+      frequency: const Duration(hours: 24),
+      initialDelay: _delayUntil(17, 0),
+      existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
+    );
+  }
 
   final backupFreq = localBackup.getBackupFrequency();
   if (backupFreq != 'Manual') {

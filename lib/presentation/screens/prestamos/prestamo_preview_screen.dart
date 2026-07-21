@@ -132,10 +132,11 @@ class PrestamoPreviewScreen extends ConsumerWidget {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.icon(
-                      onPressed: () => _crearPrestamo(
+                      onPressed: () => _confirmarCrear(
                         context,
                         ref,
                         formState,
+                        client,
                         amortizaciones,
                       ),
                       icon: const Icon(Icons.save),
@@ -211,6 +212,41 @@ class PrestamoPreviewScreen extends ConsumerWidget {
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );
+    }
+  }
+
+  Future<void> _confirmarCrear(
+    BuildContext context,
+    WidgetRef ref,
+    state,
+    client,
+    List amortizaciones,
+  ) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar préstamo'),
+        content: Text(
+          '¿Estás seguro de crear este préstamo a '
+          '${client?.nombre ?? '—'} por '
+          '\$${HumanFormats.monuted(state.monto.value)} a '
+          '${state.plazo.value} cuotas?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Crear préstamo'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      _crearPrestamo(context, ref, state, amortizaciones);
     }
   }
 }

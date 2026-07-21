@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:drift/drift.dart';
 
 import 'package:prestapagos/shared/shared.dart';
@@ -136,7 +138,7 @@ Future<void> seedDatabase(AppDatabase db) async {
         ConfiguracionPrestamosCompanion.insert(
           idPrestamo: i,
           tipoInteres: p.tipo,
-          estadoMoratorio: EstadoCliente.activo,
+          estadoMoratorio: EstadoMoratorio.activo,
           manejoExcedente: p.mEx,
           periodidadIntereses: PeriodicidadInteres.anual,
           estadoPrestamo: p.ePres,
@@ -283,6 +285,221 @@ Future<void> seedDatabase(AppDatabase db) async {
         }
         if (saldo < 0) saldo = 0;
       }
+    }
+  });
+
+  // ── NUEVOS DEUDORES (236 adicionales) ──
+  final nombres = [
+    'Juan','María','Carlos','Ana','Pedro','Laura','Diego','Sofía',
+    'Miguel','Carmen','Roberto','Lucía','Oscar','Elena','Fernando',
+    'Gabriela','Héctor','Isabel','Javier','Karla','Luis','Marta',
+    'Nicolás','Olga','Pablo','Raquel','Rafael','Silvia','Tomás',
+    'Úrsula','Víctor','Wendy','Xavier','Yolanda','Zacarías','Adrián',
+    'Beatriz','César','Diana','Emilio','Flora','Gustavo','Helena',
+    'Iván','Julia','Kevin','Liliana','Manuel','Nadia','Orlando',
+    'Patricia','Ramón','Sara','Teresa','Ulises','Valeria','William',
+  ];
+  final apellidos = [
+    'Pérez','García','López','Martínez','Sánchez','Rodríguez','Hernández',
+    'Ramírez','Torres','Flores','Díaz','Vargas','Mendoza','Rivas',
+    'Castillo','Morales','Ortiz','Reyes','Gutiérrez','Cruz','Jiménez',
+    'Ramos','Rivera','Romero','Moreno','Álvarez','Domínguez','Acosta',
+    'Delgado','Salazar','Molina','Navarro','Figueroa','Paredes','Medina',
+    'Aguilar','Cordero','Vega','Solís','Campos','Rojas','Cabrera','Peña',
+    'Padilla','Guerrero','Mejía','Calderón','Ibarra','Escobar','Valenzuela',
+    'Miranda','Soto','Carrillo','Vera','Ávila','Maldonado','Pineda',
+  ];
+  final rng = Random(123);
+
+  final nuevosPrestamos = <({
+    int idD,
+    double monto,
+    int plazo,
+    double tOrd,
+    double tMor,
+    TipoInteres tipo,
+    ManejoExcedente mEx,
+    EstadoPrestamo ePres,
+    int alDia,
+    int atras,
+    bool mora,
+    int fb,
+    bool marcar,
+  })>[];
+
+  for (int i = 0; i < 400; i++) {
+    final category = i ~/ 80;
+    final plazo = switch (category) {
+      0 => 6,
+      1 => 12,
+      2 => 24,
+      3 => [28, 30, 36, 48, 60][rng.nextInt(5)],
+      _ => [64, 72, 84, 96, 120][rng.nextInt(5)],
+    };
+    final idD = (i % 250) + 1;
+    final montoBase = switch (category) {
+      0 => 6000 + rng.nextDouble() * 9000,
+      1 => 6000 + rng.nextDouble() * 24000,
+      2 => 11000 + rng.nextDouble() * 39000,
+      3 => 16000 + rng.nextDouble() * 64000,
+      _ => 21000 + rng.nextDouble() * 79000,
+    };
+    final monto = (montoBase / 1000).round() * 1000.0;
+    final tOrd = 10.0 + rng.nextInt(11);
+    final tMor = 4.0 + rng.nextInt(3);
+    final tipo = rng.nextDouble() < 0.7 ? TipoInteres.compuesto : TipoInteres.simple;
+    final mEx = rng.nextDouble() < 0.7 ? ManejoExcedente.abonoCapital : ManejoExcedente.saldoFavor;
+
+    final stateRoll = rng.nextDouble();
+    int alDia, atras, fb;
+    bool mora, marcar;
+    EstadoPrestamo ePres;
+
+    if (stateRoll < 0.70) {
+      ePres = EstadoPrestamo.activo;
+      final paid = rng.nextInt((plazo < 8 ? plazo : 8)) + 1;
+      alDia = paid;
+      atras = 0;
+      mora = false;
+      fb = -(paid * 30 + rng.nextInt(5));
+      marcar = false;
+    } else if (stateRoll < 0.82) {
+      ePres = EstadoPrestamo.activo;
+      final total = plazo < 6 ? plazo : (rng.nextInt(plazo < 12 ? plazo - 3 : 10) + 3);
+      final onTime = rng.nextInt(total < 2 ? 1 : total ~/ 2) + 1;
+      alDia = onTime > total ? total : onTime;
+      atras = total - alDia;
+      mora = true;
+      fb = -(total * 30 + rng.nextInt(10));
+      marcar = true;
+    } else if (stateRoll < 0.90) {
+      ePres = EstadoPrestamo.finalizado;
+      alDia = plazo;
+      atras = 0;
+      mora = false;
+      fb = -(plazo * 30 + rng.nextInt(30) + 1);
+      marcar = false;
+    } else if (stateRoll < 0.95) {
+      ePres = EstadoPrestamo.atrasado;
+      final total = rng.nextInt(plazo < 8 ? plazo - 1 : 8) + 2;
+      final onTime = rng.nextInt(total ~/ 3) + 1;
+      alDia = onTime;
+      atras = total - onTime;
+      mora = true;
+      fb = -(total * 30 + rng.nextInt(5));
+      marcar = true;
+    } else {
+      ePres = rng.nextDouble() < 0.6 ? EstadoPrestamo.incobrable : EstadoPrestamo.cancelado;
+      final total = rng.nextInt(plazo < 8 ? plazo : 8) + 1;
+      alDia = total;
+      atras = 0;
+      mora = false;
+      fb = -(total * 30 + rng.nextInt(5));
+      marcar = false;
+    }
+
+    nuevosPrestamos.add((
+      idD: idD,
+      monto: monto,
+      plazo: plazo,
+      tOrd: tOrd,
+      tMor: tMor,
+      tipo: tipo,
+      mEx: mEx,
+      ePres: ePres,
+      alDia: alDia,
+      atras: atras,
+      mora: mora,
+      fb: fb,
+      marcar: marcar,
+    ));
+  }
+
+  await db.batch((batch) {
+    for (int i = 0; i < 236; i++) {
+      final id = 15 + i;
+      batch.insert(
+        db.deudores,
+        DeudoresCompanion.insert(
+          nombre: '${nombres[(i * 7) % nombres.length]} ${apellidos[(i * 13) % apellidos.length]}',
+          telefono: '5551${id.toString().padLeft(3, '0')}',
+          correoElectronico: Value('cliente$id@mail.com'),
+          direccion: 'Calle ${id % 100 + 1} #${id * 3}',
+          numeroIdentificacion: 'ID${100 + id}',
+          edad: 20 + (id % 45),
+          estado: EstadoCliente.activo,
+        ),
+      );
+    }
+
+    for (final p in nuevosPrestamos) {
+      final cuota = AmortizationCalculator.calcularCuota(
+        monto: p.monto,
+        tasaInteres: p.tOrd,
+        plazoMeses: p.plazo,
+        tipoInteres: p.tipo == TipoInteres.simple ? 'simple' : 'compuesto',
+        periodicidadIntereses: 'anual',
+      );
+      batch.insert(
+        db.prestamos,
+        PrestamosCompanion.insert(
+          idDeudor: p.idD,
+          tasaInteres: p.tOrd,
+          tasaMoratoria: p.tMor,
+          monto: p.monto,
+          plazoMeses: p.plazo,
+          montoCuota: cuota,
+        ),
+      );
+    }
+
+    for (int i = 0; i < 400; i++) {
+      final p = nuevosPrestamos[i];
+      batch.insert(
+        db.configuracionPrestamos,
+        ConfiguracionPrestamosCompanion.insert(
+          idPrestamo: 51 + i,
+          tipoInteres: p.tipo,
+          estadoMoratorio: EstadoMoratorio.activo,
+          manejoExcedente: p.mEx,
+          periodidadIntereses: PeriodicidadInteres.anual,
+          estadoPrestamo: p.ePres,
+        ),
+      );
+    }
+
+    for (int i = 0; i < 400; i++) {
+      if (nuevosPrestamos[i].ePres == EstadoPrestamo.finalizado) {
+        batch.insert(
+          db.scores,
+          ScoresCompanion.insert(
+            idPrestamo: Value(51 + i),
+            idDeudor: nuevosPrestamos[i].idD,
+            score: 100,
+          ),
+        );
+      }
+    }
+  });
+
+  // ── AMORTIZACIONES NUEVOS PRÉSTAMOS (400) ──
+  await db.transaction(() async {
+    for (int i = 0; i < 400; i++) {
+      final p = nuevosPrestamos[i];
+      await _generateAmortizaciones(
+        db,
+        51 + i,
+        p.plazo,
+        p.tOrd,
+        p.tMor,
+        p.monto,
+        p.tipo,
+        pagosAlDia: p.alDia,
+        pagosAtrasados: p.atras,
+        conMora: p.mora,
+        fechaBase: now.add(Duration(days: p.fb)),
+        marcarAtrasadosComoPendiente: p.marcar,
+      );
     }
   });
 }

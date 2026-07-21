@@ -44,7 +44,7 @@ class PrestamoPaginationState {
 class PrestamoPaginationNotifier extends Notifier<PrestamoPaginationState> {
   String _search = '';
   int _currentPage = 0;
-  static const int _pageSize = 10;
+  static const int _pageSize = 20;
 
   @override
   PrestamoPaginationState build() {

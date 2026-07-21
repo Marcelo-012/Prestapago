@@ -61,7 +61,7 @@ class ConfiguracionPrestamos extends Table {
       .unique()();
   TextColumn get tipoInteres => textEnum<TipoInteres>().named('tipo_interes')();
   TextColumn get estadoMoratorio =>
-      textEnum<EstadoCliente>().named('estado_moratorio')();
+      textEnum<EstadoMoratorio>().named('estado_moratorio')();
   TextColumn get manejoExcedente =>
       textEnum<ManejoExcedente>().named('manejo_excedente')();
   TextColumn get periodidadIntereses =>
@@ -116,7 +116,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   DriftDatabaseOptions get options =>
@@ -125,6 +125,10 @@ class AppDatabase extends _$AppDatabase {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
+      onCreate: (migrator) async {
+        await migrator.createAll();
+        await _createIndexes();
+      },
       onUpgrade: (migrator, from, to) async {
         if (from == 1) {
           await customStatement(
@@ -190,7 +194,33 @@ class AppDatabase extends _$AppDatabase {
           await customStatement("ALTER TABLE configuracion_prestamos ADD COLUMN motivo_castigo TEXT");
           await customStatement("ALTER TABLE configuracion_prestamos ADD COLUMN monto_perdido REAL NOT NULL DEFAULT 0");
         }
+        if (from <= 5) {
+          await _createIndexes();
+        }
       },
+    );
+  }
+
+  Future<void> _createIndexes() async {
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS idx_amortizaciones_id_prestamo '
+      'ON amortizaciones(id_prestamo)',
+    );
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS idx_amortizaciones_estado '
+      'ON amortizaciones(id_prestamo, estado_amortizacion)',
+    );
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS idx_prestamos_id_deudor '
+      'ON prestamos(id_deudor)',
+    );
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS idx_scores_id_deudor '
+      'ON scores(id_deudor)',
+    );
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS idx_config_prestamo_id '
+      'ON configuracion_prestamos(id_prestamo)',
     );
   }
 

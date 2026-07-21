@@ -27,7 +27,7 @@ class $DeudoresTable extends Deudores with TableInfo<$DeudoresTable, Deudore> {
     'nombre',
     aliasedName,
     false,
-    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 120),
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 45),
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
@@ -54,7 +54,7 @@ class $DeudoresTable extends Deudores with TableInfo<$DeudoresTable, Deudore> {
         true,
         additionalChecks: GeneratedColumn.checkTextLength(
           minTextLength: 1,
-          maxTextLength: 100,
+          maxTextLength: 60,
         ),
         type: DriftSqlType.string,
         requiredDuringInsert: false,
@@ -89,6 +89,7 @@ class $DeudoresTable extends Deudores with TableInfo<$DeudoresTable, Deudore> {
         ),
         type: DriftSqlType.string,
         requiredDuringInsert: true,
+        defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
       );
   static const VerificationMeta _edadMeta = const VerificationMeta('edad');
   @override
@@ -1525,7 +1526,7 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
         $ConfiguracionPrestamosTable.$convertertipoInteres,
       );
   @override
-  late final GeneratedColumnWithTypeConverter<EstadoCliente, String>
+  late final GeneratedColumnWithTypeConverter<EstadoMoratorio, String>
   estadoMoratorio =
       GeneratedColumn<String>(
         'estado_moratorio',
@@ -1533,7 +1534,7 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
         false,
         type: DriftSqlType.string,
         requiredDuringInsert: true,
-      ).withConverter<EstadoCliente>(
+      ).withConverter<EstadoMoratorio>(
         $ConfiguracionPrestamosTable.$converterestadoMoratorio,
       );
   @override
@@ -1826,9 +1827,9 @@ class $ConfiguracionPrestamosTable extends ConfiguracionPrestamos
 
   static JsonTypeConverter2<TipoInteres, String, String> $convertertipoInteres =
       const EnumNameConverter<TipoInteres>(TipoInteres.values);
-  static JsonTypeConverter2<EstadoCliente, String, String>
-  $converterestadoMoratorio = const EnumNameConverter<EstadoCliente>(
-    EstadoCliente.values,
+  static JsonTypeConverter2<EstadoMoratorio, String, String>
+  $converterestadoMoratorio = const EnumNameConverter<EstadoMoratorio>(
+    EstadoMoratorio.values,
   );
   static JsonTypeConverter2<ManejoExcedente, String, String>
   $convertermanejoExcedente = const EnumNameConverter<ManejoExcedente>(
@@ -1849,7 +1850,7 @@ class ConfiguracionPrestamo extends DataClass
   final int id;
   final int idPrestamo;
   final TipoInteres tipoInteres;
-  final EstadoCliente estadoMoratorio;
+  final EstadoMoratorio estadoMoratorio;
   final ManejoExcedente manejoExcedente;
   final PeriodicidadInteres periodidadIntereses;
   final EstadoPrestamo estadoPrestamo;
@@ -2021,7 +2022,7 @@ class ConfiguracionPrestamo extends DataClass
     int? id,
     int? idPrestamo,
     TipoInteres? tipoInteres,
-    EstadoCliente? estadoMoratorio,
+    EstadoMoratorio? estadoMoratorio,
     ManejoExcedente? manejoExcedente,
     PeriodicidadInteres? periodidadIntereses,
     EstadoPrestamo? estadoPrestamo,
@@ -2154,7 +2155,7 @@ class ConfiguracionPrestamosCompanion
   final Value<int> id;
   final Value<int> idPrestamo;
   final Value<TipoInteres> tipoInteres;
-  final Value<EstadoCliente> estadoMoratorio;
+  final Value<EstadoMoratorio> estadoMoratorio;
   final Value<ManejoExcedente> manejoExcedente;
   final Value<PeriodicidadInteres> periodidadIntereses;
   final Value<EstadoPrestamo> estadoPrestamo;
@@ -2183,7 +2184,7 @@ class ConfiguracionPrestamosCompanion
     this.id = const Value.absent(),
     required int idPrestamo,
     required TipoInteres tipoInteres,
-    required EstadoCliente estadoMoratorio,
+    required EstadoMoratorio estadoMoratorio,
     required ManejoExcedente manejoExcedente,
     required PeriodicidadInteres periodidadIntereses,
     required EstadoPrestamo estadoPrestamo,
@@ -2236,7 +2237,7 @@ class ConfiguracionPrestamosCompanion
     Value<int>? id,
     Value<int>? idPrestamo,
     Value<TipoInteres>? tipoInteres,
-    Value<EstadoCliente>? estadoMoratorio,
+    Value<EstadoMoratorio>? estadoMoratorio,
     Value<ManejoExcedente>? manejoExcedente,
     Value<PeriodicidadInteres>? periodidadIntereses,
     Value<EstadoPrestamo>? estadoPrestamo,
@@ -4769,7 +4770,7 @@ typedef $$ConfiguracionPrestamosTableCreateCompanionBuilder =
       Value<int> id,
       required int idPrestamo,
       required TipoInteres tipoInteres,
-      required EstadoCliente estadoMoratorio,
+      required EstadoMoratorio estadoMoratorio,
       required ManejoExcedente manejoExcedente,
       required PeriodicidadInteres periodidadIntereses,
       required EstadoPrestamo estadoPrestamo,
@@ -4785,7 +4786,7 @@ typedef $$ConfiguracionPrestamosTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> idPrestamo,
       Value<TipoInteres> tipoInteres,
-      Value<EstadoCliente> estadoMoratorio,
+      Value<EstadoMoratorio> estadoMoratorio,
       Value<ManejoExcedente> manejoExcedente,
       Value<PeriodicidadInteres> periodidadIntereses,
       Value<EstadoPrestamo> estadoPrestamo,
@@ -4850,7 +4851,7 @@ class $$ConfiguracionPrestamosTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<EstadoCliente, EstadoCliente, String>
+  ColumnWithTypeConverterFilters<EstadoMoratorio, EstadoMoratorio, String>
   get estadoMoratorio => $composableBuilder(
     column: $table.estadoMoratorio,
     builder: (column) => ColumnWithTypeConverterFilters(column),
@@ -5043,11 +5044,11 @@ class $$ConfiguracionPrestamosTableAnnotationComposer
         builder: (column) => column,
       );
 
-  GeneratedColumnWithTypeConverter<EstadoCliente, String> get estadoMoratorio =>
-      $composableBuilder(
-        column: $table.estadoMoratorio,
-        builder: (column) => column,
-      );
+  GeneratedColumnWithTypeConverter<EstadoMoratorio, String>
+  get estadoMoratorio => $composableBuilder(
+    column: $table.estadoMoratorio,
+    builder: (column) => column,
+  );
 
   GeneratedColumnWithTypeConverter<ManejoExcedente, String>
   get manejoExcedente => $composableBuilder(
@@ -5163,7 +5164,7 @@ class $$ConfiguracionPrestamosTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> idPrestamo = const Value.absent(),
                 Value<TipoInteres> tipoInteres = const Value.absent(),
-                Value<EstadoCliente> estadoMoratorio = const Value.absent(),
+                Value<EstadoMoratorio> estadoMoratorio = const Value.absent(),
                 Value<ManejoExcedente> manejoExcedente = const Value.absent(),
                 Value<PeriodicidadInteres> periodidadIntereses =
                     const Value.absent(),
@@ -5194,7 +5195,7 @@ class $$ConfiguracionPrestamosTableTableManager
                 Value<int> id = const Value.absent(),
                 required int idPrestamo,
                 required TipoInteres tipoInteres,
-                required EstadoCliente estadoMoratorio,
+                required EstadoMoratorio estadoMoratorio,
                 required ManejoExcedente manejoExcedente,
                 required PeriodicidadInteres periodidadIntereses,
                 required EstadoPrestamo estadoPrestamo,

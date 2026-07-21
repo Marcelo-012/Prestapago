@@ -40,7 +40,7 @@ class ClientePaginationState {
 class ClientePaginationNotifier extends Notifier<ClientePaginationState> {
   String _search = '';
   int _currentPage = 0;
-  static const int _pageSize = 10;
+  static const int _pageSize = 20;
 
   @override
   ClientePaginationState build() {

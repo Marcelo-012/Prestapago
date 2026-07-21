@@ -70,7 +70,7 @@ class PrestamoRepositoryImpl implements PrestamoRepository {
             drift.ConfiguracionPrestamosCompanion.insert(
               idPrestamo: idPrestamo,
               tipoInteres: TipoInteres.values.byName(dto.tipoInteres),
-              estadoMoratorio: EstadoCliente.values.byName(dto.estadoMoratorio),
+              estadoMoratorio: EstadoMoratorio.values.byName(dto.estadoMoratorio),
               manejoExcedente: ManejoExcedente.values.firstWhere(
                 (e) => e.value == dto.manejoExcedente,
               ),

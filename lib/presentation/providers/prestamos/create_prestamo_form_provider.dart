@@ -24,7 +24,7 @@ class PrestamoFormState {
     this.tasaInteresMoratoria = const OptionalNumber.pure(),
     this.montoCuota = const PositiveNumber.pure(),
     this.tipoInteres = 'compuesto',
-    this.estadoMoratorio = 'inactivo',
+    this.estadoMoratorio = 'activo',
     this.manejoExcedente = 'saldoFavor',
     this.periodidadIntereses = 'mensual',
   });
@@ -217,7 +217,7 @@ class CreatePrestamoFormNotifier extends Notifier<PrestamoFormState> {
     state = PrestamoFormState(
       selectedClient: state.selectedClient,
       tipoInteres: 'compuesto',
-      estadoMoratorio: 'inactivo',
+      estadoMoratorio: 'activo',
       manejoExcedente: 'saldoFavor',
       periodidadIntereses: 'mensual',
     );

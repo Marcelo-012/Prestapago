@@ -1,4 +1,5 @@
 export 'estado_cliente.dart';
+export 'estado_moratorio.dart';
 export 'estado_prestamo.dart';
 export 'estado_amortizacion.dart';
 export 'tipo_interes.dart';

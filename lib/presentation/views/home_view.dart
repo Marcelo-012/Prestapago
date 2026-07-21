@@ -1,16 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:prestapagos/domain/domain.dart';
 import 'package:prestapagos/presentation/providers/providers.dart';
+import 'package:prestapagos/presentation/widgets/shared/notification_permission_dialog.dart';
 
 import '../widgets/widgets.dart';
 
-class HomeView extends ConsumerWidget {
+class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends ConsumerState<HomeView> {
+  bool _asked = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _maybeAskNotification();
+  }
+
+  void _maybeAskNotification() {
+    if (_asked) return;
+    final estado = ref.read(notificacionesProvider);
+    if (estado != NotificacionesEstado.neverAsked) return;
+    _asked = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final acepto = await showNotificationPermissionDialog(context);
+      if (!mounted) return;
+      if (acepto == true) {
+        final status = await Permission.notification.request();
+        if (status.isGranted) {
+          await ref.read(notificacionesProvider.notifier).aceptar();
+        } else if (status.isPermanentlyDenied) {
+          await ref.read(notificacionesProvider.notifier).rechazar();
+          if (mounted) {
+            await showGoToSettingsDialog(context);
+          }
+        } else {
+          await ref.read(notificacionesProvider.notifier).rechazar();
+        }
+      } else {
+        await ref.read(notificacionesProvider.notifier).rechazar();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final cardHomeAsyncValue = ref.watch(reporteCardProvider);
     final homeDataAsyncValue = ref.watch(homeDataProvider);
 
